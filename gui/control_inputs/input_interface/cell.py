@@ -1,5 +1,6 @@
 import wx
 import os
+from gui.control_inputs import defs
 
 
 class BitmapImageCustom(wx.StaticBitmap):
@@ -27,29 +28,34 @@ class VariableImageCell(wx.BoxSizer):
     """
 
     def __init__(
-            self, parent, initial_state=True, two_state=True,
-            true_image_path=None, false_image_path=None, visible=True
+            self, parent, initial_checked_status=True, visible=True,
+            two_state=True, true_image_path=None, false_image_path=None,
+            *args, **kwargs
     ):
         super().__init__(wx.HORIZONTAL)
+        self.two_state = None
+
+        self.parent = parent
+        self.is_visible = visible
+
         self.image = list()
         self.true_image_address = None
         self.false_image_address = None
         self.two_state = two_state
-        self.is_visible = visible
-        self.parent = parent
+        print(self.two_state)
 
         self.true_state_image_set(path_to_file=true_image_path)
         self.false_state_image_set(path_to_file=false_image_path)
 
-        self.state = initial_state
+        self.checked = initial_checked_status
 
     @property
-    def state(self):
-        return self._state
+    def checked(self):
+        return self._checked
 
-    @state.setter
-    def state(self, new_state):
-        self._state = new_state
+    @checked.setter
+    def checked(self, new_state):
+        self._checked = new_state
         self.state_image_update()
 
     def _image_set(self, image_type, path):
@@ -76,7 +82,7 @@ class VariableImageCell(wx.BoxSizer):
                 if self.is_visible:
                     self.image[self.true_image_address].Show()
                     self.image[self.false_image_address].Show()
-                    if self.state:
+                    if self.checked:
                         self.image[self.false_image_address].Hide()
                     else:
                         self.image[self.true_image_address].Hide()
@@ -107,21 +113,113 @@ class VariableImageCell(wx.BoxSizer):
             self.hide()
 
 
-class Cell:
+class AppSpecificImageCell(VariableImageCell):
 
-    def __init__(self, parent, input_enable=False, initial_value=False, display=True, title=None, style=None):
-        wx.Image('xlSaF.png', wx.BITMAP_TYPE_PNG)
-        self.SetBitmap(wx.BitmapFromImage(Img))
+    def __init__(self, parent, is_input_indication=True, *args, **kwargs):
+        if is_input_indication:
+            img_true = './static/images/green_led_button_5.png'
+        else:
+            img_true = './static/images/red_led_button_5.png'
+        img_false = './static/images/disabled_button_5.png'
+        print('calling to super')
+        super().__init__(parent, true_image_path=img_true, false_image_path=img_false, *args, **kwargs)
+
+
+class CheckBoxCell(wx.BoxSizer):
+
+    def __init__(self, parent, initial_checked_status=True, visible=True, *args, **kwargs):
+        super().__init__(wx.HORIZONTAL)
+        print('called to checbkox cell')
+        self.checkbox = None
+
+        self.parent = parent
+        self.is_visible = visible
+
+        self.checkbox = wx.CheckBox(self.parent, *args, **kwargs)
+
+        self.checked = initial_checked_status
+        self.Add(self.checkbox)
+
+    @property
+    def checked(self):
+        return self._checked
+
+    @checked.setter
+    def checked(self, new_state):
+        self._checked = new_state
+        self.checkbox.SetValue(self._checked)
+
+    def hide(self):
+        self.checkbox.Hide()
+
+    def show(self):
+        # Just an alias to self.render()
+        self.render()
+
+    def render(self):
+        if self.checkbox is not None:
+            self.checkbox.Show()
+
+    @property
+    def is_visible(self):
+        return self._is_visible
+
+    @is_visible.setter
+    def is_visible(self, visible):
+        self._is_visible = visible
+        if self._is_visible:
+            self.show()
+        else:
+            self.hide()
+
+
+class Cell(wx.BoxSizer):
+
+    def __init__(self, *args, interface_type=defs.DISPLAY_INTERFACE, **kwargs):
+        super().__init__(wx.HORIZONTAL)
+        if interface_type == defs.DISPLAY_INTERFACE:
+            instance_class = AppSpecificImageCell
+        else:
+            instance_class = CheckBoxCell
+
+        self.cell_instance = instance_class(*args, **kwargs)
+        self.Add(self.cell_instance)
+
+    @property
+    def checked(self):
+        return self.cell_instance.checked
+
+    @checked.setter
+    def checked(self, new_state):
+        self.cell_instance.checked = new_state
+
+    def hide(self):
+        self.cell_instance.hide()
+
+    def show(self):
+        # Just an alias to self.render()
+        self.render()
+
+    def render(self):
+        self.cell_instance.render()
+
+    @property
+    def is_visible(self):
+        return self.cell_instance.is_visible
+
+    @is_visible.setter
+    def is_visible(self, visible):
+        self.cell_instance.is_visible = visible
 
 
 class SuperPanel(wx.Panel):
 
     def __init__(self, parent):
         super().__init__(parent=parent)
-        img_true = './static/images/red_led_button_5.png'
-        img_false = './static/images/disabled_button_5.png'
-        self.png1 = VariableImageCell(parent=self, true_image_path=img_true, false_image_path=img_false)
-        self.png1.render()
+        # self.png1 = AppSpecificImageCell(parent=self)
+        # self.png1.render()
+
+        self.cell = Cell(parent=self, interface_type=defs.INPUT_INTERFACE)
         # png2 = CellImage(parent=self, path_to_file='./static/images/green_led_button_5.png')
         # png3 = CellImage(parent=self, path_to_file='./static/images/disabled_button_5.png')
 
@@ -135,20 +233,21 @@ class SuperPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.on_show, self.show_button)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(self.png1)
+        # sizer.Add(self.png1)
+        sizer.Add(self.cell)
         # sizer.Add(png2)
         # sizer.Add(png3)
 
         self.SetSizer(sizer)
 
     def on_button(self, event):
-        self.png1.state = (not self.png1.state)
+        self.cell.checked = (not self.cell.checked)
 
     def on_hide(self, event):
-        self.png1.is_visible = False
+        self.cell.is_visible = False
 
     def on_show(self, event):
-        self.png1.is_visible = True
+        self.cell.is_visible = True
 
 
 def main():

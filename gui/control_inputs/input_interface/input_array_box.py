@@ -2,6 +2,7 @@ import wx
 import wx.grid
 from itertools import chain
 from gui.control_inputs import defs
+from gui.control_inputs.input_interface.cell import Cell
 import math
 
 
@@ -27,7 +28,7 @@ class InputArray(wx.BoxSizer):
     def __init__(
             self,
             parent,
-            iface_type=defs.INPUT_INTERFACE,
+            iface_type=defs.DISPLAY_INTERFACE,
             title=None,
             dimension=(1, 1),
             row_titles=None,
@@ -62,21 +63,16 @@ class InputArray(wx.BoxSizer):
         self.cell_titles = [
             '' for _ in range(self.rows_quantity * self.cols_quantity)
         ] if cell_titles is None else cell_titles
-        item_class = None
-        if iface_type == defs.DISPLAY_INTERFACE:
-            item_class = wx.RadioButton
-        elif iface_type == defs.INPUT_INTERFACE:
-            item_class = wx.CheckBox
-        if item_class is not None:
-            self.check_box_instance_matrix = [
-                [
-                    item_class(self.parent, label=self.cell_titles[i + j * self.cols_quantity], style=wx.RB_SINGLE)
-                    for i in range(self.cols_quantity)
-                ]
-                for j in range(self.rows_quantity)
+        self.check_box_instance_matrix = [
+            [
+                Cell(self.parent, interface_type=iface_type, label=self.cell_titles[i + j * self.cols_quantity])
+                # wx.CheckBox(self.parent, label=self.cell_titles[i + j * self.cols_quantity])
+                for i in range(self.cols_quantity)
             ]
-            print(self.check_box_instance_matrix)
-        self._input_interface_state_set(iface_type)
+            for j in range(self.rows_quantity)
+        ]
+        print(self.check_box_instance_matrix)
+        # self._input_interface_state_set(iface_type)
 
         self.title = title
         self.grid_render()
@@ -111,12 +107,13 @@ class InputArray(wx.BoxSizer):
                             self.check_box_instance_matrix[fxd_row_id][fxd_col_id],
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
                         )
-                        self.check_box_instance_matrix[fxd_row_id][fxd_col_id].SetValue(True)
+                        self.check_box_instance_matrix[fxd_row_id][fxd_col_id].checked = True
         static_box_sizer.Add(display_matrix)
         self.Add(static_box_sizer, 0)
 
     def _input_interface_state_set(self, state=defs.DISPLAY_INTERFACE):
-        checbox_iterable_list = list(chain.from_iterable(zip(*self.check_box_instance_matrix)))
+        pass
+        # checbox_iterable_list = list(chain.from_iterable(zip(*self.check_box_instance_matrix)))
         # for item in checbox_iterable_list:
             # item.DoEnable(False if state == defs.DISPLAY_INTERFACE else True)
 
@@ -133,13 +130,13 @@ class InputArray(wx.BoxSizer):
             for row in self.check_box_instance_matrix:
                 row_list = list()
                 for instance in row:
-                    row_list.append(instance.GetValue())
+                    row_list.append(instance.checked)
                 vals.append(row_list)
                 print(row_list)
         else:
             checbox_iterable_list = list(chain.from_iterable(self.check_box_instance_matrix))
             for checkbox in checbox_iterable_list:
-                instance = checkbox.GetValue()
+                instance = checkbox.checked
                 vals.append(instance)
             print(vals)
         print('-' * 35)
