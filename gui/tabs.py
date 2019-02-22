@@ -1,5 +1,5 @@
 import wx
-from gui.control_inputs.input_array_box import InputArray
+from gui.control_inputs.input_interface.input_array_box import InputArray
 import gui.control_inputs.defs as defs
 
 

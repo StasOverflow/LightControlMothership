@@ -46,8 +46,10 @@ class InputArray(wx.BoxSizer):
         self.row_titles = row_titles
         self.parent = parent
 
-        # In case table's rows or cols labels are not None, then we should:
-        #    create display display matrix one dimension larger then initial dimension
+        '''
+            In case table's rows or cols labels are not None, then we should create 
+            display display matrix one row or col larger then initial dimension
+        '''
         self.addit_row = self.zeroer(self.col_titles)
         self.addit_col = self.zeroer(self.row_titles)
         if self.addit_row:

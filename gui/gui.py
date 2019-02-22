@@ -1,10 +1,7 @@
 import wx
-import threading
 from .tabs import TwoSplitTab
 from .tabs import TopTab
-from .control_inputs.input_array_box import InputArray
-from .control_inputs.input_array_box import defs
-import sys
+from gui.control_inputs.input_interface.input_array_box import defs
 
 
 class _MainFrame(wx.Frame):

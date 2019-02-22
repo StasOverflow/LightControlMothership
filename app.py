@@ -19,7 +19,8 @@ class WxWidgCustomApp:
             This is where all important operations happen, like:
 
             -Among-thread data exchange
-            -Closing handler polling (where we can determine whether the app is running or should be closed
+            -Closing handler polling (where we determine whether
+                the app is running or about to be closed)
         """
         while True:
             input_vals = self.gui.main_frame.combined_inputs_states_get()
