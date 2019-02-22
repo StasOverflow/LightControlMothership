@@ -1,12 +1,6 @@
 import wx
 from gui.gui_sequences.base_tab import BaseTwoSplitTab
-
-
-class TopLeftPanel(wx.Panel):
-
-    def __init__(self, parent, color):
-        wx.Panel.__init__(self, parent)
-        self.SetBackgroundColour(color)
+from gui.gui_sequences.sub_tabs import TopLeftPanel
 
 
 class TopTab(BaseTwoSplitTab):

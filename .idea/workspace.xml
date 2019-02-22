@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89eab2f4-0de0-4d93-a2b7-e55f43d8ae5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/gui/control_inputs/input_matrix/cell/cell.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/control_inputs/input_interface/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/control_inputs/input_matrix/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/control_inputs/input_interface/cell.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/control_inputs/input_interface/input_array_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/control_inputs/input_matrix/input_array_box.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/tabs.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/gui_sequences/tabs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/gui_sequences/base_tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/gui_sequences/base_tab.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/gui_sequences/tabs.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/gui_sequences/tabs.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,8 +19,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/gui/gui_sequences/tabs.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="34">
-                  <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+                <state relative-caret-position="68">
+                  <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -32,11 +28,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/gui/gui_sequences/base_tab.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="496">
-                  <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
+                <state relative-caret-position="34">
+                  <caret line="2" column="53" lean-forward="true" selection-start-line="2" selection-start-column="53" selection-end-line="2" selection-end-column="53" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -56,11 +52,20 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="17">
-                  <caret line="1" column="49" selection-start-line="1" selection-start-column="49" selection-end-line="1" selection-end-column="49" />
+                <state relative-caret-position="34">
+                  <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/gui/gui_sequences/base_sub_tab.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="68">
+                  <caret line="4" column="27" lean-forward="true" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -101,18 +106,6 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/sample/__init__.py">
               <provider selected="true" editor-type-id="text-editor" />
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/sample/sample.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="238">
-                  <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
-                  <folding>
-                    <element signature="e#0#9#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
@@ -219,9 +212,10 @@
         <option value="$PROJECT_DIR$/gui/control_inputs/input_interface/app_cells.py" />
         <option value="$PROJECT_DIR$/gui/control_inputs/input_interface/cell.py" />
         <option value="$PROJECT_DIR$/gui/tabs.py" />
+        <option value="$PROJECT_DIR$/gui/gui_sequences/base_sub_tab.py" />
+        <option value="$PROJECT_DIR$/gui/gui_sequences/base_tab.py" />
         <option value="$PROJECT_DIR$/gui/gui_sequences/tabs.py" />
         <option value="$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py" />
-        <option value="$PROJECT_DIR$/gui/gui_sequences/base_tab.py" />
       </list>
     </option>
   </component>
@@ -246,34 +240,19 @@
             <path>
               <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
               <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
-              <item name="backend" type="462c0819:PsiDirectoryNode" />
+              <item name="gui" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
               <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
               <item name="gui" type="462c0819:PsiDirectoryNode" />
+              <item name="control_inputs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
               <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
               <item name="gui" type="462c0819:PsiDirectoryNode" />
               <item name="gui_sequences" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
-              <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
-              <item name="sample" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
-              <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="LightControlMothership" type="b2602c69:ProjectViewProjectNode" />
-              <item name="LightControlMothership" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -473,7 +452,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12961012" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12961012" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="0" sideWeight="0.49876085" weight="0.32827735" />
       <window_info anchor="bottom" id="Event Log" order="1" sideWeight="0.5012392" side_tool="true" weight="0.32908458" />
@@ -481,7 +460,7 @@
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Find" order="4" weight="0.32827735" />
       <window_info anchor="bottom" id="Version Control" order="5" />
-      <window_info active="true" anchor="bottom" id="Run" order="6" sideWeight="0.49876085" visible="true" weight="0.28169015" />
+      <window_info anchor="bottom" id="Run" order="6" sideWeight="0.49876085" visible="true" weight="0.28169015" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="9" weight="0.4" />
@@ -736,20 +715,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gui/gui_sequences/tabs.py">
+    <entry file="file://$PROJECT_DIR$/gui/gui_sequences/base_sub_tab.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="49" selection-start-line="1" selection-start-column="49" selection-end-line="1" selection-end-column="49" />
+        <state relative-caret-position="68">
+          <caret line="4" column="27" lean-forward="true" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -758,11 +727,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gui/gui_sequences/base_tab.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
+        <state relative-caret-position="34">
+          <caret line="2" column="53" lean-forward="true" selection-start-line="2" selection-start-column="53" selection-end-line="2" selection-end-column="53" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gui/gui_sequences/tabs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gui/gui_sequences/sub_tabs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
         </state>
       </provider>
     </entry>
