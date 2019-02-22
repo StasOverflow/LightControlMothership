@@ -2,9 +2,7 @@ import wx
 import wx.grid
 from itertools import chain
 from gui.control_inputs import defs
-from gui.control_inputs.input_interface.cell import Cell
-import math
-
+from gui.control_inputs.input_matrix.cell.cell import Cell
 
 PRINTIO = True
 

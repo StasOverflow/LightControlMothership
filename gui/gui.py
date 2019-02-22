@@ -1,7 +1,7 @@
 import wx
-from .tabs import TwoSplitTab
-from .tabs import TopTab
-from gui.control_inputs.input_interface.input_array_box import defs
+from gui.gui_sequences.tabs import BaseTwoSplitTab
+from gui.gui_sequences.tabs import TopTab
+from gui.control_inputs.input_matrix.input_array_box import defs
 
 
 class _MainFrame(wx.Frame):
@@ -38,7 +38,7 @@ class _MainFrame(wx.Frame):
         bottom_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         notebook = wx.Notebook(self.btm_canvas)
-        tab1 = TwoSplitTab(
+        tab1 = BaseTwoSplitTab(
                     parent=notebook,
                     iface_types=(defs.DISPLAY_INTERFACE, defs.INPUT_INTERFACE),
                     outlined=False,
@@ -46,9 +46,9 @@ class _MainFrame(wx.Frame):
                     right_panel_title='Setup:',
                     right_panel_button_title='Configure',
         )  # , (20, 20), None)
-        tab2 = TwoSplitTab(notebook)  # , (20, 20), None)
-        tab3 = TwoSplitTab(notebook)  # , (20, 20), None)
-        tab4 = TwoSplitTab(notebook)  # , (20, 20), None)
+        tab2 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
+        tab3 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
+        tab4 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
         notebook.AddPage(tab1, "Relay 1")
         notebook.AddPage(tab2, "Relay 2")
         notebook.AddPage(tab3, "Relay 3")

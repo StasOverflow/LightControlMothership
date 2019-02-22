@@ -1,16 +1,9 @@
 import wx
-from gui.control_inputs.input_interface.input_array_box import InputArray
-import gui.control_inputs.defs as defs
+from gui.control_inputs import defs
+from gui.control_inputs.input_matrix.input_array_box import InputArray
 
 
-class TopLeftPanel(wx.Panel):
-
-    def __init__(self, parent, color):
-        wx.Panel.__init__(self, parent)
-        self.SetBackgroundColour(color)
-
-
-class InnerPanel(wx.Panel):
+class BaseSubTab(wx.Panel):
 
     def __init__(self, parent, *args, **kwargs):
 
@@ -59,7 +52,7 @@ class InnerPanel(wx.Panel):
 
 
 # Define the tab content as classes:
-class TwoSplitTab(wx.Panel):
+class BaseTwoSplitTab(wx.Panel):
     def __init__(self, parent, *args, iface_types=(defs.INPUT_INTERFACE, defs.INPUT_INTERFACE), **kwargs):
         super().__init__(parent)
 
@@ -67,7 +60,6 @@ class TwoSplitTab(wx.Panel):
         self.top_page_splitter = wx.SplitterWindow(self, style=wx.SP_BORDER)
         self.top_page_splitter.SetSashInvisible(invisible=False)
 
-        # print('kwargos in two-tab are:', kwargs)
         self._left_panel_create(*args, iface_type=iface_types[0], **kwargs)
         self._right_panel_create(*args, iface_type=iface_types[1], **kwargs)
 
@@ -85,7 +77,7 @@ class TwoSplitTab(wx.Panel):
             self.left_panel_title = kwargs['left_panel_title']
             kwargs['style'] = wx.RAISED_BORDER
             kwargs['inner_title'] = self.left_panel_title
-        self.left_panel = InnerPanel(self.top_page_splitter, *args, **kwargs)
+        self.left_panel = BaseSubTab(self.top_page_splitter, *args, **kwargs)
 
     def _right_panel_create(self, *args, **kwargs):
         if 'right_panel_title' in kwargs:
@@ -95,13 +87,4 @@ class TwoSplitTab(wx.Panel):
 
         if 'right_panel_button_title' in kwargs:
             kwargs['button_title'] = kwargs['right_panel_button_title']
-        self.right_panel = InnerPanel(self.top_page_splitter, *args, **kwargs)
-
-
-class TopTab(TwoSplitTab):
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-
-    def _left_panel_create(self, *args, **kwargs):
-        self.left_panel = TopLeftPanel(self.top_page_splitter, 'blue')
+        self.right_panel = BaseSubTab(self.top_page_splitter, *args, **kwargs)
