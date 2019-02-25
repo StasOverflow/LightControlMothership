@@ -1,5 +1,5 @@
 import wx
-from gui.control_inputs.input_matrix.input_array_box import InputArray
+from gui.control_inputs.input_array_box import InputArray
 
 
 class BaseSubTab(wx.Panel):
@@ -34,7 +34,7 @@ class BaseSubTab(wx.Panel):
         if 'button_title' in kwargs:
             label = kwargs['button_title']
             if label is not None:
-                self.setup_button = wx.Button(parent=self, label=label, size=(90, 30))
+                self.setup_button = wx.Button(parent=self, label=label, size=(90, 27))
 
         # In this sequence we add elements (if they exists) to panel
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)

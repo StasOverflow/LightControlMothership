@@ -1,6 +1,5 @@
-import wx
-from gui.gui_sequences.base_tab import BaseTwoSplitTab
-from gui.gui_sequences.sub_tabs import TopLeftPanel
+from gui.gui_sequences.tabs_source.base_tab import BaseTwoSplitTab
+from gui.gui_sequences.tabs_source.sub_tabs import TopLeftPanel
 
 
 class TopTab(BaseTwoSplitTab):
@@ -9,7 +8,7 @@ class TopTab(BaseTwoSplitTab):
         super().__init__(parent, *args, **kwargs)
 
     def _left_panel_create(self, *args, **kwargs):
-        self.left_panel = TopLeftPanel(self.top_page_splitter, 'blue')
+        self.left_panel = TopLeftPanel(self.top_page_splitter)
 
 
 class BtmTab(BaseTwoSplitTab):

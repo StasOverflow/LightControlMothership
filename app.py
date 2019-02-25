@@ -9,7 +9,7 @@ class WxWidgCustomApp:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gui = GuiApp(size=(450, 480), title='Light Controller')
+        self.gui = GuiApp(size=(439, 520), title='Light Controller')
         self.comm_thread = ModbusThread(None, None)
         self.main_logic_thread = threading.Thread(target=self._main_logic_handler)
         self.main_logic_thread.daemon = True

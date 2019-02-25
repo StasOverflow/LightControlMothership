@@ -1,7 +1,8 @@
 import wx
 from gui.gui_sequences.tabs import BaseTwoSplitTab
 from gui.gui_sequences.tabs import TopTab
-from gui.control_inputs.input_matrix.input_array_box import defs
+from gui.control_inputs.input_array_box import defs
+from gui.gui_sequences.menu import MenuBarSequence
 
 
 class _MainFrame(wx.Frame):
@@ -11,7 +12,9 @@ class _MainFrame(wx.Frame):
         print('size is ', self.size)
         self.pos = (0, 0)
 
-        style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
+        self.super_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        style = wx.DEFAULT_FRAME_STYLE & ~wx.RESIZE_BORDER
         style = style ^ wx.MAXIMIZE_BOX
         wx.Frame.__init__(self, None,
                           title=title,
@@ -20,11 +23,13 @@ class _MainFrame(wx.Frame):
                           pos=self.pos)
 
         self.Center()
+        menu_bar = MenuBarSequence(parent=self)
 
         main_panel = wx.Panel(parent=self, size=self.size)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
         print(main_panel.GetBackgroundColour())
+
         # Top of the page sequence
         top_page_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.top_canvas = TopTab(parent=main_panel, iface_types=(defs.INPUT_INTERFACE, defs.DISPLAY_INTERFACE))
@@ -45,7 +50,7 @@ class _MainFrame(wx.Frame):
                     left_panel_title='Status:',
                     right_panel_title='Setup:',
                     right_panel_button_title='Configure',
-        )  # , (20, 20), None)
+        )
         tab2 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
         tab3 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
         tab4 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
@@ -68,16 +73,29 @@ class _MainFrame(wx.Frame):
 
         other_panel = wx.Panel(parent=main_panel)
 
-        # Second parameter in every main sizer adding action is a proportion value
-        #   for every element of the window
+        '''
+            Second parameter in every main_sizer.Add method call is a proportion
+            value for every element of the window
+        '''
         main_sizer.Add(top_page_sizer, 38,  wx.EXPAND)
         main_sizer.Add(self.btm_canvas, 48, wx.EXPAND | wx.CENTER)
         main_sizer.Add(other_panel, 3, wx.EXPAND | wx.CENTER)
+
         main_sizer.Layout()
         main_panel.SetSizer(main_sizer)
 
+        self.super_sizer.Add(main_sizer, wx.EXPAND)
+
+        self.SetMenuBar(menu_bar)
+        # self.SetSizer(self.super_sizer)
+
+        '''
+            Must be called after all items are set, according to doc files. 
+            If not, any items, initialized after calling SetMenuBar method
+            won't be rendered
+        '''
+
     def render(self):
-        print('showing panel')
         self.Show()
 
     def combined_inputs_states_get(self):
@@ -119,12 +137,11 @@ class GuiApp:
         """
         self.main_frame.render()
         self.application.MainLoop()
-        # self.frame.Destroy()
         self.close()
 
     def close(self):
         """
             Here we destroy all child widgets to our main frame widget
         """
+        # self.main_frame.Destroy()
         self.is_closing = True
-        # self.frame.Close()

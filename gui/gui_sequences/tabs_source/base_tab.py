@@ -1,6 +1,6 @@
 import wx
 from gui.control_inputs import defs
-from gui.gui_sequences.base_sub_tab import BaseSubTab
+from gui.gui_sequences.tabs_source.base_sub_tab import BaseSubTab
 
 
 # Define the tab content as classes:

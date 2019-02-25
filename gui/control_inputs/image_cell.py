@@ -41,7 +41,6 @@ class VariableImageCell(wx.BoxSizer):
         self.true_image_address = None
         self.false_image_address = None
         self.two_state = two_state
-        print(self.two_state)
 
         self.true_state_image_set(path_to_file=true_image_path)
         self.false_state_image_set(path_to_file=false_image_path)

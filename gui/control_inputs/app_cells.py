@@ -1,5 +1,5 @@
 import wx
-from gui.control_inputs.input_matrix.cell.image_cell import VariableImageCell
+from gui.control_inputs.image_cell import VariableImageCell
 
 
 class AppSpecificImageCell(VariableImageCell):

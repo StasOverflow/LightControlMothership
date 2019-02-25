@@ -1,7 +1,7 @@
 import wx
 from gui.control_inputs import defs
-from gui.control_inputs.input_matrix.cell.app_cells import AppSpecificImageCell
-from gui.control_inputs.input_matrix.cell.app_cells import CheckBoxCell
+from gui.control_inputs.app_cells import AppSpecificImageCell
+from gui.control_inputs.app_cells import CheckBoxCell
 
 
 class Cell(wx.BoxSizer):
@@ -47,12 +47,8 @@ class SuperPanel(wx.Panel):
 
     def __init__(self, parent):
         super().__init__(parent=parent)
-        # self.png1 = AppSpecificImageCell(parent=self)
-        # self.png1.render()
 
         self.cell = Cell(parent=self, interface_type=defs.INPUT_INTERFACE)
-        # png2 = CellImage(parent=self, path_to_file='./static/images/green_led_button_5.png')
-        # png3 = CellImage(parent=self, path_to_file='./static/images/disabled_button_5.png')
 
         self.button = wx.Button(parent=self, label='switch', pos=(40, 40))
 
@@ -64,10 +60,7 @@ class SuperPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.on_show, self.show_button)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        # sizer.Add(self.png1)
         sizer.Add(self.cell)
-        # sizer.Add(png2)
-        # sizer.Add(png3)
 
         self.SetSizer(sizer)
 
@@ -84,7 +77,7 @@ class SuperPanel(wx.Panel):
 def main():
 
     app = wx.App()
-    da_frame = wx.Frame(parent=None, title='Calculator')
+    da_frame = wx.Frame(parent=None, title='Test')
     da_panel = SuperPanel(parent=da_frame)
 
     da_panel.Centre()

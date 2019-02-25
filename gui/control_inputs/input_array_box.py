@@ -2,7 +2,7 @@ import wx
 import wx.grid
 from itertools import chain
 from gui.control_inputs import defs
-from gui.control_inputs.input_matrix.cell.cell import Cell
+from gui.control_inputs.cell import Cell
 
 PRINTIO = True
 
@@ -64,13 +64,11 @@ class InputArray(wx.BoxSizer):
         self.check_box_instance_matrix = [
             [
                 Cell(self.parent, interface_type=iface_type, label=self.cell_titles[i + j * self.cols_quantity])
-                # wx.CheckBox(self.parent, label=self.cell_titles[i + j * self.cols_quantity])
                 for i in range(self.cols_quantity)
             ]
             for j in range(self.rows_quantity)
         ]
-        print(self.check_box_instance_matrix)
-        # self._input_interface_state_set(iface_type)
+        # print(self.check_box_instance_matrix)
 
         self.title = title
         self.grid_render()
