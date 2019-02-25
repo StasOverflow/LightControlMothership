@@ -61,7 +61,7 @@ class VariableImageCell(wx.BoxSizer):
             instance = BitmapImageCustom(parent=self.parent, path_to_file=path)
             self.image.append(instance)
             index = self.image.index(instance)
-            if image_type:      # Actually looks like 'if image_type == True:'
+            if image_type:      # Actually should look like 'if image_type == True:'
                 self.true_image_address = index
             else:
                 self.false_image_address = index

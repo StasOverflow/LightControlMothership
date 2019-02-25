@@ -1,5 +1,6 @@
 import wx
-from gui.utils.labeled_values import LabeledVisualIFace, LabeledInputIFace
+from gui.utils.labeled_data import LabelValueSequence
+from gui.utils.label_types import *
 
 
 class ConnectButton(wx.BoxSizer):
@@ -21,11 +22,11 @@ class TopLeftPanel(wx.Panel):
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
         self.top_left_sizer_v = wx.BoxSizer(wx.VERTICAL)
 
-        self.status = LabeledVisualIFace(parent=self, label='Status')
-        self.port = LabeledVisualIFace(parent=self, label='Device port', initial_value='0')
-        self.slave_id = LabeledVisualIFace(parent=self, label='Slave ID')
-        self.rate = LabeledVisualIFace(parent=self, label='Refresh rate')
-        self.checkbox = LabeledInputIFace(parent=self, label='Show unused')
+        self.status = LabelValueSequence(parent=self, label='Status', interface=LABELED_LABEL)
+        self.port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
+        self.slave_id = LabelValueSequence(parent=self, label='Slave ID', interface=LABELED_SPIN_CONTROL)
+        self.rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
+        self.checkbox = LabelValueSequence(parent=self, label='Show unused', interface=LABELED_CHECK_BOX)
 
         self.conn_button = ConnectButton(parent=self)
 
