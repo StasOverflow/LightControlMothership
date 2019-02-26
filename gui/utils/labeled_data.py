@@ -49,7 +49,7 @@ class _RightColumnChoice(wx.BoxSizer):
         if self.port_getter_method is not None and callable(self.port_getter_method):
             self.choices_data = self.port_getter_method()
 
-    # @execute_every
+    @execute_every
     def update_choices(self):
         self.data_spectial_setter()
         if self.choicer.GetItems() != self.choices_data:
