@@ -4,7 +4,8 @@ from gui.gui_sequences.menu_source.dialog import SettingsDialog
 
 class MenuBarSequence(wx.MenuBar):
 
-    def __init__(self, parent):
+    def __init__(self, parent=None, label=None, *args, **kwargs):
+        print(parent)
         super().__init__()
 
         self.parent = parent
@@ -18,13 +19,13 @@ class MenuBarSequence(wx.MenuBar):
         self.Append(self.connection_menu, 'Settings')
         self.Append(self.help_menu, 'Help')
 
+        self.dialog_window = SettingsDialog(title='Connection setup', **kwargs)
+
         parent.Bind(wx.EVT_MENU, self.on_click_conn, self.connect)
 
     def on_click_conn(self, event):
-
-        cdDialog = SettingsDialog(None, title='Change Color Depth')
-        cdDialog.ShowModal()
-        cdDialog.Destroy()
+        self.dialog_window.ShowModal()
+        self.dialog_window.Close()
 
 
 def main():

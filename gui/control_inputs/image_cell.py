@@ -21,9 +21,9 @@ class VariableImageCell(wx.BoxSizer):
         Image can be changed by changing state of a Cell
 
         Because this class is subclassed from wx.BoxSizer, i think it would
-        be reasonable to 'Add' its child elements to itself:
+        be reasonable to '.Add' its child elements to itself:
             methods 'true_state_image_set' and 'false_state_image_set' are
-            used for that purpose, instead of 'Add'-ing directly
+            used for that purpose, instead of '.Add'ing directly
     """
 
     def __init__(

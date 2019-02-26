@@ -79,6 +79,7 @@ class InputArray(wx.BoxSizer):
             static_box_sizer = wx.StaticBoxSizer(static_box, wx.HORIZONTAL)
         else:
             static_box_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
         display_matrix = wx.GridSizer(0)
         display_matrix.SetHGap(15)
         display_matrix.SetVGap(15)

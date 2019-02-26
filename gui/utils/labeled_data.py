@@ -1,6 +1,7 @@
 import os
 import wx
 from gui.utils.label_types import *
+from gui.utils.utils import execute_every
 
 
 class _RightColumnLabel(wx.StaticText):
@@ -15,32 +16,95 @@ class _RightColumnCheckbox(wx.CheckBox):
         super(_RightColumnCheckbox, self).__init__(*args, parent=parent, label='', **kwargs)
 
 
-class _RightColumnChoice(wx.Choice):
+class _RightColumnChoice(wx.BoxSizer):
     
-    def __init__(self, *args, parent=None, **kwargs):
-        super(_RightColumnChoice, self).__init__(*args, parent=parent, **kwargs)
+    def __init__(self, *args, parent=None, label=None, port_getter_method=None, size=None, **kwargs):
+
+        super().__init__(wx.HORIZONTAL)
+
+        self.choices_data = None
+        self.port_getter_method = port_getter_method
+        self.data_spectial_setter()
+
+        self.choicer = wx.Choice(parent, size=(71, -1), choices=self.choices_data, **kwargs)
+        self.choicer.SetLabel(self.choices_data[0])
+        self.choicer.SetSelection(0)
+
+        self.Add(self.choicer, 0, wx.LEFT, 0)
+
+        self.update_choices()
+
+    @property
+    def choices_data(self):
+        if self._choices_data is not None:
+            return self._choices_data
+        else:
+            return ['Sample 1', 'Sample 2']
+
+    @choices_data.setter
+    def choices_data(self, choices):
+        self._choices_data = choices
+
+    def data_spectial_setter(self):
+        if self.port_getter_method is not None and callable(self.port_getter_method):
+            self.choices_data = self.port_getter_method()
+
+    @execute_every
+    def update_choices(self):
+            self.data_spectial_setter()
+            if self.choicer.GetItems() != self.choices_data:
+                pass
+                self.choicer.Clear()
+                self.choicer.Append(self.choices_data)
 
 
 class _RightColumnSpinCtrl(wx.BoxSizer):
 
-    def __init__(self, *args, parent=None, label=None, size=None, **kwargs):
+    def __init__(
+            self,
+            *args,
+            parent=None,
+            label=None,
+            size=None,
+            button_required=True,
+            style=None,
+            **kwargs
+    ):
         super().__init__(wx.HORIZONTAL)
-        self.spin = wx.SpinCtrl(*args, parent=parent, size=(40, -1), **kwargs)
+        self.spin = wx.SpinCtrl(
+                        *args,
+                        parent=parent,
+                        size=(47 + 25*(not button_required), -1),
+                        style=wx.TE_LEFT,
+                        **kwargs)
+        self.Add(self.spin, 0, wx.LEFT)
 
-        self.button = wx.Button(parent=parent, *args, **kwargs, size=(25, 24))
+        if button_required:
+            self.button = wx.Button(*args, parent=parent, size=(25, 24), **kwargs)
 
-        path_to_file = './static/images/arrow_5.png'
-        if os.path.isfile(path_to_file):
-            self.image = wx.Image(path_to_file, wx.BITMAP_TYPE_PNG)
-            self.image = self.image.ConvertToBitmap()
-        else:
-            raise FileNotFoundError
-        self.button.SetBitmap(self.image, wx.LEFT)
-        self.button.SetBitmapMargins((2, 2))  # default is 4 but that seems too big to me.
+            path_to_file = './static/images/arrow_5.png'
+            if os.path.isfile(path_to_file):
+                self.image = wx.Image(path_to_file, wx.BITMAP_TYPE_PNG)
+                self.image = self.image.ConvertToBitmap()
+            else:
+                raise FileNotFoundError
+            self.button.SetBitmap(self.image, wx.LEFT)
+            self.button.SetBitmapMargins((2, 2))  # default is 4 but that seems too big to me.
 
-        self.Add(self.spin)
-        self.Add(self.button)
+            self.Add(self.button)
 
+
+class _RightColumnTextInput(wx.BoxSizer):
+
+    def __init__(self, *args, parent=None, label=None, size=None, style=None, **kwargs):
+        super().__init__(wx.HORIZONTAL)
+
+        self.text_field = wx.TextCtrl(parent=parent, size=(71, 20), style=wx.TE_LEFT, **kwargs)
+        self.Add(self.text_field, 0, wx.ALIGN_RIGHT, 2)
+    #
+    # hbox1.Add(self.t1, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.ALL, 5)
+    # self.t1.Bind(wx.EVT_TEXT, self.OnKeyTyped)
+    # vbox.Add(hbox1)
 
 class LabelValueSequence(wx.BoxSizer):
 
@@ -49,6 +113,7 @@ class LabelValueSequence(wx.BoxSizer):
         LABELED_CHECK_BOX: _RightColumnCheckbox,
         LABELED_CHOICE_BOX: _RightColumnChoice,
         LABELED_SPIN_CONTROL: _RightColumnSpinCtrl,
+        LABELED_TEXT_INPUT: _RightColumnTextInput,
     }
 
     def __init__(self, label, *args, parent=None, initial_value='None', margin=3, interface=LABELED_LABEL, **kwargs):
@@ -79,7 +144,11 @@ class LabelValueSequence(wx.BoxSizer):
         label_margin = self.margin
         value_margin = self.margin
 
-        if interface == LABELED_SPIN_CONTROL:
+        if (
+                interface == LABELED_SPIN_CONTROL
+                or interface == LABELED_CHOICE_BOX
+                or interface == LABELED_TEXT_INPUT
+        ):
             sizer = wx.BoxSizer(wx.HORIZONTAL)
             sizer.Add(self.label, 0, wx.TOP, 3)
             self.label = sizer
