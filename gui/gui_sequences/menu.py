@@ -19,13 +19,15 @@ class MenuBarSequence(wx.MenuBar):
         self.Append(self.connection_menu, 'Settings')
         self.Append(self.help_menu, 'Help')
 
-        self.dialog_window = SettingsDialog(title='Connection setup', **kwargs)
+        self.dialog_window = None
 
         parent.Bind(wx.EVT_MENU, self.on_click_conn, self.connect)
 
     def on_click_conn(self, event):
+        self.dialog_window = SettingsDialog(title='Connection setup')
         self.dialog_window.ShowModal()
         self.dialog_window.Close()
+        self.dialog_window.Destroy()
 
 
 def main():

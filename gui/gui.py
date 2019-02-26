@@ -62,7 +62,7 @@ class _MainFrame(wx.Frame):
         '''
             Here goes a very important line of a code, setting notebook
             item's color to default window color instead of white color,
-            chosen as is
+            chosen by default, when creating widget
         '''
         notebook.SetOwnBackgroundColour((240, 240, 240, 255))
 

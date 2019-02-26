@@ -6,7 +6,6 @@ from gui.utils.labeled_data import LabelValueSequence
 class SettingsDialog(wx.Dialog):
 
     def __init__(self, *args, parent=None, title=None, **kwargs):
-        print(kwargs)
         getter_method = None
         if 'port_getter_method' in kwargs:
             getter_method = kwargs.pop('port_getter_method')
