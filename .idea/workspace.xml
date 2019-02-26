@@ -5,11 +5,7 @@
     <bookmark url="file://$PROJECT_DIR$/gui/gui_sequences/tabs_source/sub_tabs.py" line="26" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89eab2f4-0de0-4d93-a2b7-e55f43d8ae5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/utils/labeled_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/utils/labeled_data.py" afterDir="false" />
-    </list>
+    <list default="true" id="89eab2f4-0de0-4d93-a2b7-e55f43d8ae5f" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -572,12 +568,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12328767" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12328767" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="0" sideWeight="0.49876085" visible="true" weight="0.32827735" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="0" sideWeight="0.49876085" visible="true" weight="0.32827735" />
       <window_info anchor="bottom" id="Event Log" order="1" sideWeight="0.5012392" side_tool="true" weight="0.32908458" />
       <window_info anchor="bottom" id="Python Console" order="2" />
       <window_info anchor="bottom" id="Message" order="3" />
