@@ -22,7 +22,7 @@ class CheckBoxCell(wx.BoxSizer):
         self.parent = parent
         self.is_visible = visible
 
-        self.checkbox = wx.CheckBox(self.parent, *args, **kwargs)
+        self.checkbox = wx.CheckBox(self.parent, *args)
 
         self.checked = initial_checked_status
         self.Add(self.checkbox)

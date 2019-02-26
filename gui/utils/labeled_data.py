@@ -51,11 +51,12 @@ class _RightColumnChoice(wx.BoxSizer):
 
     @execute_every
     def update_choices(self):
-        self.data_spectial_setter()
-        if self.choicer.GetItems() != self.choices_data:
-            pass
-            self.choicer.Clear()
-            self.choicer.Append(self.choices_data)
+        if self.choicer:
+            self.data_spectial_setter()
+            if self.choicer.GetItems() != self.choices_data:
+                pass
+                self.choicer.Clear()
+                self.choicer.Append(self.choices_data)
 
 
 class _RightColumnSpinCtrl(wx.BoxSizer):
@@ -101,10 +102,7 @@ class _RightColumnTextInput(wx.BoxSizer):
 
         self.text_field = wx.TextCtrl(parent=parent, size=(71, 20), style=wx.TE_LEFT, **kwargs)
         self.Add(self.text_field, 0, wx.ALIGN_RIGHT, 2)
-    #
-    # hbox1.Add(self.t1, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.ALL, 5)
-    # self.t1.Bind(wx.EVT_TEXT, self.OnKeyTyped)
-    # vbox.Add(hbox1)
+
 
 class LabelValueSequence(wx.BoxSizer):
 

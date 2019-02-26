@@ -1,8 +1,8 @@
 import wx
-from gui.gui_sequences.tabs import BaseTwoSplitTab
-from gui.gui_sequences.tabs import TopTab
+from gui.gui_sequences.tabs.tabs import BaseTwoSplitTab
+from gui.gui_sequences.tabs.tabs import TopTab, BtmTab
 from gui.control_inputs.input_array_box import defs
-from gui.gui_sequences.menu import MenuBarSequence
+from gui.gui_sequences.menu.menu import MenuBarSequence
 
 
 class _MainFrame(wx.Frame):
@@ -43,17 +43,11 @@ class _MainFrame(wx.Frame):
         bottom_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         notebook = wx.Notebook(self.btm_canvas)
-        tab1 = BaseTwoSplitTab(
-                    parent=notebook,
-                    iface_types=(defs.DISPLAY_INTERFACE, defs.INPUT_INTERFACE),
-                    outlined=False,
-                    left_panel_title='Status:',
-                    right_panel_title='Setup:',
-                    right_panel_button_title='Configure',
-        )
-        tab2 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
-        tab3 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
-        tab4 = BaseTwoSplitTab(notebook)  # , (20, 20), None)
+        tab1 = BtmTab(parent=notebook)
+        tab2 = BtmTab(parent=notebook)
+        tab3 = BtmTab(parent=notebook)
+        tab4 = BtmTab(parent=notebook)
+
         notebook.AddPage(tab1, "Relay 1")
         notebook.AddPage(tab2, "Relay 2")
         notebook.AddPage(tab3, "Relay 3")

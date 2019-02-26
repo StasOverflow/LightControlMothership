@@ -26,7 +26,7 @@ class InputArray(wx.BoxSizer):
     def __init__(
             self,
             parent,
-            iface_type=defs.DISPLAY_INTERFACE,
+            interface=defs.INPUT_INTERFACE,
             title=None,
             dimension=(1, 1),
             row_titles=None,
@@ -63,7 +63,7 @@ class InputArray(wx.BoxSizer):
         ] if cell_titles is None else cell_titles
         self.check_box_instance_matrix = [
             [
-                Cell(self.parent, interface_type=iface_type, label=self.cell_titles[i + j * self.cols_quantity])
+                Cell(self.parent, interface_type=interface, label=self.cell_titles[i + j * self.cols_quantity], **kwargs)
                 for i in range(self.cols_quantity)
             ]
             for j in range(self.rows_quantity)
