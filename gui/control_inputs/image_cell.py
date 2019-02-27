@@ -33,16 +33,19 @@ class VariableImageCell(wx.BoxSizer):
     ):
         super().__init__(wx.HORIZONTAL)
         self.two_state = None
-        self.is_visible = False
 
         self.parent = parent
+        self.is_visible = visible
 
-        self.image = None
+        self.image = list()
         self.true_image_address = true_image_path
-        self.false_image_address = false_image_path
+        self.false_image_address = None
+        self.two_state = two_state
+
+        self.true_state_image_set(path_to_file=true_image_path)
+        self.false_state_image_set(path_to_file=false_image_path)
 
         self.checked = initial_checked_status
-        self.is_visible = True
 
     @property
     def checked(self):
@@ -53,22 +56,38 @@ class VariableImageCell(wx.BoxSizer):
         self._checked = new_state
         self.state_image_update()
 
-    def state_image_update(self):
-        if self.true_image_address is not None and self.false_image_address is not None:
-            if self.is_visible:
-                if self.checked:
-                    path = self.true_image_address
-                else:
-                    path = self.false_image_address
-
-                if self.image:
-                    self.image.Destroy()
-                self.image = BitmapImageCustom(parent=self.parent, path_to_file=path)
-                self.Add(self.image)
-                self.Layout()
+    def _image_set(self, image_type, path):
+        if path is not None:
+            instance = BitmapImageCustom(parent=self.parent, path_to_file=path)
+            self.image.append(instance)
+            index = self.image.index(instance)
+            if image_type:      # Actually should look like 'if image_type == True:'
+                self.true_image_address = index
             else:
-                if self.image:
-                    self.image.Destroy()
+                self.false_image_address = index
+            self.image[index].Hide()
+            self.Add(self.image[index])
+
+    def true_state_image_set(self, path_to_file=None):
+        self._image_set(True, path_to_file)
+
+    def false_state_image_set(self, path_to_file=None):
+        self._image_set(False, path_to_file)
+
+    def state_image_update(self):
+        if self.two_state:
+            if self.true_image_address is not None and self.false_image_address is not None:
+                if self.is_visible:
+                    self.image[self.true_image_address].Show()
+                    self.image[self.false_image_address].Show()
+                    if self.checked:
+                        self.image[self.false_image_address].Hide()
+                    else:
+                        self.image[self.true_image_address].Hide()
+            self.Layout()
+        else:
+            pass
+            # implement behavior where we determine if we have at least one image set up and render it
 
     def hide(self):
         self.ShowItems(False)
