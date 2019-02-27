@@ -4,7 +4,7 @@ import threading
 from backend.ports.ports import serial_ports
 from backend.modbus.modbus import ModbusThread
 from gui.gui import GuiApp
-from settings import Settings
+from settings import Settings, ApplicationState
 
 
 class WxWidgCustomApp:
@@ -18,6 +18,7 @@ class WxWidgCustomApp:
         )
 
         self.app_settings = Settings()
+        self.app_state = ApplicationState()
 
         self.port_list = None
 
@@ -41,13 +42,18 @@ class WxWidgCustomApp:
             time.sleep(0.1)
 
     def _layout_thread_handler(self):
-        sets_prev = None
+        settings_prev = None
+        state = False
         while True:
             sets = self.app_settings.__str__()
-            if sets_prev != sets:
-                sets_prev = sets
-                self.gui.main_frame.update()
-            time.sleep(0.1)
+            state = not state
+            if settings_prev != sets:
+                settings_prev = sets
+                self.gui.main_frame.settings_update()
+            # if state_prev != state:
+            #     state_prev = state
+            self.gui.main_frame.state_update(state)
+            time.sleep(0.2)
 
     def _main_logic_handler(self):
         """

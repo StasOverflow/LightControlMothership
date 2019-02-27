@@ -46,8 +46,8 @@ class InputArray(wx.BoxSizer):
         self.parent = parent
 
         '''
-            In case table's rows or cols labels are not None, then we should create 
-            display display matrix one row or col larger then initial dimension
+            In case table's rows or cols labels are not None, we create 
+            display matrix one row or(and) col larger then initial dimension
         '''
         self.addit_row = self.zeroer(self.col_titles)
         self.addit_col = self.zeroer(self.row_titles)
@@ -61,13 +61,19 @@ class InputArray(wx.BoxSizer):
         self.cell_titles = [
             '' for _ in range(self.rows_quantity * self.cols_quantity)
         ] if cell_titles is None else cell_titles
+
+        self.instance_array = [
+            Cell(
+                self.parent, interface_type=interface,
+                label=self.cell_titles[i],
+                **kwargs
+            ) for i in range(self.cols_quantity * self.rows_quantity)
+        ]
+
         self.check_box_instance_matrix = [
             [
-                Cell(
-                    self.parent, interface_type=interface,
-                    label=self.cell_titles[i + j * self.cols_quantity],
-                    **kwargs
-                ) for i in range(self.cols_quantity)
+                self.instance_array[i + j * self.cols_quantity]
+                for i in range(self.cols_quantity)
             ]
             for j in range(self.rows_quantity)
         ]
@@ -109,18 +115,6 @@ class InputArray(wx.BoxSizer):
                         )
         static_box_sizer.Add(display_matrix)
         self.Add(static_box_sizer, 0)
-
-    def _input_interface_state_set(self, state=defs.DISPLAY_INTERFACE):
-        pass
-        # checbox_iterable_list = list(chain.from_iterable(zip(*self.check_box_instance_matrix)))
-        # for item in checbox_iterable_list:
-            # item.DoEnable(False if state == defs.DISPLAY_INTERFACE else True)
-
-    def input_interface_enable(self):
-        self._input_interface_state_set(state=defs.INPUT_INTERFACE)
-
-    def input_interface_disable(self):
-        self._input_interface_state_set(state=defs.DISPLAY_INTERFACE)
 
     def values_get(self, as_matrix=False):
         vals = list()

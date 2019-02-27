@@ -43,3 +43,13 @@ class Settings(metaclass=_Singleton):
                  '{\"slave_id\": ' + str(self.slave_id) + '},' + \
                  '{\"refresh_rate\": ' + str(self.refresh_rate) + '},'
         return pretty
+
+
+class ApplicationState(metaclass=_Singleton):
+
+    def __init__(self):
+        self.displayed_relay_matrix = [False if x % 2 == 0 else True for x in range(15)]
+
+    def __str__(self):
+        pretty = self.displayed_relay_matrix
+        return pretty

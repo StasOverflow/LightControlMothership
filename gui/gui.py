@@ -46,15 +46,15 @@ class _MainFrame(wx.Frame):
         bottom_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         notebook = wx.Notebook(self.btm_canvas)
-        tab1 = BtmTab(parent=notebook)
-        tab2 = BtmTab(parent=notebook)
-        tab3 = BtmTab(parent=notebook)
-        tab4 = BtmTab(parent=notebook)
+        self.bottom_tab1 = BtmTab(parent=notebook)
+        self.bottom_tab2 = BtmTab(parent=notebook)
+        self.bottom_tab3 = BtmTab(parent=notebook)
+        self.bottom_tab4 = BtmTab(parent=notebook)
 
-        notebook.AddPage(tab1, "Relay 1")
-        notebook.AddPage(tab2, "Relay 2")
-        notebook.AddPage(tab3, "Relay 3")
-        notebook.AddPage(tab4, "Relay 4")
+        notebook.AddPage(self.bottom_tab1, "Relay 1")
+        notebook.AddPage(self.bottom_tab2, "Relay 2")
+        notebook.AddPage(self.bottom_tab3, "Relay 3")
+        notebook.AddPage(self.bottom_tab4, "Relay 4")
 
         '''
             Here goes a very important line of a code, setting notebook
@@ -91,9 +91,9 @@ class _MainFrame(wx.Frame):
         self.SetMenuBar(self.menu_bar)
         # self.SetSizer(self.super_sizer)
 
-    def update(self):
+    def settings_update(self):
         """
-            Update certain canvas values, specified inside this method
+            Update settings canvas values, specified inside
 
             Yet unspecified:
                 self.top_canvas.left_panel.status.value
@@ -102,8 +102,9 @@ class _MainFrame(wx.Frame):
         self.top_canvas.left_panel.device_port.value = self.settings.device_port
         self.top_canvas.left_panel.slave_id.value = self.settings.slave_id
         self.top_canvas.left_panel.refresh_rate.value = self.settings.refresh_rate
-        print('updating')
-        pass
+
+    def state_update(self, state):
+        self.bottom_tab1.left_panel.checkbox_matrix.check_box_instance_matrix[0][3].checked = state
 
     def render(self):
         self.Show()
