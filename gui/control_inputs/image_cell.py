@@ -65,8 +65,8 @@ class VariableImageCell(wx.BoxSizer):
                 self.true_image_address = index
             else:
                 self.false_image_address = index
-            self.image[index].Hide()
             self.Add(self.image[index])
+            self.image[index].Hide()
 
     def true_state_image_set(self, path_to_file=None):
         self._image_set(True, path_to_file)
@@ -90,14 +90,17 @@ class VariableImageCell(wx.BoxSizer):
             # implement behavior where we determine if we have at least one image set up and render it
 
     def hide(self):
-        self.ShowItems(False)
+        if self:
+            self.ShowItems(False)
 
     def show(self):
         # Just an alias to self.render()
-        self.render()
+        if self:
+            self.render()
 
     def render(self):
-        self.state_image_update()
+        if self:
+            self.state_image_update()
 
     @property
     def is_visible(self):

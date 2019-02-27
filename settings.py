@@ -48,8 +48,11 @@ class Settings(metaclass=_Singleton):
 class ApplicationState(metaclass=_Singleton):
 
     def __init__(self):
-        self.displayed_relay_matrix = [False if x % 2 == 0 else True for x in range(15)]
+        self.input_shown_tab1 = [False if x % 2 == 0 else True for x in range(15)]
+        self.input_shown_tab2 = [False if x % 2 == 0 else True for x in range(15)]
+        self.input_shown_tab3 = [False if x % 2 == 0 else True for x in range(15)]
+        self.input_shown_tab4 = [False if x % 2 == 0 else True for x in range(15)]
 
     def __str__(self):
-        pretty = self.displayed_relay_matrix
+        pretty = self.input_shown_tab1
         return pretty

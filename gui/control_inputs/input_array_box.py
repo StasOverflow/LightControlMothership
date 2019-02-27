@@ -116,24 +116,25 @@ class InputArray(wx.BoxSizer):
         static_box_sizer.Add(display_matrix)
         self.Add(static_box_sizer, 0)
 
-    def values_get(self, as_matrix=False):
-        vals = list()
-        print('-' * 35)
-        if as_matrix:
-            for row in self.check_box_instance_matrix:
-                row_list = list()
-                for instance in row:
-                    row_list.append(instance.checked)
-                vals.append(row_list)
-                print(row_list)
-        else:
-            checbox_iterable_list = list(chain.from_iterable(self.check_box_instance_matrix))
-            for checkbox in checbox_iterable_list:
-                instance = checkbox.checked
-                vals.append(instance)
-            print(vals)
-        print('-' * 35)
-        return vals
+    @property
+    def instance_array(self):
+        return self._instance_array
+
+    @instance_array.setter
+    def instance_array(self, new_array):
+        self._instance_array = new_array
+
+    @property
+    def array_of_visible(self):
+        array = list()
+        for instance in self.instance_array:
+            array.append(instance.is_visible)
+        return array
+
+    @array_of_visible.setter
+    def array_of_visible(self, new_array):
+        for index, bool_value in enumerate(new_array):
+            self.instance_array[index].is_visible = bool_value
 
 
 class Supapanel(wx.Panel):

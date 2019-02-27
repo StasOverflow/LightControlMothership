@@ -52,6 +52,10 @@ class WxWidgCustomApp:
                 self.gui.main_frame.settings_update()
             # if state_prev != state:
             #     state_prev = state
+            self.gui.main_frame.btm_tab1.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab1
+            self.gui.main_frame.btm_tab2.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab2
+            self.gui.main_frame.btm_tab3.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab3
+            self.gui.main_frame.btm_tab4.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab4
             self.gui.main_frame.state_update(state)
             time.sleep(0.2)
 
