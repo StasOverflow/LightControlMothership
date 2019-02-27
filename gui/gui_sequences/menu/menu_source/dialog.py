@@ -69,8 +69,11 @@ class SettingsDialog(wx.Dialog):
         self.panel.SetSizer(self.panel_sizer)
 
     def on_accept(self, event):
-        self.settings.device_port = self._pending_dev_port
-        self._pending_dev_port = None
+        if self._pending_dev_port is not None:
+            self.settings.device_port = self._pending_dev_port
+            self._pending_dev_port = None
+        else:
+            self.settings.device_port = self.port_setup.value
         self.settings.slave_id = self.slave_address.value
         self.settings.refresh_rate = self.refresh_time.value
         print(self.settings)

@@ -29,12 +29,24 @@ class WxWidgCustomApp:
         self.main_logic_thread = threading.Thread(target=self._main_logic_handler)
         self.main_logic_thread.daemon = True
 
+        self.layout_thread = threading.Thread(target=self._layout_thread_handler)
+        self.layout_thread.daemon = True
+
     def _port_list_getter(self):
         return self.port_list
 
     def _poll_thread_handler(self):
         while True:
             self.port_list = serial_ports()
+            time.sleep(0.1)
+
+    def _layout_thread_handler(self):
+        sets_prev = None
+        while True:
+            sets = self.app_settings.__str__()
+            if sets_prev != sets:
+                sets_prev = sets
+                print('new settings acquired, UPDATE THE LAYOUT, NOW')
             time.sleep(0.1)
 
     def _main_logic_handler(self):
@@ -57,6 +69,7 @@ class WxWidgCustomApp:
         self.poll_thread.start()
         self.main_logic_thread.start()
         self.comm_thread.start()
+        self.layout_thread.start()
         self.gui.start()
 
 
