@@ -14,7 +14,7 @@ def print_decorator(func):
     return wrapped_func
 
 
-print = print_decorator(print)
+# print = print_decorator(print)
 
 
 class InputArray(wx.BoxSizer):
@@ -63,8 +63,11 @@ class InputArray(wx.BoxSizer):
         ] if cell_titles is None else cell_titles
         self.check_box_instance_matrix = [
             [
-                Cell(self.parent, interface_type=interface, label=self.cell_titles[i + j * self.cols_quantity], **kwargs)
-                for i in range(self.cols_quantity)
+                Cell(
+                    self.parent, interface_type=interface,
+                    label=self.cell_titles[i + j * self.cols_quantity],
+                    **kwargs
+                ) for i in range(self.cols_quantity)
             ]
             for j in range(self.rows_quantity)
         ]
@@ -104,7 +107,6 @@ class InputArray(wx.BoxSizer):
                             self.check_box_instance_matrix[fxd_row_id][fxd_col_id],
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
                         )
-                        self.check_box_instance_matrix[fxd_row_id][fxd_col_id].checked = True
         static_box_sizer.Add(display_matrix)
         self.Add(static_box_sizer, 0)
 

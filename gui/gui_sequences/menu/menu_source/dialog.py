@@ -27,8 +27,6 @@ class SettingsDialog(wx.Dialog):
         self.static_box = wx.StaticBox(self.panel, wx.ID_ANY, 'Settings')
         self.static_box_sizer = wx.StaticBoxSizer(self.static_box, wx.VERTICAL)
 
-        print(self.settings.device_port)
-
         self.port_setup = LabelValueSequence(
                                     parent=self.panel,
                                     label='Device port',
@@ -76,7 +74,6 @@ class SettingsDialog(wx.Dialog):
             self.settings.device_port = self.port_setup.value
         self.settings.slave_id = self.slave_address.value
         self.settings.refresh_rate = self.refresh_time.value
-        print(self.settings)
         self.Destroy()
 
     def on_choice(self, event):

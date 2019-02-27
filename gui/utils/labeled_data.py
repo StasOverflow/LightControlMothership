@@ -18,7 +18,10 @@ class _RightColumnLabel(wx.StaticText):
     def value(self, new_value):
         if type(new_value) is not str:
             new_value = str(new_value)
-        self._value = new_value
+        if new_value is None or new_value == 'None' or new_value == '':
+            self._value = 'None'
+        else:
+            self._value = new_value
         self.SetLabel(self._value)
 
 
@@ -44,8 +47,6 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
     event = wx.EVT_CHOICE
 
     def __init__(self, *args, parent=None, label=None, port_getter_method=None, size=None, initial_value=None, **kwargs):
-
-        print(self.event)
 
         super().__init__(wx.HORIZONTAL)
 
@@ -92,7 +93,10 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
     @value.setter
     def value(self, new_value):
         if new_value is not None:
-            self.choicer.SetSelection(self.choices_data.index(new_value))
+            try:
+                self.choicer.SetSelection(self.choices_data.index(new_value))
+            except ValueError:
+                pass
 
 
 class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
@@ -113,6 +117,7 @@ class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
                         parent=parent,
                         size=(47 + 25*(not button_required), -1),
                         style=wx.TE_LEFT,
+                        max=999,
                         **kwargs
                     )
         self.Add(self.spin, 0, wx.LEFT)

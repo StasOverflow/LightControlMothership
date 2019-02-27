@@ -27,7 +27,7 @@ class VariableImageCell(wx.BoxSizer):
     """
 
     def __init__(
-            self, parent, initial_checked_status=True, visible=True,
+            self, parent, initial_checked_status=False, visible=True,
             two_state=True, true_image_path=None, false_image_path=None,
             *args, **kwargs
     ):

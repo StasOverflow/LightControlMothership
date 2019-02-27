@@ -1,7 +1,7 @@
 import wx
 from gui.control_inputs import defs
 from gui.control_inputs.app_cells import AppSpecificImageCell
-from gui.control_inputs.app_cells import CheckBoxCell
+from gui.control_inputs.app_cells import AppSpecificCheckBoxCell
 
 
 class Cell(wx.BoxSizer):
@@ -11,10 +11,12 @@ class Cell(wx.BoxSizer):
         if interface_type == defs.DISPLAY_INTERFACE:
             instance_class = AppSpecificImageCell
         else:
-            instance_class = CheckBoxCell
+            instance_class = AppSpecificCheckBoxCell
 
         self.cell_instance = instance_class(*args, **kwargs)
         self.Add(self.cell_instance)
+
+        # print(self.cell_instance.checked)
 
     @property
     def checked(self):

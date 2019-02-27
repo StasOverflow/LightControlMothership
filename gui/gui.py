@@ -3,6 +3,7 @@ from gui.gui_sequences.tabs.tabs import BaseTwoSplitTab
 from gui.gui_sequences.tabs.tabs import TopTab, BtmTab
 from gui.control_inputs.input_array_box import defs
 from gui.gui_sequences.menu.menu import MenuBarSequence
+from settings import Settings
 
 
 class _MainFrame(wx.Frame):
@@ -13,6 +14,8 @@ class _MainFrame(wx.Frame):
         self.pos = (0, 0)
 
         self.super_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        self.settings = Settings()
 
         style = wx.DEFAULT_FRAME_STYLE & ~wx.RESIZE_BORDER
         style = style ^ wx.MAXIMIZE_BOX
@@ -75,8 +78,8 @@ class _MainFrame(wx.Frame):
         main_sizer.Add(self.btm_canvas, 48, wx.EXPAND | wx.CENTER)
         main_sizer.Add(other_panel, 3, wx.EXPAND | wx.CENTER)
 
-        main_sizer.Layout()
         main_panel.SetSizer(main_sizer)
+        main_panel.Layout()
 
         # self.super_sizer.Add(main_sizer, wx.EXPAND)
 
@@ -88,16 +91,22 @@ class _MainFrame(wx.Frame):
         self.SetMenuBar(self.menu_bar)
         # self.SetSizer(self.super_sizer)
 
+    def update(self):
+        """
+            Update certain canvas values, specified inside this method
+
+            Yet unspecified:
+                self.top_canvas.left_panel.status.value
+
+        """
+        self.top_canvas.left_panel.device_port.value = self.settings.device_port
+        self.top_canvas.left_panel.slave_id.value = self.settings.slave_id
+        self.top_canvas.left_panel.refresh_rate.value = self.settings.refresh_rate
+        print('updating')
+        pass
+
     def render(self):
         self.Show()
-
-    def combined_inputs_states_get(self):
-        pass
-        # return self.top_canvas.right_panel_checkbox_matrix.values_get(True)
-
-    @property
-    def settings(self):
-        return self.menu_bar.dialog_window
 
 
 class GuiApp:

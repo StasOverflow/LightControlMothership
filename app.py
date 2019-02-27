@@ -46,7 +46,7 @@ class WxWidgCustomApp:
             sets = self.app_settings.__str__()
             if sets_prev != sets:
                 sets_prev = sets
-                print('new settings acquired, UPDATE THE LAYOUT, NOW')
+                self.gui.main_frame.update()
             time.sleep(0.1)
 
     def _main_logic_handler(self):
@@ -58,11 +58,9 @@ class WxWidgCustomApp:
                 the app is running or about to be closed)
         """
         while True:
-            input_vals = self.gui.main_frame.combined_inputs_states_get()
             if self.gui.is_closing:
                 print('closing')
                 sys.exit()
-            # print('staying alive')
             time.sleep(1)
 
     def run(self):

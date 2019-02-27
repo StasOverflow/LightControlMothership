@@ -3,6 +3,7 @@ from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
 from gui.control_inputs.input_array_box import InputArray
 from gui.control_inputs.defs import *
+from settings import Settings
 
 
 class ConnectButton(wx.BoxSizer):
@@ -19,27 +20,32 @@ class TopLeftPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
 
+        self.settings = Settings()
+
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
         self.top_left_sizer_v = wx.BoxSizer(wx.VERTICAL)
         self.top_inputs_sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.status = LabelValueSequence(parent=self, label='Status', interface=LABELED_LABEL)
-        self.port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
+        self.device_port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
         self.slave_id = LabelValueSequence(
                             parent=self,
                             label='Slave ID',
                             interface=LABELED_SPIN_CONTROL,
                             initial_value=0
                         )
-        self.rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
+        self.Bind(wx.EVT_BUTTON, self.slave_id_update, self.slave_id.item.button)
+        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
+
+        self.refresh_rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
         self.checkbox = LabelValueSequence(parent=self, label='Show unused', interface=LABELED_CHECK_BOX)
 
         self.conn_button = ConnectButton(parent=self)
 
         self.top_inputs_sizer.Add(self.status)
-        self.top_inputs_sizer.Add(self.port)
+        self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
-        self.top_inputs_sizer.Add(self.rate)
+        self.top_inputs_sizer.Add(self.refresh_rate)
         self.top_inputs_sizer.Add(self.checkbox, 0, wx.TOP, 2)
 
         self.top_left_sizer_v.Add(self.top_inputs_sizer, 5, wx.BOTTOM, 15)
@@ -55,6 +61,9 @@ class TopLeftPanel(wx.Panel):
         self.top_left_sizer_main.Add(self.line, 0, wx.LEFT | wx.EXPAND, 14)
 
         self.SetSizer(self.top_left_sizer_main)
+
+    def slave_id_update(self, event):
+        self.settings.slave_id = self.slave_id.value
 
 
 class TopRightPanel(wx.Panel):
@@ -83,9 +92,6 @@ class TopRightPanel(wx.Panel):
             **kwargs,
         )
 
-        # In this sequence we add elements (if they exists) to panel
-        inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-
         self.output_matrix = InputArray(
             parent=self,
             title='State of outputs:',
@@ -97,6 +103,8 @@ class TopRightPanel(wx.Panel):
             *args,
             **kwargs,
         )
+
+        inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
 
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
         inner_panel_sizer.Add(self.output_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
