@@ -1,18 +1,25 @@
 import wx
 from gui.utils.label_types import *
 from gui.utils.labeled_data import LabelValueSequence
+from settings import Settings
 
 
 class SettingsDialog(wx.Dialog):
 
-    def __init__(self, *args, parent=None, title=None, **kwargs):
+    def __init__(self, *args, parent=None, title=None, settings=None, **kwargs):
         getter_method = None
         if 'port_getter_method' in kwargs:
             getter_method = kwargs.pop('port_getter_method')
         super().__init__(parent=parent)
+
+        self.settings = None
+
         self.SetSize((250, 230))
         self.SetTitle(title)
         self.CenterOnParent()
+
+        self.settings = Settings()
+        self._pending_dev_port = None
 
         self.panel = wx.Panel(self)
         self.panel_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -20,73 +27,61 @@ class SettingsDialog(wx.Dialog):
         self.static_box = wx.StaticBox(self.panel, wx.ID_ANY, 'Settings')
         self.static_box_sizer = wx.StaticBoxSizer(self.static_box, wx.VERTICAL)
 
+        print(self.settings.device_port)
+
         self.port_setup = LabelValueSequence(
                                     parent=self.panel,
                                     label='Device port',
                                     interface=LABELED_CHOICE_BOX,
                                     port_getter_method=getter_method,
+                                    initial_value=self.settings.device_port,
                                     **kwargs
                         )
+        self.Bind(self.port_setup.item.event, self.on_choice, self.port_setup.item.choicer)
+
         self.slave_address = LabelValueSequence(
                                     parent=self.panel,
                                     label='Slave ID',
                                     interface=LABELED_SPIN_CONTROL,
                                     button_required=False,
+                                    initial_value=self.settings.slave_id,
                                     **kwargs,
                         )
-        self.refresh_time_setter = LabelValueSequence(
+
+        self.refresh_time = LabelValueSequence(
                                     parent=self.panel,
                                     label='Refresh rate',
                                     interface=LABELED_TEXT_INPUT,
-                                    value='0'
+                                    initial_value=self.settings.refresh_rate,
                         )
 
         self.button_accept = wx.Button(parent=self.panel, label='Accept')
 
+        self.panel.Bind(wx.EVT_BUTTON, self.on_accept, self.button_accept)
+
         self.static_box_sizer.Add(self.port_setup)
         self.static_box_sizer.Add(self.slave_address)
-        self.static_box_sizer.Add(self.refresh_time_setter)
+        self.static_box_sizer.Add(self.refresh_time)
 
         self.panel_sizer.Add(self.static_box_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 15)
         self.panel_sizer.Add(self.button_accept, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 3)
 
         self.panel.SetSizer(self.panel_sizer)
 
-
-    def inner_canvas_add(self):
-
-        labeled_box = wx.StaticBox(parent=self.panel, label='Serial settings')
-        labeled_box_sizer = wx.StaticBoxSizer(labeled_box, orient=wx.VERTICAL)
-
-        labeled_box_sizer.Add(wx.RadioButton(self.panel, label='Slave ID', style=wx.RB_GROUP))
-        # sbs.Add(wx.RadioButton(pnl, label='Com )
-        labeled_box_sizer.Add(wx.RadioButton(self.panel, label='2 Colors'))
-
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hbox1.Add(wx.RadioButton(self.panel, label='Custom'))
-        hbox1.Add(wx.TextCtrl(self.panel), flag=wx.LEFT, border=5)
-        labeled_box_sizer.Add(hbox1)
-
-        self.panel.SetSizer(labeled_box_sizer)
-
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, label='Ok')
-        closeButton = wx.Button(self, label='Close')
-        hbox2.Add(okButton)
-        hbox2.Add(closeButton, flag=wx.LEFT, border=5)
-
-        self.inner_panel_sizer.Add(self.panel, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
-        self.inner_panel_sizer.Add(hbox2, flag=wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, border=10)
-
-        self.SetSizer(self.inner_panel_sizer)
-
-        okButton.Bind(wx.EVT_BUTTON, self.OnClose)
-        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
-
-
-    def OnClose(self, e):
-
+    def on_accept(self, event):
+        self.settings.device_port = self._pending_dev_port
+        self._pending_dev_port = None
+        self.settings.slave_id = self.slave_address.value
+        self.settings.refresh_rate = self.refresh_time.value
+        print(self.settings)
         self.Destroy()
+
+    def on_choice(self, event):
+        val = event.GetString()
+        if val is None or val == 'None':
+            val = None
+        self._pending_dev_port = val
+        # self.Destroy()
 
 
 class Ponel(wx.Panel):

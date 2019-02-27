@@ -4,31 +4,49 @@ import threading
 from backend.ports.ports import serial_ports
 from backend.modbus.modbus import ModbusThread
 from gui.gui import GuiApp
+from settings import Settings
 
 
 class WxWidgCustomApp:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gui = GuiApp(size=(439, 550), title='Light Controller')
+        self.gui = GuiApp(
+                size=(439, 550),
+                title='Light Controller',
+                port_getter_method=self._port_list_getter,
+        )
+
+        self.app_settings = Settings()
 
         self.port_list = None
+
         self.comm_thread = ModbusThread(None, None)
+
+        self.poll_thread = threading.Thread(target=self._poll_thread_handler)
+        self.poll_thread.daemon = True
+
         self.main_logic_thread = threading.Thread(target=self._main_logic_handler)
         self.main_logic_thread.daemon = True
+
+    def _port_list_getter(self):
+        return self.port_list
+
+    def _poll_thread_handler(self):
+        while True:
+            self.port_list = serial_ports()
+            time.sleep(0.1)
 
     def _main_logic_handler(self):
         """
             This is where all important operations happen, like:
 
             -Among-thread data exchange
-            -Available comm ports polling
             -Closing handler polling (where we determine whether
                 the app is running or about to be closed)
         """
         while True:
             input_vals = self.gui.main_frame.combined_inputs_states_get()
-            self.port_list = serial_ports()
             if self.gui.is_closing:
                 print('closing')
                 sys.exit()
@@ -36,6 +54,7 @@ class WxWidgCustomApp:
             time.sleep(1)
 
     def run(self):
+        self.poll_thread.start()
         self.main_logic_thread.start()
         self.comm_thread.start()
         self.gui.start()

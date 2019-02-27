@@ -8,58 +8,94 @@ class _RightColumnLabel(wx.StaticText):
 
     def __init__(self, *args, parent=None, **kwargs):
         super(_RightColumnLabel, self).__init__(parent=parent, *args, **kwargs)
+        self.value = self.GetLabel()
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        if type(new_value) is not str:
+            new_value = str(new_value)
+        self._value = new_value
+        self.SetLabel(self._value)
 
 
 class _RightColumnCheckbox(wx.CheckBox):
 
     def __init__(self, *args, parent=None, label=None, **kwargs):
         super(_RightColumnCheckbox, self).__init__(*args, parent=parent, label='', **kwargs)
+        self.value = self.IsChecked()
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        if isinstance(new_value, bool):  # returns True if boolean
+            self._value = new_value
+            self.SetValue(self._value)
 
 
-class _RightColumnChoice(wx.BoxSizer):
-    
-    def __init__(self, *args, parent=None, label=None, port_getter_method=None, size=None, **kwargs):
+class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
+
+    event = wx.EVT_CHOICE
+
+    def __init__(self, *args, parent=None, label=None, port_getter_method=None, size=None, initial_value=None, **kwargs):
+
+        print(self.event)
 
         super().__init__(wx.HORIZONTAL)
 
         self.choices_data = None
         self.port_getter_method = port_getter_method
-        self.data_spectial_setter()
 
-        self.choicer = wx.Choice(parent, size=(71, -1), choices=self.choices_data, **kwargs)
-        self.choicer.SetLabel(self.choices_data[0])
-        self.choicer.SetSelection(0)
-
+        self.choicer = wx.Choice(parent, size=(71, -1), choices=self.choices_data)
         self.Add(self.choicer, 0, wx.LEFT, 0)
+
+        self.data_special_setter()
 
         self.update_choices()
 
+        self.value = initial_value
+
+    @execute_every
+    def update_choices(self):
+        if self.choicer:
+            self.data_special_setter()
+            if self.choicer.GetItems() != self.choices_data:
+                self.choicer.Clear()
+                self.choicer.Append(self.choices_data)
+
     @property
     def choices_data(self):
+        data = ['']
         if self._choices_data is not None:
-            return self._choices_data
-        else:
-            return ['Sample 1', 'Sample 2']
+            if self._choices_data:
+                data = self._choices_data
+        return data
 
     @choices_data.setter
     def choices_data(self, choices):
         self._choices_data = choices
 
-    def data_spectial_setter(self):
+    def data_special_setter(self):
         if self.port_getter_method is not None and callable(self.port_getter_method):
             self.choices_data = self.port_getter_method()
 
-    @execute_every
-    def update_choices(self):
-        if self.choicer:
-            self.data_spectial_setter()
-            if self.choicer.GetItems() != self.choices_data:
-                pass
-                self.choicer.Clear()
-                self.choicer.Append(self.choices_data)
+    @property
+    def value(self):
+        return self.choices_data[self.choicer.GetCurrentSelection()]
+
+    @value.setter
+    def value(self, new_value):
+        if new_value is not None:
+            self.choicer.SetSelection(self.choices_data.index(new_value))
 
 
-class _RightColumnSpinCtrl(wx.BoxSizer):
+class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
 
     def __init__(
             self,
@@ -77,7 +113,8 @@ class _RightColumnSpinCtrl(wx.BoxSizer):
                         parent=parent,
                         size=(47 + 25*(not button_required), -1),
                         style=wx.TE_LEFT,
-                        **kwargs)
+                        **kwargs
+                    )
         self.Add(self.spin, 0, wx.LEFT)
 
         if button_required:
@@ -94,6 +131,14 @@ class _RightColumnSpinCtrl(wx.BoxSizer):
 
             self.Add(self.button)
 
+    @property
+    def value(self):
+        return self.spin.GetValue()
+
+    @value.setter
+    def value(self, new_value):
+        self.spin.SetValue(new_value)
+
 
 class _RightColumnTextInput(wx.BoxSizer):
 
@@ -102,6 +147,16 @@ class _RightColumnTextInput(wx.BoxSizer):
 
         self.text_field = wx.TextCtrl(parent=parent, size=(71, 20), style=wx.TE_LEFT, **kwargs)
         self.Add(self.text_field, 0, wx.ALIGN_RIGHT, 2)
+
+    @property
+    def value(self):
+        return self.text_field.GetValue()
+
+    @value.setter
+    def value(self, new_value):
+        if type(new_value) is not str:
+            new_value = str(new_value)
+        self.text_field.SetValue(new_value)
 
 
 class LabelValueSequence(wx.BoxSizer):
@@ -123,18 +178,17 @@ class LabelValueSequence(wx.BoxSizer):
 
         self.label = wx.StaticText(parent=parent, label=colon_label, size=(95, -1))
 
-        self.value = initial_value
-
         item_class = self.ITEM_LIST[interface]
 
         self.item = item_class(
                     *args,
                     parent=parent,
-                    label=initial_value,
                     style=wx.ALIGN_RIGHT,
                     size=(60, -1),
                     **kwargs
         )
+
+        self.value = initial_value
 
         label_style = wx.ALL
         value_style = wx.ALL
@@ -154,16 +208,13 @@ class LabelValueSequence(wx.BoxSizer):
         self.Add(self.label, 0, label_style, label_margin)
         self.Add(self.item, 0, value_style, value_margin)
 
-    # @property
-    # def value(self):
-    #     return self._value
-    #
-    # @value.setter
-    # def value(self, new_value):
-    #     if type(new_value) is not str:
-    #         new_value = str(new_value)
-    #     self._value = new_value
-    #     self.item.SetLabel(self._value)
+    @property
+    def value(self):
+        return self.item.value
+
+    @value.setter
+    def value(self, new_value):
+        self.item.value = new_value
 
 
 class LabeledIFaceInput(LabelValueSequence):

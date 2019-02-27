@@ -25,7 +25,12 @@ class TopLeftPanel(wx.Panel):
 
         self.status = LabelValueSequence(parent=self, label='Status', interface=LABELED_LABEL)
         self.port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
-        self.slave_id = LabelValueSequence(parent=self, label='Slave ID', interface=LABELED_SPIN_CONTROL)
+        self.slave_id = LabelValueSequence(
+                            parent=self,
+                            label='Slave ID',
+                            interface=LABELED_SPIN_CONTROL,
+                            initial_value=0
+                        )
         self.rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
         self.checkbox = LabelValueSequence(parent=self, label='Show unused', interface=LABELED_CHECK_BOX)
 

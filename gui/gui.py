@@ -23,7 +23,7 @@ class _MainFrame(wx.Frame):
                           pos=self.pos)
 
         self.Center()
-        menu_bar = MenuBarSequence(parent=self)
+        self.menu_bar = MenuBarSequence(parent=self, **kwargs)
 
         main_panel = wx.Panel(parent=self, size=self.size)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -78,16 +78,15 @@ class _MainFrame(wx.Frame):
         main_sizer.Layout()
         main_panel.SetSizer(main_sizer)
 
-        self.super_sizer.Add(main_sizer, wx.EXPAND)
-
-        self.SetMenuBar(menu_bar)
-        # self.SetSizer(self.super_sizer)
+        # self.super_sizer.Add(main_sizer, wx.EXPAND)
 
         '''
             Must be called after all items are set, according to doc files. 
             If not, any items, initialized after calling SetMenuBar method
             won't be rendered
         '''
+        self.SetMenuBar(self.menu_bar)
+        # self.SetSizer(self.super_sizer)
 
     def render(self):
         self.Show()
@@ -95,6 +94,10 @@ class _MainFrame(wx.Frame):
     def combined_inputs_states_get(self):
         pass
         # return self.top_canvas.right_panel_checkbox_matrix.values_get(True)
+
+    @property
+    def settings(self):
+        return self.menu_bar.dialog_window
 
 
 class GuiApp:
@@ -110,7 +113,6 @@ class GuiApp:
     @is_closing.setter
     def is_closing(self, value):
         self._is_closing = value
-        return
 
     def start(self):
         """
@@ -134,8 +136,4 @@ class GuiApp:
         self.close()
 
     def close(self):
-        """
-            Here we destroy all child widgets to our main frame widget
-        """
-        # self.main_frame.Destroy()
         self.is_closing = True

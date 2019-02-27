@@ -8,6 +8,15 @@ class MenuBarSequence(wx.MenuBar):
         print(parent)
         super().__init__()
 
+        self._settings = None
+
+        if 'default_settings' in kwargs:
+            self.settings = kwargs.pop('default_settings')
+
+        self.getter_method = None
+        if 'port_getter_method' in kwargs:
+            self.getter_method = kwargs.pop('port_getter_method')
+
         self.parent = parent
 
         self.connection_menu = wx.Menu()
@@ -24,10 +33,25 @@ class MenuBarSequence(wx.MenuBar):
         parent.Bind(wx.EVT_MENU, self.on_click_conn, self.connect)
 
     def on_click_conn(self, event):
-        self.dialog_window = SettingsDialog(title='Connection setup')
+        self.dialog_window = SettingsDialog(
+                                title='Connection setup',
+                                port_getter_method=self.getter_method,
+                                settings=self.settings
+                            )
         self.dialog_window.ShowModal()
         self.dialog_window.Close()
         self.dialog_window.Destroy()
+
+    @property
+    def settings(self):
+        if hasattr(self, 'dialog_window'):
+            if self.dialog_window:
+                self._settings = self.dialog_window.settings
+        return self._settings
+
+    @settings.setter
+    def settings(self, new_value):
+        self._settings = new_value
 
 
 def main():
