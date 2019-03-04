@@ -5,6 +5,7 @@ from backend.ports.ports import serial_ports
 from backend.modbus.modbus import ModbusThread
 from gui.gui import GuiApp
 from settings import Settings, ApplicationState
+import random
 
 
 class WxWidgCustomApp:
@@ -21,6 +22,13 @@ class WxWidgCustomApp:
 
         self.app_settings = Settings()
         self.app_state = ApplicationState()
+        frame_alias = self.gui.main_frame
+
+        for i in range(4):
+            self.app_state.relay_register(display_instance=frame_alias.btm_tab_array[i].left_panel,
+                                          input_instance=frame_alias.btm_tab_array[i].right_panel)
+
+        self.app_state.combined_array_matrix_register(self.gui.main_frame.top_canvas.right_panel)
 
         self.port_list = None
 
@@ -43,20 +51,9 @@ class WxWidgCustomApp:
             self.port_list = serial_ports()
             time.sleep(0.1)
 
-    def output_panel_layout_update(self):
-        display_list = [0, 1, 0, 1]
-        self.gui.main_frame.top_canvas.right_panel.configuration_set(display_list, False)
-
     def input_panel_layout_update(self):
-        self.main_panel_array = [False for _ in range(15)]
-        for i in range(4):
-            tab_ref = self.gui.main_frame.btm_tab_array[i]
-            config_array = tab_ref.right_panel.configuration_get()
-            tab_ref.left_panel.array_hidden_state_set(config_array)
-            for index, value in enumerate(config_array):
-                self.main_panel_array[index] = self.main_panel_array[index] or value
-
-        self.gui.main_frame.top_canvas.right_panel.array_hidden_state_set(self.main_panel_array)
+        self.app_state.display_icon_visibility_update_all()
+        self.app_state.display_icon_combined_value_update()
 
     def _layout_thread_handler(self):
         settings_prev = None
@@ -69,9 +66,13 @@ class WxWidgCustomApp:
                 self.gui.main_frame.settings_update()
 
             self.input_panel_layout_update()
-            self.output_panel_layout_update()
+            # self.output_panel_layout_update()
             self.gui.main_frame.state_update(state)
             time.sleep(0.3)
+            array = [True if random.randint(1, 100) > 50 else False for _ in range(15)]
+            for i in range(4):
+                self.app_state.display_icon_value_update(i, array)
+            self.app_state.displayed_relay_array_state_update([state, not state, state, not state])
 
     def _main_logic_handler(self):
         """

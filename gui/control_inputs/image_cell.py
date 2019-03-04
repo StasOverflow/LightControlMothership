@@ -28,24 +28,29 @@ class VariableImageCell(wx.BoxSizer):
 
     def __init__(
             self, parent, initial_checked_status=False, visible=True,
-            two_state=True, true_image_path=None, false_image_path=None,
+            true_image_path=None, false_image_path=None,
             *args, **kwargs
     ):
         super().__init__(wx.HORIZONTAL)
-        self.two_state = None
+
+        self.is_visible = None
+        self.cur_state = None
+        # self.increment = 0
 
         self.parent = parent
-        self.is_visible = visible
 
         self.image = list()
+
         self.true_image_address = true_image_path
-        self.false_image_address = None
-        self.two_state = two_state
+        self.false_image_address = false_image_path
 
         self.true_state_image_set(path_to_file=true_image_path)
         self.false_state_image_set(path_to_file=false_image_path)
 
         self.checked = initial_checked_status
+        self.is_visible = visible
+
+        self.cur_state = self.checked
 
     @property
     def checked(self):
@@ -75,20 +80,20 @@ class VariableImageCell(wx.BoxSizer):
         self._image_set(False, path_to_file)
 
     def state_image_update(self):
-        if self.two_state:
-            if self.true_image_address is not None and self.false_image_address is not None:
-                if self.is_visible:
-                    if self.instance:
+        if self.true_image_address is not None and self.false_image_address is not None:
+            if self.is_visible:
+                if self.instance:
+                    if self.cur_state != self.checked:
+                        self.cur_state = self.checked
                         self.image[self.true_image_address].Show()
                         self.image[self.false_image_address].Show()
                         if self.checked:
                             self.image[self.false_image_address].Hide()
                         else:
                             self.image[self.true_image_address].Hide()
-            self.Layout()
-        else:
-            pass
-            # implement behavior where we determine if we have at least one image set up and render it
+                        self.Layout()
+                        # self.increment = self.increment + 1
+                        # print('loayouting, ', self.increment)
 
     def hide(self):
         if self:
