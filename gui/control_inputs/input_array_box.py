@@ -125,8 +125,7 @@ class InputArray(wx.BoxSizer):
 
     @values.setter
     def values(self, new_array):
-        for index in range(self.instance_array):
-            print(index)
+        for index in range(len(self.instance_array)):
             self.value_set_by_index(index, new_array[index])
 
     def value_set_by_index(self, index, value=True):
@@ -134,7 +133,7 @@ class InputArray(wx.BoxSizer):
             index = 14
         elif index < 0:
             index = 0
-        self.instance_array[index] = value
+        self.instance_array[index].checked = value
 
     @property
     def instance_array(self):
@@ -145,14 +144,14 @@ class InputArray(wx.BoxSizer):
         self._instance_array = new_array
 
     @property
-    def visible_array_members(self):
+    def visible_instances(self):
         array = list()
         for instance in self.instance_array:
             array.append(instance.is_visible)
         return array
 
-    @visible_array_members.setter
-    def visible_array_members(self, new_array):
+    @visible_instances.setter
+    def visible_instances(self, new_array):
         for index, bool_value in enumerate(new_array):
             self.instance_array[index].is_visible = bool_value
 

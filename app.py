@@ -41,10 +41,17 @@ class WxWidgCustomApp:
             self.port_list = serial_ports()
             time.sleep(0.1)
 
-    def relay_pangel_layout_update(self, relay_num):
-        vals = self.gui.main_frame.btm_tab_array[relay_num].left_panel.configuration_get()
-        # print('# ' + str(relay_num) + str(vals))
-        pass
+    def input_pangel_layout_update(self):
+        main_panel_array = [False for _ in range(15)]
+        for i in range(4):
+            tab_ref = self.gui.main_frame.btm_tab_array[i]
+            config_array = tab_ref.right_panel.configuration_get()
+            tab_ref.left_panel.array_hidden_state_set(config_array)
+            for index, value in enumerate(config_array):
+                main_panel_array[index] = main_panel_array[index] or value
+
+        # print(self.ma)
+        self.gui.main_frame.top_canvas.right_panel.array_hidden_state_set(main_panel_array)
 
     def _layout_thread_handler(self):
         settings_prev = None
@@ -55,17 +62,8 @@ class WxWidgCustomApp:
             if settings_prev != sets:
                 settings_prev = sets
                 self.gui.main_frame.settings_update()
-            # print('config sequence: ----------------------------------------')
-            for i in range(4):
-                self.relay_pangel_layout_update(i)
-            # if state_prev != state:
-            #     state_prev = state
-            # for index, instance in enumerate(self.gui.main_frame.settings):
 
-            # self.gui.main_frame.btm_tab1.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab1
-            # self.gui.main_frame.btm_tab2.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab2
-            # self.gui.main_frame.btm_tab3.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab3
-            # self.gui.main_frame.btm_tab4.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab4
+            self.input_pangel_layout_update()
             self.gui.main_frame.state_update(state)
             time.sleep(0.2)
 

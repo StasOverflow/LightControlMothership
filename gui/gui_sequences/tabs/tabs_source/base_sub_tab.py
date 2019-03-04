@@ -51,8 +51,16 @@ class BaseSubTab(wx.Panel):
             inner_panel_sizer.Add(button_sizer, .7, wx.BOTTOM | wx.ALIGN_RIGHT, 10)
 
         self.configuration_update()
-
         self.SetSizer(inner_panel_sizer)
+
+    def array_hidden_state_set(self, new_order):
+        self.inner_matrix.visible_instances = new_order
+
+    def array_hidden_state_update(self):
+        pass
+
+    def array_hidden_state_get(self):
+        return self.inner_matrix.visible_instances
 
     def configuration_set(self, new_array):
         self.inner_matrix.values = new_array

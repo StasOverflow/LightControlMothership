@@ -109,4 +109,25 @@ class TopRightPanel(wx.Panel):
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
         inner_panel_sizer.Add(self.output_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
+        self._configuration = self.input_matrix.values
+
         self.SetSizer(inner_panel_sizer)
+
+    def array_hidden_state_set(self, new_order):
+        self.input_matrix.visible_instances = new_order
+
+    def array_hidden_state_update(self):
+        pass
+
+    def array_hidden_state_get(self):
+        return self.input_matrix.visible_instances
+
+    def configuration_set(self, new_array):
+        self.input_matrix.values = new_array
+
+    def configuration_update(self, *args, **kwargs):
+        self._configuration = self.input_matrix.values
+        print('updating cfg' + str(self._configuration))
+
+    def configuration_get(self):
+        return self._configuration

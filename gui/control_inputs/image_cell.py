@@ -58,9 +58,9 @@ class VariableImageCell(wx.BoxSizer):
 
     def _image_set(self, image_type, path):
         if path is not None:
-            instance = BitmapImageCustom(parent=self.parent, path_to_file=path)
-            self.image.append(instance)
-            index = self.image.index(instance)
+            self.instance = BitmapImageCustom(parent=self.parent, path_to_file=path)
+            self.image.append(self.instance)
+            index = self.image.index(self.instance)
             if image_type:      # Actually should look like 'if image_type == True:'
                 self.true_image_address = index
             else:
@@ -78,14 +78,13 @@ class VariableImageCell(wx.BoxSizer):
         if self.two_state:
             if self.true_image_address is not None and self.false_image_address is not None:
                 if self.is_visible:
-                    if self:
-                        if self.image:
-                            self.image[self.true_image_address].Show()
-                            self.image[self.false_image_address].Show()
-                            if self.checked:
-                                self.image[self.false_image_address].Hide()
-                            else:
-                                self.image[self.true_image_address].Hide()
+                    if self.instance:
+                        self.image[self.true_image_address].Show()
+                        self.image[self.false_image_address].Show()
+                        if self.checked:
+                            self.image[self.false_image_address].Hide()
+                        else:
+                            self.image[self.true_image_address].Hide()
             self.Layout()
         else:
             pass
