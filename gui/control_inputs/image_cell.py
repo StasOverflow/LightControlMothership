@@ -78,12 +78,14 @@ class VariableImageCell(wx.BoxSizer):
         if self.two_state:
             if self.true_image_address is not None and self.false_image_address is not None:
                 if self.is_visible:
-                    self.image[self.true_image_address].Show()
-                    self.image[self.false_image_address].Show()
-                    if self.checked:
-                        self.image[self.false_image_address].Hide()
-                    else:
-                        self.image[self.true_image_address].Hide()
+                    if self:
+                        if self.image:
+                            self.image[self.true_image_address].Show()
+                            self.image[self.false_image_address].Show()
+                            if self.checked:
+                                self.image[self.false_image_address].Hide()
+                            else:
+                                self.image[self.true_image_address].Hide()
             self.Layout()
         else:
             pass

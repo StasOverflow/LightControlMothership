@@ -41,6 +41,11 @@ class WxWidgCustomApp:
             self.port_list = serial_ports()
             time.sleep(0.1)
 
+    def relay_pangel_layout_update(self, relay_num):
+        vals = self.gui.main_frame.btm_tab_array[relay_num].left_panel.configuration_get()
+        # print('# ' + str(relay_num) + str(vals))
+        pass
+
     def _layout_thread_handler(self):
         settings_prev = None
         state = False
@@ -50,12 +55,17 @@ class WxWidgCustomApp:
             if settings_prev != sets:
                 settings_prev = sets
                 self.gui.main_frame.settings_update()
+            # print('config sequence: ----------------------------------------')
+            for i in range(4):
+                self.relay_pangel_layout_update(i)
             # if state_prev != state:
             #     state_prev = state
-            self.gui.main_frame.btm_tab1.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab1
-            self.gui.main_frame.btm_tab2.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab2
-            self.gui.main_frame.btm_tab3.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab3
-            self.gui.main_frame.btm_tab4.left_panel.checkbox_matrix.array_of_visible = self.app_state.input_shown_tab4
+            # for index, instance in enumerate(self.gui.main_frame.settings):
+
+            # self.gui.main_frame.btm_tab1.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab1
+            # self.gui.main_frame.btm_tab2.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab2
+            # self.gui.main_frame.btm_tab3.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab3
+            # self.gui.main_frame.btm_tab4.left_panel.inner_matrix.visible_array_members = self.app_state.input_shown_tab4
             self.gui.main_frame.state_update(state)
             time.sleep(0.2)
 

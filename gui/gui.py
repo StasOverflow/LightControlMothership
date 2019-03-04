@@ -12,7 +12,6 @@ class _MainFrame(wx.Frame):
         self.size = size
         print('size is ', self.size)
         self.pos = (0, 0)
-
         self.super_sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.settings = Settings()
@@ -30,7 +29,6 @@ class _MainFrame(wx.Frame):
 
         main_panel = wx.Panel(parent=self, size=self.size)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-
         print(main_panel.GetBackgroundColour())
 
         # Top of the page sequence
@@ -46,15 +44,10 @@ class _MainFrame(wx.Frame):
         bottom_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         notebook = wx.Notebook(self.btm_canvas)
-        self.btm_tab1 = BtmTab(parent=notebook)
-        self.btm_tab2 = BtmTab(parent=notebook)
-        self.btm_tab3 = BtmTab(parent=notebook)
-        self.btm_tab4 = BtmTab(parent=notebook)
-
-        notebook.AddPage(self.btm_tab1, "Relay 1")
-        notebook.AddPage(self.btm_tab2, "Relay 2")
-        notebook.AddPage(self.btm_tab3, "Relay 3")
-        notebook.AddPage(self.btm_tab4, "Relay 4")
+        self.btm_tab_array = list()
+        for i in range(4):
+            self.btm_tab_array.append(BtmTab(parent=notebook))
+            notebook.AddPage(self.btm_tab_array[i], "Relay " + str(i))
 
         '''
             Here goes a very important line of a code, setting notebook
@@ -81,15 +74,12 @@ class _MainFrame(wx.Frame):
         main_panel.SetSizer(main_sizer)
         main_panel.Layout()
 
-        # self.super_sizer.Add(main_sizer, wx.EXPAND)
-
         '''
             Must be called after all items are set, according to doc files. 
             If not, any items, initialized after calling SetMenuBar method
             won't be rendered
         '''
         self.SetMenuBar(self.menu_bar)
-        # self.SetSizer(self.super_sizer)
 
     def settings_update(self):
         """
@@ -104,7 +94,12 @@ class _MainFrame(wx.Frame):
         self.top_canvas.left_panel.refresh_rate.value = self.settings.refresh_rate
 
     def state_update(self, state):
-        self.btm_tab1.left_panel.checkbox_matrix.check_box_instance_matrix[0][4].checked = state
+        for tab in self.btm_tab_array:
+            tab.left_panel.inner_matrix.instance_matrix[0][1].checked = state
+            tab.left_panel.inner_matrix.instance_matrix[0][4].checked = state
+            tab.left_panel.inner_matrix.instance_matrix[1][1].checked = state
+            tab.left_panel.inner_matrix.instance_matrix[1][2].checked = state
+            tab.left_panel.inner_matrix.instance_matrix[1][4].checked = state
 
     def render(self):
         self.Show()

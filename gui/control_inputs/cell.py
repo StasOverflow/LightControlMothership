@@ -8,7 +8,8 @@ class Cell(wx.BoxSizer):
 
     def __init__(self, *args, interface_type=defs.DISPLAY_INTERFACE, **kwargs):
         super().__init__(wx.HORIZONTAL)
-        if interface_type == defs.DISPLAY_INTERFACE:
+        self.interface_type = interface_type
+        if self.interface_type == defs.DISPLAY_INTERFACE:
             instance_class = AppSpecificImageCell
         else:
             instance_class = AppSpecificCheckBoxCell
@@ -24,7 +25,12 @@ class Cell(wx.BoxSizer):
 
     @checked.setter
     def checked(self, new_state):
-        self.cell_instance.checked = new_state
+        """
+            Setter should be used to check/uncheck output types of cell, and
+            prevent checkboxes (input cells) from doing so
+        """
+        if self.interface_type == defs.DISPLAY_INTERFACE:
+            self.cell_instance.checked = new_state
 
     def hide(self):
         self.cell_instance.hide()

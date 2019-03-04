@@ -16,7 +16,7 @@ class AppSpecificImageCell(VariableImageCell):
 
 class AppSpecificCheckBoxCell(CheckBoxCell):
     """
-        An alias for CheckBoxCell
+        A proxy alias for CheckBoxCell
     """
     def __init__(self, *args, **kwargs):
         super(AppSpecificCheckBoxCell, self).__init__(*args, **kwargs)

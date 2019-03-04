@@ -70,7 +70,7 @@ class InputArray(wx.BoxSizer):
             ) for i in range(self.cols_quantity * self.rows_quantity)
         ]
 
-        self.check_box_instance_matrix = [
+        self.instance_matrix = [
             [
                 self.instance_array[i + j * self.cols_quantity]
                 for i in range(self.cols_quantity)
@@ -94,7 +94,7 @@ class InputArray(wx.BoxSizer):
         display_matrix.SetVGap(15)
         display_matrix.SetCols(self.cols_quantity + self.addit_col)
         display_matrix.SetRows(self.rows_quantity + self.addit_row)
-        for row_index in range(len(self.check_box_instance_matrix) + self.addit_row):
+        for row_index in range(len(self.instance_matrix) + self.addit_row):
             if row_index == 0 and self.addit_row:
                 for col_title in self.col_titles:
                     label = wx.StaticText(self.parent, label=col_title)
@@ -102,7 +102,7 @@ class InputArray(wx.BoxSizer):
             else:
                 integer = 0
                 fxd_row_id = row_index-self.addit_row
-                for col_index in range(len(self.check_box_instance_matrix[fxd_row_id]) + self.addit_col):
+                for col_index in range(len(self.instance_matrix[fxd_row_id]) + self.addit_col):
                     integer += 1
                     if col_index == 0 and self.addit_col:
                         label = wx.StaticText(self.parent, label=self.row_titles[row_index])
@@ -110,11 +110,31 @@ class InputArray(wx.BoxSizer):
                     else:
                         fxd_col_id = col_index - self.addit_col
                         display_matrix.Add(
-                            self.check_box_instance_matrix[fxd_row_id][fxd_col_id],
+                            self.instance_matrix[fxd_row_id][fxd_col_id],
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
                         )
         static_box_sizer.Add(display_matrix)
         self.Add(static_box_sizer, 0)
+
+    @property
+    def values(self):
+        value_list = list()
+        for instance in self.instance_array:
+            value_list.append(instance.checked)
+        return value_list
+
+    @values.setter
+    def values(self, new_array):
+        for index in range(self.instance_array):
+            print(index)
+            self.value_set_by_index(index, new_array[index])
+
+    def value_set_by_index(self, index, value=True):
+        if index > 14:
+            index = 14
+        elif index < 0:
+            index = 0
+        self.instance_array[index] = value
 
     @property
     def instance_array(self):
@@ -125,14 +145,14 @@ class InputArray(wx.BoxSizer):
         self._instance_array = new_array
 
     @property
-    def array_of_visible(self):
+    def visible_array_members(self):
         array = list()
         for instance in self.instance_array:
             array.append(instance.is_visible)
         return array
 
-    @array_of_visible.setter
-    def array_of_visible(self, new_array):
+    @visible_array_members.setter
+    def visible_array_members(self, new_array):
         for index, bool_value in enumerate(new_array):
             self.instance_array[index].is_visible = bool_value
 

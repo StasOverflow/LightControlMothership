@@ -48,11 +48,10 @@ class Settings(metaclass=_Singleton):
 class ApplicationState(metaclass=_Singleton):
 
     def __init__(self):
-        self.input_shown_tab1 = [False if x % 2 == 0 else True for x in range(15)]
-        self.input_shown_tab2 = [False if x % 2 == 0 else True for x in range(15)]
-        self.input_shown_tab3 = [False if x % 2 == 0 else True for x in range(15)]
-        self.input_shown_tab4 = [False if x % 2 == 0 else True for x in range(15)]
+        self.input_shown_tab_array = list()
+        for i in range(4):
+            self.input_shown_tab_array.append([False if x % 2 + i == 0 else True for x in range(15)])
 
     def __str__(self):
-        pretty = self.input_shown_tab1
+        pretty = self.input_shown_tab_array
         return pretty
