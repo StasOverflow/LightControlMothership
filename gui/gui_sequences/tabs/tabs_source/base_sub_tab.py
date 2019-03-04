@@ -67,7 +67,7 @@ class BaseSubTab(wx.Panel):
 
     def configuration_update(self, *args, **kwargs):
         self._configuration = self.inner_matrix.values
-        print('updating cfg' + str(self._configuration))
+        # print('updating cfg' + str(self._configuration))
 
     def configuration_get(self):
         return self._configuration

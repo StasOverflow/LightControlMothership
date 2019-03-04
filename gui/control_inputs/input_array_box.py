@@ -129,8 +129,8 @@ class InputArray(wx.BoxSizer):
             self.value_set_by_index(index, new_array[index])
 
     def value_set_by_index(self, index, value=True):
-        if index > 14:
-            index = 14
+        if index > len(self.instance_array):
+            index = len(self.instance_array)
         elif index < 0:
             index = 0
         self.instance_array[index].checked = value

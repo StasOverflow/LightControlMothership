@@ -95,12 +95,6 @@ class _MainFrame(wx.Frame):
 
     def state_update(self, state):
         pass
-        # for tab in self.btm_tab_array:
-            # tab.left_panel.inner_matrix.instance_matrix[0][1].checked = state
-            # tab.left_panel.inner_matrix.instance_matrix[0][4].checked = state
-            # tab.left_panel.inner_matrix.instance_matrix[1][1].checked = state
-            # tab.left_panel.inner_matrix.instance_matrix[1][2].checked = state
-            # tab.left_panel.inner_matrix.instance_matrix[1][4].checked = state
 
     def render(self):
         self.Show()

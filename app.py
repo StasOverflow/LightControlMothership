@@ -17,6 +17,8 @@ class WxWidgCustomApp:
                 port_getter_method=self._port_list_getter,
         )
 
+        self.main_panel_array = list()
+
         self.app_settings = Settings()
         self.app_state = ApplicationState()
 
@@ -41,17 +43,20 @@ class WxWidgCustomApp:
             self.port_list = serial_ports()
             time.sleep(0.1)
 
-    def input_pangel_layout_update(self):
-        main_panel_array = [False for _ in range(15)]
+    def output_panel_layout_update(self):
+        display_list = [0, 1, 0, 1]
+        self.gui.main_frame.top_canvas.right_panel.configuration_set(display_list, False)
+
+    def input_panel_layout_update(self):
+        self.main_panel_array = [False for _ in range(15)]
         for i in range(4):
             tab_ref = self.gui.main_frame.btm_tab_array[i]
             config_array = tab_ref.right_panel.configuration_get()
             tab_ref.left_panel.array_hidden_state_set(config_array)
             for index, value in enumerate(config_array):
-                main_panel_array[index] = main_panel_array[index] or value
+                self.main_panel_array[index] = self.main_panel_array[index] or value
 
-        # print(self.ma)
-        self.gui.main_frame.top_canvas.right_panel.array_hidden_state_set(main_panel_array)
+        self.gui.main_frame.top_canvas.right_panel.array_hidden_state_set(self.main_panel_array)
 
     def _layout_thread_handler(self):
         settings_prev = None
@@ -63,9 +68,10 @@ class WxWidgCustomApp:
                 settings_prev = sets
                 self.gui.main_frame.settings_update()
 
-            self.input_pangel_layout_update()
+            self.input_panel_layout_update()
+            self.output_panel_layout_update()
             self.gui.main_frame.state_update(state)
-            time.sleep(0.2)
+            time.sleep(0.3)
 
     def _main_logic_handler(self):
         """
