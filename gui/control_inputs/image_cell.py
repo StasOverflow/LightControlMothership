@@ -33,24 +33,27 @@ class VariableImageCell(wx.BoxSizer):
     ):
         super().__init__(wx.HORIZONTAL)
 
+        self.cur_invisible_state = None
         self.is_visible = None
         self.cur_state = None
-        # self.increment = 0
-
         self.parent = parent
-
-        self.image = list()
 
         self.true_image_address = true_image_path
         self.false_image_address = false_image_path
 
+        self.image = list()
         self.true_state_image_set(path_to_file=true_image_path)
         self.false_state_image_set(path_to_file=false_image_path)
+        self.invisible_image = BitmapImageCustom(parent=self.parent,
+                                                 path_to_file='./static/images/removed_button_5.png')
+        self.Add(self.invisible_image)
+        self.invisible_image.Hide()
 
         self.checked = initial_checked_status
         self.is_visible = visible
 
         self.cur_state = self.checked
+        self.cur_invisible_state = self.is_visible
 
     @property
     def checked(self):
@@ -92,8 +95,6 @@ class VariableImageCell(wx.BoxSizer):
                         else:
                             self.image[self.true_image_address].Hide()
                         self.Layout()
-                        # self.increment = self.increment + 1
-                        # print('loayouting, ', self.increment)
 
     def hide(self):
         if self:
@@ -115,8 +116,14 @@ class VariableImageCell(wx.BoxSizer):
     @is_visible.setter
     def is_visible(self, visible):
         self._is_visible = visible
-        if self._is_visible:
-            self.show()
-        else:
-            self.hide()
+        if self.cur_invisible_state != self._is_visible:
+            self.cur_invisible_state = self._is_visible
+            if self._is_visible:
+                self.invisible_image.Hide()
+                self.show()
+            elif self._is_visible is not None:
+                self.image[self.true_image_address].Hide()
+                self.image[self.false_image_address].Hide()
+                self.invisible_image.Show()
+                self.Layout()
 
