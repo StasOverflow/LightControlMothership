@@ -10,9 +10,19 @@ class _Singleton(type):
 class Settings(metaclass=_Singleton):
 
     def __init__(self):
+        self.connected = False
+        self.settings_changed = False
         self.device_port = None
         self.slave_id = 0
         self.refresh_rate = 200
+
+    @property
+    def settings_changed(self):
+        return self._settings_changed
+
+    @settings_changed.setter
+    def settings_changed(self, value):
+        self._settings_changed = value
 
     @property
     def device_port(self):
@@ -20,6 +30,7 @@ class Settings(metaclass=_Singleton):
 
     @device_port.setter
     def device_port(self, value):
+        self.settings_changed = True
         self._device_port = value
 
     @property
@@ -28,6 +39,7 @@ class Settings(metaclass=_Singleton):
 
     @slave_id.setter
     def slave_id(self, value):
+        self.settings_changed = True
         self._slave_id = value
 
     @property
@@ -36,7 +48,19 @@ class Settings(metaclass=_Singleton):
 
     @refresh_rate.setter
     def refresh_rate(self, value):
+        self.settings_changed = True
         self._refresh_rate = value
+
+    @property
+    def connected(self):
+        return self._connected
+
+    @connected.setter
+    def connected(self, value):
+        self._connected = value
+
+    def connection_status_update(self):
+        self.connected = not self.connected
 
     def __str__(self):
         pretty = '{\"device_port\": ' + str(self.device_port) + '},' + \

@@ -88,12 +88,16 @@ class VariableImageCell(wx.BoxSizer):
                 if self.instance:
                     if self.cur_state != self.checked:
                         self.cur_state = self.checked
-                        self.image[self.true_image_address].Show()
-                        self.image[self.false_image_address].Show()
+                        if bool(self.image[self.true_image_address]):
+                            self.image[self.true_image_address].Show()
+                        if bool(self.image[self.false_image_address]):
+                            self.image[self.false_image_address].Show()
                         if self.checked:
-                            self.image[self.false_image_address].Hide()
+                            if bool(self.image[self.false_image_address]):
+                                self.image[self.false_image_address].Hide()
                         else:
-                            self.image[self.true_image_address].Hide()
+                            if bool(self.image[self.true_image_address]):
+                                self.image[self.true_image_address].Hide()
                         self.Layout()
 
     def hide(self):
@@ -125,5 +129,5 @@ class VariableImageCell(wx.BoxSizer):
                 self.image[self.true_image_address].Hide()
                 self.image[self.false_image_address].Hide()
                 self.invisible_image.Show()
-                self.Layout()
+            self.Layout()
 

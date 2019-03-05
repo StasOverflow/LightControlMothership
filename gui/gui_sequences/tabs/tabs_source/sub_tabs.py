@@ -4,6 +4,7 @@ from gui.utils.label_types import *
 from gui.control_inputs.input_array_box import InputArray
 from gui.control_inputs.defs import *
 from settings import Settings
+from backend.modbus_backend import ModbusConnectionThread
 
 
 class ConnectButton(wx.BoxSizer):
@@ -21,6 +22,9 @@ class TopLeftPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
 
         self.settings = Settings()
+
+        instance = ModbusConnectionThread()
+        self.mbus = instance.thread_instance_get()
 
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
         self.top_left_sizer_v = wx.BoxSizer(wx.VERTICAL)
@@ -42,6 +46,8 @@ class TopLeftPanel(wx.Panel):
 
         self.conn_button = ConnectButton(parent=self)
 
+        self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conn_button.button)
+
         self.top_inputs_sizer.Add(self.status)
         self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
@@ -62,8 +68,22 @@ class TopLeftPanel(wx.Panel):
 
         self.SetSizer(self.top_left_sizer_main)
 
+    def connect_disconnect(self, event):
+        if self.settings.connected:
+            self.settings.connected = False
+            self.mbus.disconnect()
+        else:
+            self.settings.connected = True
+            self.mbus.connect()
+
     def slave_id_update(self, event):
         self.settings.slave_id = self.slave_id.value
+        if not self.mbus.is_connected:
+            self.mbus.slave_id_update(self.settings.slave_id)
+        else:
+            self.mbus.disconnect()
+            self.mbus.slave_id_update(self.settings.slave_id)
+            self.mbus.connect()
 
 
 class TopRightPanel(wx.Panel):

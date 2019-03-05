@@ -43,7 +43,7 @@ class _MainFrame(wx.Frame):
 
         bottom_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        notebook = wx.Notebook(self.btm_canvas)
+        notebook = wx.Notebook(self.btm_canvas, style=wx.LEFT)
         self.btm_tab_array = list()
         for i in range(4):
             self.btm_tab_array.append(BtmTab(parent=notebook))

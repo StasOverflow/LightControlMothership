@@ -2,13 +2,13 @@ import time
 import sys
 import threading
 from backend.ports.ports import serial_ports
-from backend.modbus.modbus import ModbusThread
+from backend.modbus_backend import ModbusConnectionThread
 from gui.gui import GuiApp
 from settings import Settings, ApplicationState
 import random
 
 
-class WxWidgCustomApp:
+class WxWidgetCustomApp:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,6 +17,9 @@ class WxWidgCustomApp:
                 title='Light Controller',
                 port_getter_method=self._port_list_getter,
         )
+
+        modbus = ModbusConnectionThread()
+        self.modbus_connection = modbus.modbus_comm_instance
 
         self.main_panel_array = list()
 
@@ -31,8 +34,6 @@ class WxWidgCustomApp:
         self.app_state.combined_array_matrix_register(self.gui.main_frame.top_canvas.right_panel)
 
         self.port_list = None
-
-        self.comm_thread = ModbusThread(None, None)
 
         self.poll_thread = threading.Thread(target=self._poll_thread_handler)
         self.poll_thread.daemon = True
@@ -56,42 +57,35 @@ class WxWidgCustomApp:
         self.app_state.display_icon_combined_value_update()
 
     def _layout_thread_handler(self):
-        settings_prev = None
         state = False
         while True:
-            sets = self.app_settings.__str__()
-            state = not state
-            if settings_prev != sets:
-                settings_prev = sets
-                self.gui.main_frame.settings_update()
+            lock = threading.Lock()
+            with lock:
+                if self.app_settings.settings_changed:
+                    self.gui.main_frame.settings_update()
+                    self.app_settings.settings_changed = False
 
+            state = not state
             self.input_panel_layout_update()
             # self.output_panel_layout_update()
             self.gui.main_frame.state_update(state)
-            time.sleep(0.3)
             array = [True if random.randint(1, 100) > 50 else False for _ in range(15)]
             for i in range(4):
                 self.app_state.display_icon_value_update(i, array)
             self.app_state.displayed_relay_array_state_update([state, not state, state, not state])
+            time.sleep(0.1)
 
     def _main_logic_handler(self):
-        """
-            This is where all important operations happen, like:
-
-            -Among-thread data exchange
-            -Closing handler polling (where we determine whether
-                the app is running or about to be closed)
-        """
         while True:
             if self.gui.is_closing:
                 print('closing')
                 sys.exit()
-            time.sleep(1)
+            time.sleep(.2)
 
     def run(self):
         self.poll_thread.start()
         self.main_logic_thread.start()
-        self.comm_thread.start()
+        self.modbus_connection.start()
         self.layout_thread.start()
         self.gui.start()
 
@@ -100,7 +94,7 @@ if __name__ == '__main__':
     debug = 0
 
     if not debug:
-        app = WxWidgCustomApp()
+        app = WxWidgetCustomApp()
         app.run()
     elif debug == 1:
         import wx
