@@ -11,7 +11,7 @@ class ModbusConnectionThread(metaclass=_Singleton):
     """
 
     def __init__(self):
-        self.modbus_comm_instance = ModbusThread(None, None)
+        self.modbus_comm_instance = ModbusThread()
 
     def thread_instance_get(self):
         return self.modbus_comm_instance

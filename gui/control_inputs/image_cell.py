@@ -33,7 +33,7 @@ class VariableImageCell(wx.BoxSizer):
     ):
         super().__init__(wx.HORIZONTAL)
 
-        self.cur_invisible_state = None
+        self.cur_invisible_state = False
         self.is_visible = None
         self.cur_state = None
         self.parent = parent
@@ -82,22 +82,25 @@ class VariableImageCell(wx.BoxSizer):
     def false_state_image_set(self, path_to_file=None):
         self._image_set(False, path_to_file)
 
+    def safe_image_dsiplaying_method(self):
+        if bool(self.image[self.true_image_address]):
+            self.image[self.true_image_address].Show()
+        if bool(self.image[self.false_image_address]):
+            self.image[self.false_image_address].Show()
+        if self.checked:
+            if bool(self.image[self.false_image_address]):
+                self.image[self.false_image_address].Hide()
+        else:
+            if bool(self.image[self.true_image_address]):
+                self.image[self.true_image_address].Hide()
+
     def state_image_update(self):
         if self.true_image_address is not None and self.false_image_address is not None:
             if self.is_visible:
                 if self.instance:
                     if self.cur_state != self.checked:
                         self.cur_state = self.checked
-                        if bool(self.image[self.true_image_address]):
-                            self.image[self.true_image_address].Show()
-                        if bool(self.image[self.false_image_address]):
-                            self.image[self.false_image_address].Show()
-                        if self.checked:
-                            if bool(self.image[self.false_image_address]):
-                                self.image[self.false_image_address].Hide()
-                        else:
-                            if bool(self.image[self.true_image_address]):
-                                self.image[self.true_image_address].Hide()
+                        self.safe_image_dsiplaying_method()
                         self.Layout()
 
     def hide(self):
@@ -123,8 +126,8 @@ class VariableImageCell(wx.BoxSizer):
         if self.cur_invisible_state != self._is_visible:
             self.cur_invisible_state = self._is_visible
             if self._is_visible:
+                self.safe_image_dsiplaying_method()
                 self.invisible_image.Hide()
-                self.show()
             elif self._is_visible is not None:
                 self.image[self.true_image_address].Hide()
                 self.image[self.false_image_address].Hide()

@@ -73,7 +73,7 @@ class WxWidgetCustomApp:
             for i in range(4):
                 self.app_state.display_icon_value_update(i, array)
             self.app_state.displayed_relay_array_state_update([state, not state, state, not state])
-            time.sleep(0.1)
+            time.sleep(0.05)
 
     def _main_logic_handler(self):
         while True:

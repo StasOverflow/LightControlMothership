@@ -7,7 +7,7 @@ import settings
 
 class ModbusThread(threading.Thread):
     def __init__(
-            self, queue_income, queue_outcome,
+            self,
             method='rtu',
             port='COM2',
             baudrate=19200,
@@ -26,8 +26,8 @@ class ModbusThread(threading.Thread):
         self.is_connected = False
         self.client = None
 
-        self.queue_income = queue_income
-        self.queue_outcome = queue_outcome
+        self.queue_income = queue.Queue()
+        self.queue_outcome = queue.Queue()
 
         self.method = method
         self.port = port
@@ -63,6 +63,7 @@ class ModbusThread(threading.Thread):
         self.is_connected = True
         self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.baudrate,
                                    parity=self.parity, timeout=self.timeout)
+        print('connecting')
 
     def disconnect(self):
         self.is_connected = False
@@ -85,8 +86,9 @@ class ModbusThread(threading.Thread):
                         pass
                 else:
                     try:
-                        rr = self.client.read_holding_registers(1000, count=18, unit=self.slave_id)
+                        rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                         self.queue_income.put(rr.registers)
+                        print(rr.registers)
                     except Exception as ex:
                         print(ex)
             time.sleep(0.1)

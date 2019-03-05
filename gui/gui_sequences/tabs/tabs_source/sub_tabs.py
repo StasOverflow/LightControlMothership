@@ -69,12 +69,17 @@ class TopLeftPanel(wx.Panel):
         self.SetSizer(self.top_left_sizer_main)
 
     def connect_disconnect(self, event):
-        if self.settings.connected:
+        if not self.settings.connected:
+            if self.settings.device_port is not None and self.settings.slave_id is not None:
+                self.mbus.com_port_update(self.settings.device_port)
+                self.mbus.slave_id_update(self.settings.slave_id)
+                self.settings.connected = True
+                self.mbus.connect()
+                self.conn_button.button.SetLabel('Disconnect')
+        else:
             self.settings.connected = False
             self.mbus.disconnect()
-        else:
-            self.settings.connected = True
-            self.mbus.connect()
+            self.conn_button.button.SetLabel('Connect')
 
     def slave_id_update(self, event):
         self.settings.slave_id = self.slave_id.value
