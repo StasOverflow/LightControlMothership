@@ -45,7 +45,7 @@ class _MainFrame(wx.Frame):
         self.btm_tab_array = list()
         for i in range(4):
             self.btm_tab_array.append(BtmTab(parent=notebook))
-            notebook.AddPage(self.btm_tab_array[i], "Relay " + str(i))
+            notebook.AddPage(self.btm_tab_array[i], "Relay: K" + str(1 + i))
 
         '''
             Here goes a very important line of a code, setting notebook
@@ -87,13 +87,9 @@ class _MainFrame(wx.Frame):
                 self.top_canvas.left_panel.status.value
 
         """
-        print('canvases redrawn')
         self.top_canvas.left_panel.device_port.value = self.settings.device_port
         self.top_canvas.left_panel.slave_id.value = self.settings.slave_id
         self.top_canvas.left_panel.refresh_rate.value = self.settings.refresh_rate
-
-    def state_update(self, state):
-        pass
 
     def render(self):
         self.Show()

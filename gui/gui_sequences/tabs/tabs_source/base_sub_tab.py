@@ -39,7 +39,6 @@ class BaseSubTab(wx.Panel):
 
                 self.setup_button.Bind(wx.EVT_BUTTON, self.configuration_update, self.setup_button)
 
-        # In this sequence we add elements (if they exists) to panel
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         if self.inner_title is not None:
             inner_panel_sizer.Add(self.inner_title, .5, wx.ALL, 5)

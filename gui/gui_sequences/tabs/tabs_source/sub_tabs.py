@@ -3,7 +3,7 @@ from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
 from gui.control_inputs.input_array_box import InputArray
 from gui.control_inputs.defs import *
-from settings import Settings
+from settings import Settings, ApplicationPresets
 from backend.modbus_backend import ModbusConnectionThread
 
 
@@ -22,6 +22,7 @@ class TopLeftPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
 
         self.settings = Settings()
+        self.assets = ApplicationPresets()
 
         instance = ModbusConnectionThread()
         self.mbus = instance.thread_instance_get()
@@ -69,15 +70,14 @@ class TopLeftPanel(wx.Panel):
         self.SetSizer(self.top_left_sizer_main)
 
     def connect_disconnect(self, event):
-        if not self.settings.connected:
+        self.settings.connection_status_update()
+        if not self.assets.connected:
             if self.settings.device_port is not None and self.settings.slave_id is not None:
                 self.mbus.com_port_update(self.settings.device_port)
                 self.mbus.slave_id_update(self.settings.slave_id)
-                self.settings.connected = True
                 self.mbus.connect()
                 self.conn_button.button.SetLabel('Disconnect')
         else:
-            self.settings.connected = False
             self.mbus.disconnect()
             self.conn_button.button.SetLabel('Connect')
 

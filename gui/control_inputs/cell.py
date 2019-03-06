@@ -26,11 +26,9 @@ class Cell(wx.BoxSizer):
     @checked.setter
     def checked(self, new_state):
         """
-            Setter should be used to check/uncheck output types of cell, and
-            prevent checkboxes (input cells) from doing so
+            Setter should be used to check/uncheck output for child cell
         """
-        if self.interface_type == defs.DISPLAY_INTERFACE:
-            self.cell_instance.checked = new_state
+        self.cell_instance.checked = new_state
 
     def hide(self):
         self.cell_instance.hide()

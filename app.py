@@ -13,19 +13,25 @@ class WxWidgetCustomApp:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        '''Define two singletones, containing data to share across application'''
+        '''
+            Define two singletones, containing data to share across application
+        '''
         self.app_settings = Settings()
         self.app_state = ApplicationPresets()
 
-        '''Create a gui application with main frame'''
+        '''
+            Create a gui application with main frame\
+        '''
         self.gui = GuiApp(size=(439, 550), title='Light Controller')
         frame_alias = self.gui.main_frame
 
-        '''Register both input and output table widgets to display data'''
+        '''
+            Register both input and output table widgets to display data
+        '''
         for i in range(4):
-            self.app_state.output_iface_reg(display_instance=frame_alias.btm_tab_array[i].left_panel,
+            self.app_state.inputs_iface_reg(display_instance=frame_alias.btm_tab_array[i].left_panel,
                                             input_instance=frame_alias.btm_tab_array[i].right_panel)
-        self.app_state.inputs_comb_iface_reg(self.gui.main_frame.top_canvas.right_panel)
+        self.app_state.in_out_comb_iface_reg(self.gui.main_frame.top_canvas.right_panel)
 
         '''Create threads'''
         modbus_singleton = ModbusConnectionThread()
@@ -50,9 +56,52 @@ class WxWidgetCustomApp:
     def _app_state_update(self):
         self.app_state.mbus_data = self.modbus_connection.queue_data_get()
 
-    def input_panel_layout_update(self):
-        self.app_state.inputs_state_iface_update()
-        # self.app_state.combined_input_state()
+    def _inner_tables_update(self):
+        """Get data for every displayed array, and use it to render displayed interfaces with actual values"""
+
+        '''
+            Combined inputs visibility
+        '''
+        combined_inputs_visibility_array = self.app_state.inputs_combined_visibility
+        if combined_inputs_visibility_array is not None:
+            self.app_state.combined_inps_visibility_set(combined_inputs_visibility_array)
+
+        '''
+            Separate inputs visibility
+        '''
+        # for index in range(4):
+        #     separate_inputs_visibility_array = self.app_state.separate_inputs_visibility_get_by_index(index)
+        #     if separate_inputs_visibility_array is not None:
+        #         self.app_state.input_config[index].visibility = separate_inputs_visibility_array
+
+        '''
+            Outputs state (red labels, bottom of the top right panel)
+        '''
+        out_data_array = self.app_state.outputs_combined_data
+        if out_data_array is not None:
+            self.app_state.combined_outs_conf_set(out_data_array)
+
+        '''
+            Combined inputs state (green labels, top of the top right panel)
+        '''
+        input_data_array = self.app_state.inputs_combined_data
+        if input_data_array is not None:
+            self.app_state.combined_inps_conf_set(input_data_array)
+
+        '''
+            Separate inputs state (green labels, bottom left panel, x4 sheets)
+        '''
+        for index in range(4):
+            separate_input_data_array = self.app_state.separate_inputs_state_get_by_index(index)
+            if separate_input_data_array is not None:
+                self.app_state.input_config[index].display_data = separate_input_data_array
+
+    def _layout_update(self):
+        self._inner_tables_update()
+
+        if self.app_settings.settings_changed:
+            self.gui.main_frame.settings_update()
+            self.app_settings.settings_changed = False
 
     '''
         Thread handler list
@@ -63,30 +112,8 @@ class WxWidgetCustomApp:
             time.sleep(0.2)
 
     def _layout_thread_handler(self):
-        state = False
         while True:
-
-            if self.app_settings.settings_changed:
-                self.gui.main_frame.settings_update()
-                self.app_settings.settings_changed = False
-
-            state = not state
-            self.input_panel_layout_update()
-            self.gui.main_frame.state_update(state)
-
-            if self.app_state.mbus_data is not None:
-                self.app_state.relay_state_update_bitwise(self.app_state.mbus_data[1])
-
-                self.app_state.combined_input_state(self.app_state.mbus_data[0], bitwise=True)
-                for i in range(4):
-                    val_range = self.app_state.mbus_data[0] & (31 << i) >> (i * 5)
-                    array = list()
-                    for index in range(15):
-                        array.append(bool(val_range & (1 << index)))
-                    print(array)
-                    # array = self.app_state.mbus_data_array[0] & (31 << i)
-                    self.app_state.tab_input_matrix_update(i, array)
-
+            self._layout_update()
             time.sleep(0.1)
 
     def _main_logic_handler(self):
