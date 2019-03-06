@@ -145,13 +145,13 @@ class TopRightPanel(wx.Panel):
     def array_hidden_state_get(self):
         return self.input_matrix.visible_instances
 
-    def configuration_set(self, new_array, matrix_inputs=True):
+    def configuration_set(self, new_array, input_configuration=True):
         """
             Didn't manage to come up with a better way of determining, which matrix to configure
             then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
             is top one
         """
-        if matrix_inputs:
+        if input_configuration:
             self.input_matrix.values = new_array
         else:
             self.output_matrix.values = new_array

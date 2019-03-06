@@ -10,11 +10,12 @@ class _Singleton(type):
 class Settings(metaclass=_Singleton):
 
     def __init__(self):
-        self.connected = False
         self.settings_changed = False
         self.device_port = None
-        self.slave_id = 0
+        self.port_list = None
         self.refresh_rate = 200
+        self.slave_id = 0
+        self.connected = False
 
     @property
     def settings_changed(self):
@@ -62,6 +63,14 @@ class Settings(metaclass=_Singleton):
     def connection_status_update(self):
         self.connected = not self.connected
 
+    @property
+    def port_list(self):
+        return self._port_list
+
+    @port_list.setter
+    def port_list(self, choices):
+        self._port_list = choices
+
     def __str__(self):
         pretty = '{\"device_port\": ' + str(self.device_port) + '},' + \
                  '{\"slave_id\": ' + str(self.slave_id) + '},' + \
@@ -69,92 +78,119 @@ class Settings(metaclass=_Singleton):
         return pretty
 
 
-class ApplicationState(metaclass=_Singleton):
+class _RelayAttr:
 
-    class RelayAttr:
+    def __init__(self, display_instance=None, input_instance=None):
+        """
+            Accepts instances of InputArray as parameters to work with
+            (assuming we know how methods of InputArray looks like, and
+            how to use them)
+        """
+        self.input_instance = input_instance
+        self.input_data = self.input_instance.configuration_get()
 
-        def __init__(self, display_instance=None, input_instance=None):
-            """
-                Accepts instances of InputArray as parameters to work with
-                (assuming we know how methods of InputArray looks like, and
-                how to use them)
-            """
-            self.input_instance = input_instance
-            self.input_data = self.input_instance.configuration_get()
+        self.display_instance = display_instance
+        self.output_data = self.display_instance.configuration_get()
 
-            self.display_instance = display_instance
-            self.output_data = self.display_instance.configuration_get()
+    @property
+    def display_data(self):
+        return self.display_instance.configuration_get()
 
-        @property
-        def display_data(self):
-            return self.display_instance.configuration_get()
+    @display_data.setter
+    def display_data(self, values_array):
+        self.display_instance.configuration_set(values_array)
 
-        @display_data.setter
-        def display_data(self, values_array):
-            self.display_instance.configuration_set(values_array)
+    @property
+    def input_data(self):
+        return self.input_instance.configuration_get()
 
-        @property
-        def input_data(self):
-            return self.input_instance.configuration_get()
+    @input_data.setter
+    def input_data(self, values_array):
+        self.input_instance.configuration_set(values_array)
 
-        @input_data.setter
-        def input_data(self, values_array):
-            self.input_instance.configuration_set(values_array)
+    @property
+    def visibility(self):
+        return self.display_instance.array_hidden_state_get()
 
-        @property
-        def visibility(self):
-            return self.display_instance.array_hidden_state_get()
+    @visibility.setter
+    def visibility(self, visibility_array):
+        self.display_instance.array_hidden_state_set(visibility_array)
 
-        @visibility.setter
-        def visibility(self, visibility_array):
-            self.display_instance.array_hidden_state_set(visibility_array)
+
+class ApplicationPresets(metaclass=_Singleton):
 
     def __init__(self):
-        self.relay_array = list()
+        self.input_config = list()
         self.output_matrix = None
-        self.combined_inputs_array_instance = None
-        self.combined_inputs_visibility = list()
-        self.combined_inputs_values = list()
+        self.inputs_combined = None
+        self.is_visible_combined = list()
+        self.config_combined = list()
 
-    def relay_register(self, display_instance, input_instance, index=None):
-        self.relay_array.append(self.RelayAttr(display_instance, input_instance))
+        self.mbus_data = None
 
-    def combined_array_matrix_register(self, instance):
-        self.combined_inputs_array_instance = instance
-        self.output_matrix = self.combined_inputs_array_instance.configuration_get(False)
+    '''
+        Register interface instances, which will be used by GUI visualize
+        incoming modbus data
+    '''
+    def output_iface_reg(self, display_instance, input_instance, index=None):
+        self.input_config.append(_RelayAttr(display_instance, input_instance))
 
-    def display_icon_visibility_update(self, index, values_array):
-        self.relay_array[index].visibility = values_array
+    def inputs_comb_iface_reg(self, instance):
+        self.inputs_combined = instance
+        self.output_matrix = self.inputs_combined.configuration_get(False)
 
-    def display_icon_visibility_update_all(self):
-        self.combined_inputs_visibility = [False for _ in range(15)]
-        for index, instance in enumerate(self.relay_array):
-            config_array = self.relay_array[index].input_data
-            self.display_icon_visibility_update(index, config_array)
-            for sub_index, value in enumerate(config_array):
-                self.combined_inputs_visibility[sub_index] = self.combined_inputs_visibility[sub_index] or value
-        self.combined_inputs_array_instance.array_hidden_state_set(self.combined_inputs_visibility)
+    @property
+    def mbus_data(self):
+        return self._mbus_data
 
-    def display_icon_value_update(self, index, values_array):
-        self.relay_array[index].display_data = values_array
+    @mbus_data.setter
+    def mbus_data(self, value):
+        self._mbus_data = value
 
-    def display_icon_combined_value_update(self):
-        self.combined_inputs_values = [False for _ in range(15)]
-        for index, instance in enumerate(self.relay_array):
-            self.relay_array[index].display_instance.configuration_update()
-            values_array = self.relay_array[index].display_data
-            for sub_index, value in enumerate(values_array):
-                self.combined_inputs_values[sub_index] = self.combined_inputs_values[sub_index] or value
-        self.combined_inputs_array_instance.configuration_set(self.combined_inputs_values)
+    def input_data(self, relay):
+        pass
 
-    def displayed_relay_state_update(self, index, value):
+    def inputs_state_is_shown(self, index, values_array):
+        self.input_config[index].visibility = values_array
+
+    def inputs_state_iface_update(self):
+        self.is_visible_combined = [False for _ in range(15)]
+        for index, instance in enumerate(self.input_config):
+            config = self.input_config[index].input_data
+            self.inputs_state_is_shown(index, config)
+            for sub_index, value in enumerate(config):
+                self.is_visible_combined[sub_index] = self.is_visible_combined[sub_index] or value
+        self.inputs_combined.array_hidden_state_set(self.is_visible_combined)
+
+    def tab_input_matrix_update(self, index, values_array):
+        self.input_config[index].display_data = values_array
+
+    def combined_input_state(self, new_array, bitwise=False):
+        """
+            Render combined input data to upper right panel
+        """
+        array = list()
+        if bitwise:
+            for i in range(15):
+                array.append(bool(new_array & (1 << i)))
+        else:
+            array = new_array
+        self.inputs_combined.configuration_set(array)
+
+    def relay_state_update_by_index(self, index, value):
         self.output_matrix[index] = value
-        self.combined_inputs_array_instance.configuration_set(self.output_matrix, False)
+        self.inputs_combined.configuration_set(self.output_matrix, False)
 
-    def displayed_relay_array_state_update(self, matrix):
+    def relay_state_update(self, matrix):
         for index, value in enumerate(matrix):
-            self.displayed_relay_state_update(index, value)
+            self.relay_state_update_by_index(index, value)
+
+    def relay_state_update_bitwise(self, value):
+        for index in range(len(self.output_matrix)):
+            self.output_matrix[3 - index] = bool(value & (1 << index))
+
+            self.inputs_combined.configuration_set(self.output_matrix, False)
 
     def __str__(self):
-        pretty = self.relay_array
+        pretty = self.input_config
         return pretty

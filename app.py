@@ -4,7 +4,7 @@ import threading
 from backend.ports.ports import serial_ports
 from backend.modbus_backend import ModbusConnectionThread
 from gui.gui import GuiApp
-from settings import Settings, ApplicationState
+from settings import Settings, ApplicationPresets
 import random
 
 
@@ -12,28 +12,24 @@ class WxWidgetCustomApp:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gui = GuiApp(
-                size=(439, 550),
-                title='Light Controller',
-                port_getter_method=self._port_list_getter,
-        )
 
-        modbus = ModbusConnectionThread()
-        self.modbus_connection = modbus.modbus_comm_instance
-
-        self.main_panel_array = list()
-
+        '''Define two singletones, containing data to share across application'''
         self.app_settings = Settings()
-        self.app_state = ApplicationState()
+        self.app_state = ApplicationPresets()
+
+        '''Create a gui application with main frame'''
+        self.gui = GuiApp(size=(439, 550), title='Light Controller')
         frame_alias = self.gui.main_frame
 
+        '''Register both input and output table widgets to display data'''
         for i in range(4):
-            self.app_state.relay_register(display_instance=frame_alias.btm_tab_array[i].left_panel,
-                                          input_instance=frame_alias.btm_tab_array[i].right_panel)
+            self.app_state.output_iface_reg(display_instance=frame_alias.btm_tab_array[i].left_panel,
+                                            input_instance=frame_alias.btm_tab_array[i].right_panel)
+        self.app_state.inputs_comb_iface_reg(self.gui.main_frame.top_canvas.right_panel)
 
-        self.app_state.combined_array_matrix_register(self.gui.main_frame.top_canvas.right_panel)
-
-        self.port_list = None
+        '''Create threads'''
+        modbus_singleton = ModbusConnectionThread()
+        self.modbus_connection = modbus_singleton.modbus_comm_instance
 
         self.poll_thread = threading.Thread(target=self._poll_thread_handler)
         self.poll_thread.daemon = True
@@ -44,45 +40,68 @@ class WxWidgetCustomApp:
         self.layout_thread = threading.Thread(target=self._layout_thread_handler)
         self.layout_thread.daemon = True
 
-    def _port_list_getter(self):
-        return self.port_list
+    '''
+        Helper logic-wrapping functions
+    '''
+    def _poll_close(self):
+        if self.gui.is_closing:
+            sys.exit()
 
-    def _poll_thread_handler(self):
-        while True:
-            self.port_list = serial_ports()
-            time.sleep(0.1)
+    def _app_state_update(self):
+        self.app_state.mbus_data = self.modbus_connection.queue_data_get()
 
     def input_panel_layout_update(self):
-        self.app_state.display_icon_visibility_update_all()
-        self.app_state.display_icon_combined_value_update()
+        self.app_state.inputs_state_iface_update()
+        # self.app_state.combined_input_state()
+
+    '''
+        Thread handler list
+    '''
+    def _poll_thread_handler(self):
+        while True:
+            self.app_settings.port_list = serial_ports()
+            time.sleep(0.2)
 
     def _layout_thread_handler(self):
         state = False
         while True:
-            lock = threading.Lock()
-            with lock:
-                if self.app_settings.settings_changed:
-                    self.gui.main_frame.settings_update()
-                    self.app_settings.settings_changed = False
+
+            if self.app_settings.settings_changed:
+                self.gui.main_frame.settings_update()
+                self.app_settings.settings_changed = False
 
             state = not state
             self.input_panel_layout_update()
-            # self.output_panel_layout_update()
             self.gui.main_frame.state_update(state)
-            array = [True if random.randint(1, 100) > 50 else False for _ in range(15)]
-            for i in range(4):
-                self.app_state.display_icon_value_update(i, array)
-            self.app_state.displayed_relay_array_state_update([state, not state, state, not state])
-            time.sleep(0.05)
+
+            if self.app_state.mbus_data is not None:
+                self.app_state.relay_state_update_bitwise(self.app_state.mbus_data[1])
+
+                self.app_state.combined_input_state(self.app_state.mbus_data[0], bitwise=True)
+                for i in range(4):
+                    val_range = self.app_state.mbus_data[0] & (31 << i) >> (i * 5)
+                    array = list()
+                    for index in range(15):
+                        array.append(bool(val_range & (1 << index)))
+                    print(array)
+                    # array = self.app_state.mbus_data_array[0] & (31 << i)
+                    self.app_state.tab_input_matrix_update(i, array)
+
+            time.sleep(0.1)
 
     def _main_logic_handler(self):
         while True:
-            if self.gui.is_closing:
-                print('closing')
-                sys.exit()
-            time.sleep(.2)
+            self._poll_close()
+            self._app_state_update()
+            time.sleep(.05)
 
     def run(self):
+        """
+            Manually launch every thread defined in __init__()
+            GUI.start() should always be the last one**
+            _________________________________________________
+              **blocks everything, called after
+        """
         self.poll_thread.start()
         self.main_logic_thread.start()
         self.modbus_connection.start()
@@ -94,6 +113,7 @@ if __name__ == '__main__':
     debug = 0
 
     if not debug:
+        '''Start the app'''
         app = WxWidgetCustomApp()
         app.run()
     elif debug == 1:

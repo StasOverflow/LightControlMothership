@@ -10,11 +10,8 @@ class _MainFrame(wx.Frame):
 
     def __init__(self, *args, pos=(0,0), size=(400, 300), title="", **kwargs):
         self.size = size
-        print('size is ', self.size)
         self.pos = (0, 0)
         self.super_sizer = wx.BoxSizer(wx.VERTICAL)
-
-        self.settings = Settings()
 
         style = wx.DEFAULT_FRAME_STYLE & ~wx.RESIZE_BORDER
         style = style ^ wx.MAXIMIZE_BOX
@@ -27,9 +24,10 @@ class _MainFrame(wx.Frame):
         self.Center()
         self.menu_bar = MenuBarSequence(parent=self, **kwargs)
 
+        self.settings = Settings()
+
         main_panel = wx.Panel(parent=self, size=self.size)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-        print(main_panel.GetBackgroundColour())
 
         # Top of the page sequence
         top_page_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -54,14 +52,14 @@ class _MainFrame(wx.Frame):
             item's color to default window color instead of white color,
             chosen by default, when creating widget
         '''
-        notebook.SetOwnBackgroundColour((240, 240, 240, 255))
+        notebook.SetOwnBackgroundColour(main_panel.GetBackgroundColour())
 
         bottom_inner_sizer.Add(notebook, 5, wx.EXPAND | wx.CENTER)
 
         bottom_page_sizer.Add(bottom_inner_sizer, 1, wx.EXPAND)
         self.btm_canvas.SetSizer(bottom_page_sizer)
 
-        other_panel = wx.Panel(parent=main_panel)
+        self.status_bottom_panel = wx.Panel(parent=main_panel)
 
         '''
             Second parameter in every main_sizer.Add method call is a proportion
@@ -69,7 +67,7 @@ class _MainFrame(wx.Frame):
         '''
         main_sizer.Add(top_page_sizer, 38,  wx.EXPAND)
         main_sizer.Add(self.btm_canvas, 48, wx.EXPAND | wx.CENTER)
-        main_sizer.Add(other_panel, 3, wx.EXPAND | wx.CENTER)
+        main_sizer.Add(self.status_bottom_panel, 3, wx.EXPAND | wx.CENTER)
 
         main_panel.SetSizer(main_sizer)
         main_panel.Layout()
@@ -89,6 +87,7 @@ class _MainFrame(wx.Frame):
                 self.top_canvas.left_panel.status.value
 
         """
+        print('canvases redrawn')
         self.top_canvas.left_panel.device_port.value = self.settings.device_port
         self.top_canvas.left_panel.slave_id.value = self.settings.slave_id
         self.top_canvas.left_panel.refresh_rate.value = self.settings.refresh_rate

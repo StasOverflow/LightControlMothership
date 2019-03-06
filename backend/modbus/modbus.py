@@ -17,7 +17,7 @@ class ModbusThread(threading.Thread):
             *args,
             **kwargs,
     ):
-        self.app_state = settings.ApplicationState()
+        self.app_state = settings.ApplicationPresets()
 
         super().__init__(*args, **kwargs)
         self.daemon = True
@@ -35,6 +35,12 @@ class ModbusThread(threading.Thread):
         self.parity = parity
         self.timeout = timeout
         self.slave_id = slave_id
+
+    def queue_data_get(self):
+        lock = threading.Lock()
+        with lock:
+            data = self.queue_income.get()
+        return data
 
     def com_port_update(self, new_com_port):
         if not self.is_connected:
@@ -79,17 +85,13 @@ class ModbusThread(threading.Thread):
 
             if self.is_connected:
                 if self.queue_outcome.qsize():
-                    try:
-                        sets = self.queue_outcome.get()
-                        self.client.write_registers(1013, sets, count=4, unit=self.slave_id)
-                    except queue.Empty:
-                        pass
+                    sets = self.queue_outcome.get()
+                    self.client.write_registers(1013, sets, count=4, unit=self.slave_id)
                 else:
                     try:
                         rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                         self.queue_income.put(rr.registers)
-                        print(rr.registers)
                     except Exception as ex:
                         print(ex)
-            time.sleep(0.1)
+            time.sleep(0.05)
         print('Serial Task: destroyed')

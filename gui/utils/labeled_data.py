@@ -2,6 +2,7 @@ import os
 import wx
 from gui.utils.label_types import *
 from gui.utils.utils import execute_every
+from settings import Settings
 
 
 class _RightColumnLabel(wx.StaticText):
@@ -46,12 +47,12 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
 
     event = wx.EVT_CHOICE
 
-    def __init__(self, *args, parent=None, label=None, port_getter_method=None, size=None, initial_value=None, **kwargs):
+    def __init__(self, *args, parent=None, label=None, size=None, initial_value=None, **kwargs):
 
         super().__init__(wx.HORIZONTAL)
 
         self.choices_data = None
-        self.port_getter_method = port_getter_method
+        self.settings = Settings()
 
         self.choicer = wx.Choice(parent, size=(71, -1), choices=self.choices_data)
         self.Add(self.choicer, 0, wx.LEFT, 0)
@@ -74,7 +75,7 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
     def choices_data(self):
         data = ['']
         if self._choices_data is not None:
-            if self._choices_data:
+            if self.settings.port_list:
                 data = self._choices_data
         return data
 
@@ -83,8 +84,7 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
         self._choices_data = choices
 
     def data_special_setter(self):
-        if self.port_getter_method is not None and callable(self.port_getter_method):
-            self.choices_data = self.port_getter_method()
+        self.choices_data = self.settings.port_list
 
     @property
     def value(self):
@@ -220,6 +220,7 @@ class LabelValueSequence(wx.BoxSizer):
     @value.setter
     def value(self, new_value):
         self.item.value = new_value
+        self.item.Layout()
 
 
 class LabeledIFaceInput(LabelValueSequence):
