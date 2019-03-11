@@ -52,9 +52,6 @@ class Settings(metaclass=_Singleton):
         self.settings_changed = True
         self._refresh_rate = value
 
-    def connection_status_update(self, value):
-        self.app_assets.connected = value
-
     @property
     def port_list(self):
         return self._port_list
@@ -117,7 +114,6 @@ class ApplicationPresets(metaclass=_Singleton):
         self.output_combined_state = [False for _ in range(4)]
         self.inputs_combined_state = [False for _ in range(15)]
         self.inputs_combined_visibility_state = [False for _ in range(15)]
-        self.connected = False
 
         for i in range(4):
             self.separate_inputs_checkboxes_state = None
@@ -136,21 +132,16 @@ class ApplicationPresets(metaclass=_Singleton):
         # self.inputs_combined_state = instance.configuration_get()
 
     def combined_outs_conf_set(self, value):
+        return
         self.config_combined_instance.configuration_set(value, False)
 
     def combined_inps_conf_set(self, value):
+        return
         self.config_combined_instance.configuration_set(value)
 
     def combined_inps_visibility_set(self, value):
+        return
         self.config_combined_instance.array_hidden_state_set(value)
-
-    @property
-    def connected(self):
-        return self._connected
-
-    @connected.setter
-    def connected(self, value):
-        self._connected = value
 
     @property
     def mbus_data(self):

@@ -1,5 +1,5 @@
 import wx
-from gui.gui_sequences.menu.menu_source.dialog import SettingsDialog
+from gui.main_frame.menu_bar.dialog import SettingsDialog
 
 
 class MenuBarSequence(wx.MenuBar):

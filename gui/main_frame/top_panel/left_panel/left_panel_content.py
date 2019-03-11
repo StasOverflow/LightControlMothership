@@ -1,10 +1,8 @@
 import wx
 from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
-from gui.control_inputs.input_array_box import InputArray
-from gui.control_inputs.defs import *
 from settings import Settings, ApplicationPresets
-from backend.modbus_backend import ModbusConnectionThread
+from backend.modbus_backend import ModbusConnectionThreadSingleton
 from gui.utils.utils import execute_rapidly
 
 
@@ -25,7 +23,7 @@ class TopLeftPanel(wx.Panel):
         self.settings = Settings()
         self.assets = ApplicationPresets()
 
-        instance = ModbusConnectionThread()
+        instance = ModbusConnectionThreadSingleton()
         self.mbus = instance.thread_instance_get()
 
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
@@ -72,10 +70,11 @@ class TopLeftPanel(wx.Panel):
 
     @execute_rapidly
     def button_status_update(self):
-        if self.mbus.is_connected:
-            self.conn_button.button.SetLabel('Disconnect')
-        else:
-            self.conn_button.button.SetLabel('Connect')
+        if self.conn_button:
+            if self.mbus.is_connected:
+                self.conn_button.button.SetLabel('Disconnect')
+            else:
+                self.conn_button.button.SetLabel('Connect')
 
     def connect_disconnect(self, event):
         if not self.mbus.is_connected:
@@ -102,84 +101,9 @@ class TopLeftPanel(wx.Panel):
             self.mbus.slave_id_update(self.settings.slave_id)
         else:
             '''
-            implement one more queue method inside of a modbus module for this particular case 
+                implement one more queue method inside of a modbus module for this particular case 
             '''
             pass
             # self.mbus.is_connected_state_set(False)
             # self.mbus.slave_id_update(self.settings.slave_id)
             # self.mbus.is_connected_state_set(True)
-
-
-class TopRightPanel(wx.Panel):
-
-    def __init__(self, parent=None, *args, **kwargs):
-        style = None
-        if 'style' in kwargs:
-            style = kwargs['style']
-        if style is not None:
-            super().__init__(parent, style=style)
-        else:
-            super().__init__(parent)
-
-        self.inner_title = None
-        self.setup_button = None
-
-        self.input_matrix = InputArray(
-            parent=self,
-            title='State of inputs:',
-            interface=DISPLAY_INTERFACE,
-            dimension=(3, 5),
-            col_titles=['1', '2', '3', '4', '5'],
-            row_titles=['X3', 'X2', 'X1'],
-            orientation=wx.VERTICAL,
-            *args,
-            **kwargs,
-        )
-
-        self.output_matrix = InputArray(
-            parent=self,
-            title='State of outputs:',
-            dimension=(1, 4),
-            col_titles=['K4', 'K3', 'K2', 'K1'],
-            orientation=wx.VERTICAL,
-            interface=DISPLAY_INTERFACE,
-            is_input_indication=False,
-            *args,
-            **kwargs,
-        )
-
-        inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-
-        inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-        inner_panel_sizer.Add(self.output_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        self.SetSizer(inner_panel_sizer)
-
-    def array_hidden_state_set(self, new_order):
-        self.input_matrix.visible_instances = new_order
-
-    def array_hidden_state_update(self):
-        pass
-
-    def array_hidden_state_get(self):
-        return self.input_matrix.visible_instances
-
-    def configuration_set(self, new_array, input_configuration=True):
-        """
-            Didn't manage to come up with a better way of determining, which matrix to configure
-            then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
-            is top one
-        """
-        if input_configuration:
-            self.input_matrix.values = new_array
-        else:
-            self.output_matrix.values = new_array
-
-    def configuration_update(self, *args, **kwargs):
-        pass
-
-    def configuration_get(self, matrix_inputs=True):
-        if matrix_inputs:
-            return self.input_matrix.values
-        else:
-            return self.output_matrix.values

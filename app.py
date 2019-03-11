@@ -2,7 +2,7 @@ import time
 import sys
 import threading
 from backend.ports.ports import serial_ports
-from backend.modbus_backend import ModbusConnectionThread
+from backend.modbus_backend import ModbusConnectionThreadSingleton
 from gui.gui import GuiApp
 from settings import Settings, ApplicationPresets
 import random
@@ -22,19 +22,19 @@ class WxWidgetCustomApp:
         '''
             Create a gui application with main frame\
         '''
-        self.gui = GuiApp(size=(439, 550), title='Light Controller')
+        self.gui = GuiApp(size=(439, 585), title='Light Controller')
         frame_alias = self.gui.main_frame
 
         '''
             Register both input and output table widgets to display data
         '''
-        for i in range(4):
-            self.app_state.inputs_iface_reg(display_instance=frame_alias.btm_tab_array[i].left_panel,
-                                            input_instance=frame_alias.btm_tab_array[i].right_panel)
-        self.app_state.in_out_comb_iface_reg(self.gui.main_frame.top_canvas.right_panel)
+        # for i in range(4):
+        #     self.app_state.inputs_iface_reg(display_instance=frame_alias.btm_tab_array[i].left_panel,
+        #                                     input_instance=frame_alias.btm_tab_array[i].right_panel)
+        # self.app_state.in_out_comb_iface_reg(self.gui.main_frame.top_canvas.right_panel)
 
         '''Create threads'''
-        modbus_singleton = ModbusConnectionThread()
+        modbus_singleton = ModbusConnectionThreadSingleton()
         self.modbus_connection = modbus_singleton.modbus_comm_instance
 
         self.poll_thread = threading.Thread(target=self._poll_thread_handler)
@@ -54,7 +54,6 @@ class WxWidgetCustomApp:
             sys.exit()
 
     def _app_state_update(self):
-        # self.app_settings.connection_status_update(self.modbus_connection.is_connected)
         self.app_state.mbus_data = self.modbus_connection.queue_data_get()
 
     def _inner_tables_update(self):
@@ -63,17 +62,17 @@ class WxWidgetCustomApp:
         '''
             Combined inputs visibility
         '''
-        combined_inputs_visibility_array = self.app_state.inputs_combined_visibility
-        if combined_inputs_visibility_array is not None:
-            self.app_state.combined_inps_visibility_set(combined_inputs_visibility_array)
+        # combined_inputs_visibility_array = self.app_state.inputs_combined_visibility
+        # if combined_inputs_visibility_array is not None:
+        #     self.app_state.combined_inps_visibility_set(combined_inputs_visibility_array)
 
         '''
             Separate inputs visibility
         '''
-        for index in range(4):
-            separate_inputs_visibility_array = self.app_state.separate_inputs_visibility_get_by_index(index)
-            if separate_inputs_visibility_array is not None:
-                self.app_state.input_config[index].visibility = separate_inputs_visibility_array
+        # for index in range(4):
+        #     separate_inputs_visibility_array = self.app_state.separate_inputs_visibility_get_by_index(index)
+        #     if separate_inputs_visibility_array is not None:
+        #         self.app_state.input_config[index].visibility = separate_inputs_visibility_array
 
         '''
             Outputs state (red labels, bottom of the top right panel)
@@ -85,17 +84,17 @@ class WxWidgetCustomApp:
         '''
             Combined inputs state (green labels, top of the top right panel)
         '''
-        input_data_array = self.app_state.inputs_combined_data
-        if input_data_array is not None:
-            self.app_state.combined_inps_conf_set(input_data_array)
+        # input_data_array = self.app_state.inputs_combined_data
+        # if input_data_array is not None:
+        #     self.app_state.combined_inps_conf_set(input_data_array)
 
         '''
             Separate inputs state (green labels, bottom left panel, x4 sheets)
         '''
-        for index in range(4):
-            separate_input_data_array = self.app_state.separate_inputs_state_get_by_index(index)
-            if separate_input_data_array is not None:
-                self.app_state.input_config[index].display_data = separate_input_data_array
+        # for index in range(4):
+        #     separate_input_data_array = self.app_state.separate_inputs_state_get_by_index(index)
+        #     if separate_input_data_array is not None:
+        #         self.app_state.input_config[index].display_data = separate_input_data_array
 
     def _layout_update(self):
         self._inner_tables_update()

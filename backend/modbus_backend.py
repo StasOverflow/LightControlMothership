@@ -2,7 +2,7 @@ from settings import _Singleton
 from backend.modbus.modbus import ModbusThread
 
 
-class ModbusConnectionThread(metaclass=_Singleton):
+class ModbusConnectionThreadSingleton(metaclass=_Singleton):
     """
         Wraps modbus thread into a singleton class, allowing to call
         the same object from different parts of code.

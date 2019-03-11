@@ -85,10 +85,11 @@ class InputArray(wx.BoxSizer):
     def grid_render(self):
         if self.outlined:
             static_box = wx.StaticBox(self.parent, wx.ID_ANY, self.title)
-            static_box_sizer = wx.StaticBoxSizer(static_box, wx.HORIZONTAL)
+            box_sizer = wx.StaticBoxSizer(static_box, wx.HORIZONTAL)
+            gap_value = 0
         else:
-            static_box_sizer = wx.BoxSizer(wx.HORIZONTAL)
-
+            gap_value = 17
+            box_sizer = wx.BoxSizer(wx.HORIZONTAL)
         display_matrix = wx.GridSizer(0)
         display_matrix.SetHGap(15)
         display_matrix.SetVGap(15)
@@ -113,8 +114,8 @@ class InputArray(wx.BoxSizer):
                             self.instance_matrix[fxd_row_id][fxd_col_id],
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
                         )
-        static_box_sizer.Add(display_matrix)
-        self.Add(static_box_sizer, 0)
+        box_sizer.Add(display_matrix)
+        self.Add(box_sizer, 0, wx.TOP, gap_value)
 
     @property
     def values(self):
