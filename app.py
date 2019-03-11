@@ -54,6 +54,7 @@ class WxWidgetCustomApp:
             sys.exit()
 
     def _app_state_update(self):
+        # self.app_settings.connection_status_update(self.modbus_connection.is_connected)
         self.app_state.mbus_data = self.modbus_connection.queue_data_get()
 
     def _inner_tables_update(self):
@@ -69,10 +70,10 @@ class WxWidgetCustomApp:
         '''
             Separate inputs visibility
         '''
-        # for index in range(4):
-        #     separate_inputs_visibility_array = self.app_state.separate_inputs_visibility_get_by_index(index)
-        #     if separate_inputs_visibility_array is not None:
-        #         self.app_state.input_config[index].visibility = separate_inputs_visibility_array
+        for index in range(4):
+            separate_inputs_visibility_array = self.app_state.separate_inputs_visibility_get_by_index(index)
+            if separate_inputs_visibility_array is not None:
+                self.app_state.input_config[index].visibility = separate_inputs_visibility_array
 
         '''
             Outputs state (red labels, bottom of the top right panel)
@@ -126,8 +127,8 @@ class WxWidgetCustomApp:
         """
             Manually launch every thread defined in __init__()
             GUI.start() should always be the last one**
-            _________________________________________________
-              **blocks everything, called after
+            __________________________________________________
+              **blocks every call after itself, until finished
         """
         self.poll_thread.start()
         self.main_logic_thread.start()

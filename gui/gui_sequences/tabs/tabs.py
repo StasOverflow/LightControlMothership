@@ -24,5 +24,5 @@ class BtmTab(BaseTwoSplitTab):
             outlined=False,
             left_panel_title='Status:',
             right_panel_title='Setup:',
-            right_panel_button_title='Configure'
+            right_panel_button_title='Set'
         )

@@ -5,6 +5,7 @@ from gui.control_inputs.input_array_box import InputArray
 from gui.control_inputs.defs import *
 from settings import Settings, ApplicationPresets
 from backend.modbus_backend import ModbusConnectionThread
+from gui.utils.utils import execute_rapidly
 
 
 class ConnectButton(wx.BoxSizer):
@@ -33,12 +34,10 @@ class TopLeftPanel(wx.Panel):
 
         self.status = LabelValueSequence(parent=self, label='Status', interface=LABELED_LABEL)
         self.device_port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
-        self.slave_id = LabelValueSequence(
-                            parent=self,
-                            label='Slave ID',
-                            interface=LABELED_SPIN_CONTROL,
-                            initial_value=0
-                        )
+        self.slave_id = LabelValueSequence(parent=self, label='Slave ID',
+                                           interface=LABELED_SPIN_CONTROL,
+                                           initial_value=0)
+
         self.Bind(wx.EVT_BUTTON, self.slave_id_update, self.slave_id.item.button)
         self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
 
@@ -69,26 +68,46 @@ class TopLeftPanel(wx.Panel):
 
         self.SetSizer(self.top_left_sizer_main)
 
+        self.button_status_update()
+
+    @execute_rapidly
+    def button_status_update(self):
+        if self.mbus.is_connected:
+            self.conn_button.button.SetLabel('Disconnect')
+        else:
+            self.conn_button.button.SetLabel('Connect')
+
     def connect_disconnect(self, event):
-        self.settings.connection_status_update()
-        if not self.assets.connected:
+        if not self.mbus.is_connected:
             if self.settings.device_port is not None and self.settings.slave_id is not None:
                 self.mbus.com_port_update(self.settings.device_port)
                 self.mbus.slave_id_update(self.settings.slave_id)
-                self.mbus.connect()
-                self.conn_button.button.SetLabel('Disconnect')
+                self.mbus.is_connected_state_set(True)
+            else:
+                if self.settings.device_port is not None:
+                    pass
+                else:
+                    print('self settings device port is not not None')
+                if self.settings.slave_id is not None:
+                    pass
+                else:
+                    print('self.settings.slave_id is not not None')
+
         else:
-            self.mbus.disconnect()
-            self.conn_button.button.SetLabel('Connect')
+            self.mbus.is_connected_state_set(False)
 
     def slave_id_update(self, event):
         self.settings.slave_id = self.slave_id.value
         if not self.mbus.is_connected:
             self.mbus.slave_id_update(self.settings.slave_id)
         else:
-            self.mbus.disconnect()
-            self.mbus.slave_id_update(self.settings.slave_id)
-            self.mbus.connect()
+            '''
+            implement one more queue method inside of a modbus module for this particular case 
+            '''
+            pass
+            # self.mbus.is_connected_state_set(False)
+            # self.mbus.slave_id_update(self.settings.slave_id)
+            # self.mbus.is_connected_state_set(True)
 
 
 class TopRightPanel(wx.Panel):

@@ -52,8 +52,8 @@ class Settings(metaclass=_Singleton):
         self.settings_changed = True
         self._refresh_rate = value
 
-    def connection_status_update(self):
-        self.app_assets.connected = not self.app_assets.connected
+    def connection_status_update(self, value):
+        self.app_assets.connected = value
 
     @property
     def port_list(self):

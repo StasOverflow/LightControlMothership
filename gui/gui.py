@@ -15,11 +15,8 @@ class _MainFrame(wx.Frame):
 
         style = wx.DEFAULT_FRAME_STYLE & ~wx.RESIZE_BORDER
         style = style ^ wx.MAXIMIZE_BOX
-        wx.Frame.__init__(self, None,
-                          title=title,
-                          style=style,
-                          size=self.size,
-                          pos=self.pos)
+        wx.Frame.__init__(self, None, title=title, style=style,
+                          size=self.size, pos=self.pos)
 
         self.Center()
         self.menu_bar = MenuBarSequence(parent=self, **kwargs)
