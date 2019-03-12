@@ -41,14 +41,11 @@ class BaseInnerTab(wx.Panel):
 
         self.app_data = AppData()
 
-        # In this sequence we add elements (if they exists) to panel
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         if self.inner_title is not None:
             self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
-
         self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 2)
 
-        self.configuration_update()
         self.SetSizer(self.inner_panel_sizer)
 
         if self.id is not None:
@@ -74,9 +71,6 @@ class BaseInnerTab(wx.Panel):
 
     def visibility_set(self, new_array):
         self.inner_matrix.visible_instances = new_array
-
-    def configuration_update(self, *args, **kwargs):
-        self._configuration = self.inner_matrix.values
 
     def configuration_get(self):
         return self._configuration

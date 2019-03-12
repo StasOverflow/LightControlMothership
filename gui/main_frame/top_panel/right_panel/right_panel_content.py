@@ -58,6 +58,10 @@ class TopRightPanel(wx.Panel):
             self.configuration_set(self.app_data.inputs_combined_data, input_cfg=True)
             self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
 
+    def _inputs_visibility_update(self):
+        if self.app_data.mbus_data:
+            self.visibility_set(self.app_data.inputs_combined_visibility)
+
     def array_hidden_state_set(self, new_order):
         self.input_matrix.visible_instances = new_order
 
@@ -77,6 +81,9 @@ class TopRightPanel(wx.Panel):
             self.input_matrix.values = new_array
         else:
             self.output_matrix.values = new_array
+
+    def visibility_set(self, new_array):
+        self.output_matrix.visible_instances = new_array
 
     def configuration_update(self, *args, **kwargs):
         pass

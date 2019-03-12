@@ -72,10 +72,11 @@ class TopLeftPanel(wx.Panel):
 
     def _button_update(self):
         if self.conn_button:
-            if self.mbus.is_connected:
-                self.conn_button.button.SetLabel('Disconnect')
-            else:
-                self.conn_button.button.SetLabel('Connect')
+            if self.conn_button:
+                if self.mbus.is_connected:
+                    self.conn_button.button.SetLabel('Disconnect')
+                else:
+                    self.conn_button.button.SetLabel('Connect')
 
     def _port_update(self):
         self.device_port.value = self.settings.device_port

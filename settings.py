@@ -1,3 +1,6 @@
+import configparser
+
+
 class _Singleton(type):
     _instances = {}
 
@@ -59,6 +62,29 @@ class Settings(metaclass=_Singleton):
     @port_list.setter
     def port_list(self, choices):
         self._port_list = choices
+
+    def settings_save(self):
+        if self.settings_changed:
+            self.settings_changed = False
+            print('saving')
+            config = configparser.ConfigParser()
+            config['PORT SETTINGS'] = {}
+            config['PORT SETTINGS']['port'] = str(self.device_port)
+            config['PORT SETTINGS']['slave_id'] = str(self.slave_id)
+            config['PORT SETTINGS']['refresh_rate'] = str(self.refresh_rate)
+            with open('config.ini', 'w') as configfile:
+                config.write(configfile)
+
+    def settings_load(self):
+        config = configparser.ConfigParser()
+        try:
+            config.read('config.ini')
+            sets = config['PORT SETTINGS']
+            self.device_port = sets['port']
+            self.slave_id = int(sets['slave_id'])
+            self.refresh_rate = int(sets['refresh_rate'])
+        except Exception as e:
+            print(e)
 
     def __str__(self):
         pretty = '{\"device_port\": ' + str(self.device_port) + '},' + \
@@ -130,29 +156,6 @@ class AppData(metaclass=_Singleton):
 
     def iface_handler_register(self, handler):
         self.handler_list.append(handler)
-
-    '''
-        Register interface instances, which will be used by GUI visualize
-        incoming modbus data
-    '''
-    def inputs_iface_reg(self, display_instance, input_instance, index=None):
-        self.input_config.append(_RelayAttr(display_instance, input_instance))
-
-    def in_out_comb_iface_reg(self, instance):
-        self.config_combined_instance = instance
-        # self.inputs_combined_state = instance.configuration_get()
-
-    def combined_outs_conf_set(self, value):
-        return
-        self.config_combined_instance.configuration_set(value, False)
-
-    def combined_inps_conf_set(self, value):
-        return
-        self.config_combined_instance.configuration_set(value)
-
-    def combined_inps_visibility_set(self, value):
-        return
-        self.config_combined_instance.array_hidden_state_set(value)
 
     @property
     def mbus_data(self):
@@ -243,10 +246,6 @@ class AppData(metaclass=_Singleton):
             return inputs_state
         else:
             return inputs_state
-
-    def separate_inputs_checkboxes_state_update(self, index):
-
-        pass
 
     def __str__(self):
         pretty = self.input_config

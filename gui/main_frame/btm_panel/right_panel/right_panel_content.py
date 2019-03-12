@@ -34,9 +34,6 @@ class BtmRightPanel(BaseInnerTab):
 
         self.mbus_data = self.app_data.separate_inputs_visibility_get_by_index(self.id)
 
-    # def _interface_updater(self):
-    #     if self.settings.
-
     def _inputs_state_update(self, force=False):
         separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
         if separate_inputs_visibility_array is not None:

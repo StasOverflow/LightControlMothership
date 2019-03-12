@@ -3,7 +3,7 @@ import wx
 
 class CheckBoxCell(wx.BoxSizer):
 
-    def __init__(self, parent, initial_checked_status=True, visible=True, *args, **kwargs):
+    def __init__(self, parent, initial_checked_status=False, visible=True, *args, **kwargs):
         super().__init__(wx.HORIZONTAL)
         self.checkbox = None
 
