@@ -1,6 +1,7 @@
 import wx
 from gui.basis.tabs.inner_tab import BaseInnerTab
 from settings import AppData
+from settings import Settings
 
 
 class BtmRightPanel(BaseInnerTab):
@@ -23,10 +24,34 @@ class BtmRightPanel(BaseInnerTab):
         self.inner_panel_sizer.Add(button_sizer, 5, wx.TOP | wx.ALIGN_CENTER, 30)
         self.SetSizer(self.inner_panel_sizer)
 
-        self.assets = AppData()
-        self.assets.iface_handler_register(self._update_visibility)
+        self.settings = Settings()
 
-    def _update_visibility(self):
+        self.app_data = AppData()
+        self.app_data.iface_handler_register(self._buttons_update)
+        self.app_data.iface_handler_register(self._conf_receive)
+
+        self.data_received = False
+
+        self.mbus_data = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+
+    # def _interface_updater(self):
+    #     if self.settings.
+
+    def _inputs_state_update(self, force=False):
+        separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+        if separate_inputs_visibility_array is not None:
+            self.configuration_set(separate_inputs_visibility_array)
+
+    def _conf_receive(self, force=False):
+        if self.modbus.is_connected:
+            mbus_data_new = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+            if self.mbus_data != mbus_data_new:
+                self.mbus_data = mbus_data_new
+                self._inputs_state_update()
+        else:
+            self.mbus_data = None
+
+    def _buttons_update(self):
         if self.modbus.is_connected:
             if self.setter_button:
                 self.setter_button.Enable()
@@ -37,3 +62,12 @@ class BtmRightPanel(BaseInnerTab):
                 self.setter_button.Disable()
             if self.getter_button:
                 self.getter_button.Disable()
+
+    def configuration_receive(self, *args, **kwargs):
+        print(self.id)
+        self._inputs_state_update(force=True)
+        print('receiving configurations')
+
+    def configuration_send(self, *args, **kwargs):
+        print(self.id)
+        print('sending configurations')

@@ -75,12 +75,6 @@ class BaseInnerTab(wx.Panel):
     def visibility_set(self, new_array):
         self.inner_matrix.visible_instances = new_array
 
-    def configuration_receive(self, *args, **kwargs):
-        print('receiving configurations')
-
-    def configuration_send(self, *args, **kwargs):
-        print('sending configurations')
-
     def configuration_update(self, *args, **kwargs):
         self._configuration = self.inner_matrix.values
 

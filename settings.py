@@ -119,6 +119,7 @@ class AppData(metaclass=_Singleton):
             self.separate_inputs_checkboxes_state = None
 
         self.mbus_data = None
+        self.mbus_online = False
 
         self.handler_list = list()
 
@@ -128,7 +129,6 @@ class AppData(metaclass=_Singleton):
                 handler()
 
     def iface_handler_register(self, handler):
-
         self.handler_list.append(handler)
 
     '''
