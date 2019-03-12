@@ -2,25 +2,22 @@ import wx
 from gui.basis.tabs.tab import BaseTwoSplitTab
 from gui.main_frame.btm_panel.left_panel.left_panel_content import BtmLeftPanel
 from gui.main_frame.btm_panel.right_panel.right_panel_content import BtmRightPanel
-from gui.control_inputs.defs import *
+from defs import *
 
 
 class _BtmSubPanel(BaseTwoSplitTab):
 
-    def __init__(self, parent=None, *args, **kwargs):
-        super().__init__(
-            parent=parent,
-            iface_types=(DISPLAY_INTERFACE, INPUT_INTERFACE),
-            outlined=False,
-        )
+    def __init__(self, parent=None, *args, aydi=None, **kwargs):
+        super().__init__(parent=parent, iface_types=(DISPLAY_INTERFACE, INPUT_INTERFACE),
+                         outlined=False, aydi=aydi)
 
     def _left_panel_create(self, *args, **kwargs):
         self.left_panel = BtmLeftPanel(self.top_page_splitter, *args, inner_title='Status',
-                                       style=wx.RAISED_BORDER, **kwargs)
+                                       style=wx.RAISED_BORDER, aydi=self.left_panel_id, **kwargs)
 
     def _right_panel_create(self, *args, **kwargs):
         self.right_panel = BtmRightPanel(self.top_page_splitter, *args, style=wx.BORDER_DEFAULT,
-                                         inner_title='Setup')
+                                         aydi=self.left_panel_id, inner_title='Setup')
 
 
 class _BtmPanel(wx.Panel):
@@ -36,7 +33,7 @@ class _BtmPanel(wx.Panel):
         notebook = wx.Notebook(self, **kwargs)
         self.sub_canvases = list()
         for i in range(4):
-            self.sub_canvases.append(_BtmSubPanel(parent=notebook))
+            self.sub_canvases.append(_BtmSubPanel(parent=notebook, aydi=i))
             notebook.AddPage(self.sub_canvases[i], "Relay: K" + str(1 + i))
 
         '''

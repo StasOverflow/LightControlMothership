@@ -1,12 +1,14 @@
 import wx
 from gui.control_inputs.input_array_box import InputArray
-from settings import ApplicationPresets
+from settings import AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
+from defs import *
 
 
 class BaseInnerTab(wx.Panel):
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, *args, aydi=None, **kwargs):
+        self.id = aydi
 
         style = None
         if 'style' in kwargs:
@@ -37,6 +39,8 @@ class BaseInnerTab(wx.Panel):
         modbus_singleton = ModbusConnectionThreadSingleton()
         self.modbus = modbus_singleton.modbus_comm_instance
 
+        self.app_data = AppData()
+
         # In this sequence we add elements (if they exists) to panel
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         if self.inner_title is not None:
@@ -47,17 +51,29 @@ class BaseInnerTab(wx.Panel):
         self.configuration_update()
         self.SetSizer(self.inner_panel_sizer)
 
-    def array_hidden_state_set(self, new_order):
-        self.inner_matrix.visible_instances = new_order
+        if self.id is not None:
+            if 'interface' in kwargs:
+                if kwargs['interface'] == DISPLAY_INTERFACE:
+                    self.app_data.iface_handler_register(self._inputs_state_update)
+                    self.app_data.iface_handler_register(self._inputs_visibility_update)
+            else:
+                print('input interface')
 
-    def array_hidden_state_update(self):
-        pass
+    def _inputs_state_update(self):
+        separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
+        if separate_input_data_array is not None:
+            self.configuration_set(separate_input_data_array)
 
-    def array_hidden_state_get(self):
-        return self.inner_matrix.visible_instances
+    def _inputs_visibility_update(self):
+        separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+        if separate_inputs_visibility_array is not None:
+            self.visibility_set(separate_inputs_visibility_array)
 
     def configuration_set(self, new_array):
         self.inner_matrix.values = new_array
+
+    def visibility_set(self, new_array):
+        self.inner_matrix.visible_instances = new_array
 
     def configuration_receive(self, *args, **kwargs):
         print('receiving configurations')
@@ -67,7 +83,6 @@ class BaseInnerTab(wx.Panel):
 
     def configuration_update(self, *args, **kwargs):
         self._configuration = self.inner_matrix.values
-        # print('updating cfg' + str(self._configuration))
 
     def configuration_get(self):
         return self._configuration

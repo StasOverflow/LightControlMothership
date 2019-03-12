@@ -1,7 +1,6 @@
 import wx
 import wx.grid
-from itertools import chain
-from gui.control_inputs import defs
+import defs
 from gui.control_inputs.cell import Cell
 
 PRINTIO = True

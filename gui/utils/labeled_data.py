@@ -17,13 +17,14 @@ class _RightColumnLabel(wx.StaticText):
 
     @value.setter
     def value(self, new_value):
-        if type(new_value) is not str:
-            new_value = str(new_value)
-        if new_value is None or new_value == 'None' or new_value == '':
-            self._value = 'None'
-        else:
-            self._value = new_value
-        self.SetLabel(self._value)
+        if self:
+            if type(new_value) is not str:
+                new_value = str(new_value)
+            if new_value is None or new_value == 'None' or new_value == '':
+                self._value = 'None'
+            else:
+                self._value = new_value
+            self.SetLabel(self._value)
 
 
 class _RightColumnCheckbox(wx.CheckBox):
@@ -138,11 +139,13 @@ class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
 
     @property
     def value(self):
-        return self.spin.GetValue()
+        if self.spin:
+            return self.spin.GetValue()
 
     @value.setter
     def value(self, new_value):
-        self.spin.SetValue(new_value)
+        if self.spin:
+            self.spin.SetValue(new_value)
 
 
 class _RightColumnTextInput(wx.BoxSizer):
@@ -219,8 +222,10 @@ class LabelValueSequence(wx.BoxSizer):
 
     @value.setter
     def value(self, new_value):
-        self.item.value = new_value
-        self.item.Layout()
+        if self.item.value != new_value:
+            self.item.value = new_value
+            if self.item:
+                self.item.Layout()
 
 
 class LabeledIFaceInput(LabelValueSequence):

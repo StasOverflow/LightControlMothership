@@ -1,7 +1,7 @@
 import wx
 from gui.main_frame.top_panel.top_panel_content import TopPanel
 from gui.main_frame.btm_panel.btm_panel_content import BtmPanel
-from gui.control_inputs.input_array_box import defs
+import defs
 from gui.main_frame.menu_bar.menu import MenuBarSequence
 from settings import Settings
 

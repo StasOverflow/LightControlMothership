@@ -1,11 +1,12 @@
 import wx
-from gui.control_inputs import defs
-from gui.basis.tabs.inner_tab import BaseInnerTab
+import defs
 
 
 class BaseTwoSplitTab(wx.Panel):
-    def __init__(self, parent, *args, iface_types=(defs.INPUT_INTERFACE, defs.INPUT_INTERFACE), **kwargs):
+    def __init__(self, parent, *args, aydi=None, iface_types=(defs.INPUT_INTERFACE, defs.INPUT_INTERFACE), **kwargs):
         super().__init__(parent)
+
+        self.left_panel_id = aydi
 
         self.top_page_inner_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.top_page_splitter = wx.SplitterWindow(self, style=wx.SP_BORDER)

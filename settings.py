@@ -10,7 +10,7 @@ class _Singleton(type):
 class Settings(metaclass=_Singleton):
 
     def __init__(self):
-        self.app_assets = ApplicationPresets
+        self.app_assets = AppData
         self.settings_changed = False
         self.device_port = None
         self.port_list = None
@@ -106,19 +106,30 @@ class _RelayAttr:
         self.display_instance.array_hidden_state_set(visibility_array)
 
 
-class ApplicationPresets(metaclass=_Singleton):
+class AppData(metaclass=_Singleton):
 
     def __init__(self):
         self.input_config = list()
         self.config_combined_instance = None
         self.output_combined_state = [False for _ in range(4)]
-        self.inputs_combined_state = [False for _ in range(15)]
+        self.input_state_array = [False for _ in range(15)]
         self.inputs_combined_visibility_state = [False for _ in range(15)]
 
         for i in range(4):
             self.separate_inputs_checkboxes_state = None
 
         self.mbus_data = None
+
+        self.handler_list = list()
+
+    def layout_update(self):
+        if len(self.handler_list):
+            for handler in self.handler_list:
+                handler()
+
+    def iface_handler_register(self, handler):
+
+        self.handler_list.append(handler)
 
     '''
         Register interface instances, which will be used by GUI visualize
@@ -175,8 +186,8 @@ class ApplicationPresets(metaclass=_Singleton):
             '''
             data = self.mbus_data[0]
             for index in range(15):
-                self.inputs_combined_state[index] = bool(data & (1 << index))
-            return self.inputs_combined_state
+                self.input_state_array[index] = bool(data & (1 << index))
+            return self.input_state_array
         else:
             return None
     '''

@@ -1,6 +1,7 @@
 import wx
 from gui.control_inputs.input_array_box import InputArray
-from gui.control_inputs.defs import *
+from defs import *
+from settings import AppData
 
 
 class TopRightPanel(wx.Panel):
@@ -46,7 +47,16 @@ class TopRightPanel(wx.Panel):
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
         inner_panel_sizer.Add(self.output_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
+        self.app_data = AppData()
+
+        self.app_data.iface_handler_register(self._inputs_state_update)
+
         self.SetSizer(inner_panel_sizer)
+
+    def _inputs_state_update(self):
+        if self.app_data.mbus_data:
+            self.configuration_set(self.app_data.inputs_combined_data, input_cfg=True)
+            self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
 
     def array_hidden_state_set(self, new_order):
         self.input_matrix.visible_instances = new_order
@@ -57,13 +67,13 @@ class TopRightPanel(wx.Panel):
     def array_hidden_state_get(self):
         return self.input_matrix.visible_instances
 
-    def configuration_set(self, new_array, input_configuration=True):
+    def configuration_set(self, new_array, input_cfg=True):
         """
             Didn't manage to come up with a better way of determining, which matrix to configure
             then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
             is top one
         """
-        if input_configuration:
+        if input_cfg:
             self.input_matrix.values = new_array
         else:
             self.output_matrix.values = new_array

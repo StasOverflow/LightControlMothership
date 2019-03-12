@@ -23,7 +23,7 @@ class ModbusThread(threading.Thread):
             *args,
             **kwargs,
     ):
-        self.app_state = settings.ApplicationPresets()
+        self.app_state = settings.AppData()
 
         super().__init__(*args, **kwargs)
         self.daemon = True

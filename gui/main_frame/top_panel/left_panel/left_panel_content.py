@@ -1,9 +1,8 @@
 import wx
 from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
-from settings import Settings, ApplicationPresets
+from settings import Settings, AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
-from gui.utils.utils import execute_rapidly
 
 
 class ConnectButton(wx.BoxSizer):
@@ -21,7 +20,7 @@ class TopLeftPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
 
         self.settings = Settings()
-        self.assets = ApplicationPresets()
+        self.assets = AppData()
 
         instance = ModbusConnectionThreadSingleton()
         self.mbus = instance.thread_instance_get()
@@ -66,15 +65,26 @@ class TopLeftPanel(wx.Panel):
 
         self.SetSizer(self.top_left_sizer_main)
 
-        self.button_status_update()
+        self.assets.iface_handler_register(self._button_update)
+        self.assets.iface_handler_register(self._port_update)
+        self.assets.iface_handler_register(self._slave_id_update)
+        self.assets.iface_handler_register(self._refresh_rate_update)
 
-    @execute_rapidly
-    def button_status_update(self):
+    def _button_update(self):
         if self.conn_button:
             if self.mbus.is_connected:
                 self.conn_button.button.SetLabel('Disconnect')
             else:
                 self.conn_button.button.SetLabel('Connect')
+
+    def _port_update(self):
+        self.device_port.value = self.settings.device_port
+
+    def _slave_id_update(self):
+        self.slave_id.value = self.settings.slave_id
+
+    def _refresh_rate_update(self):
+        self.refresh_rate.value = self.settings.refresh_rate
 
     def connect_disconnect(self, event):
         if not self.mbus.is_connected:

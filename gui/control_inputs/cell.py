@@ -1,5 +1,5 @@
 import wx
-from gui.control_inputs import defs
+import defs
 from gui.control_inputs.app_cells import AppSpecificImageCell
 from gui.control_inputs.app_cells import AppSpecificCheckBoxCell
 
