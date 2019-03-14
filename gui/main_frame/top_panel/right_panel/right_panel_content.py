@@ -30,28 +30,48 @@ class TopRightPanel(wx.Panel):
             **kwargs,
         )
 
-        self.output_matrix = InputArray(
-            parent=self,
-            title='State of outputs:',
-            dimension=(1, 4),
-            col_titles=['K4', 'K3', 'K2', 'K1'],
-            orientation=wx.VERTICAL,
-            interface=DISPLAY_INTERFACE,
-            is_input_indication=False,
-            *args,
-            **kwargs,
-        )
+        self.output_matrix = InputArray(parent=self, title='State of outputs:', dimension=(1, 4),
+                                        col_titles=['K4', 'K3', 'K2', 'K1'], orientation=wx.VERTICAL,
+                                        interface=DISPLAY_INTERFACE, is_input_indication=False,
+                                        *args, is_button=True, secret_ids=[4, 3, 2, 1], **kwargs)
 
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
 
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
-        inner_panel_sizer.Add(self.output_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+        output_matrix_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        output_matrix_wrapper.Add(self.output_matrix, 0, wx.LEFT, 10)
+
+        btm_of_page_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        for index, instance in enumerate(self.output_matrix.instance_array):
+            for image in instance.cell_instance.image:
+                print('object: ', image)
+                image.Bind(wx.EVT_LEFT_DOWN, self._on_mouse_down)
+
+        conn_label = wx.StaticText(parent=self, label='ACT')
+        self.connection_matrix = InputArray(parent=self, dimension=(1, 1), orientation=wx.VERTICAL,
+                                            interface=DISPLAY_INTERFACE, is_input_indication=False,
+                                            *args, is_button=True, secret_ids=[5], row_titles=[''],
+                                            outlined=False,
+                                            **kwargs)
+
+        vertical_conn_btn_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        vertical_conn_btn_sizer.Add(conn_label, 0,  wx.LEFT, 25)
+        vertical_conn_btn_sizer.Add(self.connection_matrix, 0, wx.TOP | wx.RIGHT, 10)
+
+        btm_of_page_sizer.Add(vertical_conn_btn_sizer, 0, wx.RIGHT | wx.TOP, 10)
+        btm_of_page_sizer.Add(output_matrix_wrapper)
+        inner_panel_sizer.Add(btm_of_page_sizer)
 
         self.app_data = AppData()
-
         self.app_data.iface_handler_register(self._inputs_state_update)
 
         self.SetSizer(inner_panel_sizer)
+
+    def _on_mouse_down(self, event):
+        print('pressed', event.GetEventObject().parent_class.secret_id)
 
     def _inputs_state_update(self):
         if self.app_data.mbus_data:

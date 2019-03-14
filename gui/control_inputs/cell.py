@@ -15,9 +15,10 @@ class Cell(wx.BoxSizer):
             instance_class = AppSpecificCheckBoxCell
 
         self.cell_instance = instance_class(*args, **kwargs)
+        # if secret_id is not None:
+        #     self.cell_instance.id = secret_id
+        #     print(self.cell_instance, self.cell_instance.id)
         self.Add(self.cell_instance)
-
-        # print(self.cell_instance.checked)
 
     @property
     def checked(self):

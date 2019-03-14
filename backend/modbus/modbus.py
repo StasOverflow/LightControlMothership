@@ -131,8 +131,8 @@ class ModbusThread(threading.Thread):
                         print(ex)
                 else:
                     try:
-                        rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                         with self.queue_lock:
+                            rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                             self.queue_income.put(rr.registers)
                     except Exception as ex:
                         print(ex)

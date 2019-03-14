@@ -140,7 +140,11 @@ class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
     @property
     def value(self):
         if self.spin:
-            return self.spin.GetValue()
+            try:
+                value = self.spin.GetValue()
+            except Exception as e:
+                value = None
+            return value
 
     @value.setter
     def value(self, new_value):

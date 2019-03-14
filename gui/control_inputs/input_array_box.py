@@ -31,19 +31,24 @@ class InputArray(wx.BoxSizer):
             row_titles=None,
             col_titles=None,
             cell_titles=None,
+            secret_ids=None,
             orientation=wx.HORIZONTAL,
             outlined=True,
             *args,
             **kwargs,
     ):
-        self.outlined = outlined
         super().__init__(orientation)
         self.cols_quantity = dimension[1]
         self.rows_quantity = dimension[0]
         self.col_titles = col_titles
         self.row_titles = row_titles
         self.parent = parent
+        self.outlined = outlined
 
+        if secret_ids is None:
+            secret_id_array = [None for _ in range(15)]
+        else:
+            secret_id_array = secret_ids
         '''
             In case table's rows or cols labels are not None, we create 
             display matrix one row or(and) col larger then initial dimension
@@ -64,7 +69,7 @@ class InputArray(wx.BoxSizer):
         self.instance_array = [
             Cell(
                 self.parent, interface_type=interface,
-                label=self.cell_titles[i],
+                label=self.cell_titles[i], secret_id=secret_id_array[i],
                 **kwargs
             ) for i in range(self.cols_quantity * self.rows_quantity)
         ]
@@ -85,9 +90,7 @@ class InputArray(wx.BoxSizer):
         if self.outlined:
             static_box = wx.StaticBox(self.parent, wx.ID_ANY, self.title)
             box_sizer = wx.StaticBoxSizer(static_box, wx.HORIZONTAL)
-            gap_value = 0
         else:
-            gap_value = 17
             box_sizer = wx.BoxSizer(wx.HORIZONTAL)
         display_matrix = wx.GridSizer(0)
         display_matrix.SetHGap(15)
@@ -114,7 +117,7 @@ class InputArray(wx.BoxSizer):
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
                         )
         box_sizer.Add(display_matrix)
-        self.Add(box_sizer, 0, wx.TOP, gap_value)
+        self.Add(box_sizer, 0, wx.TOP, 0)
 
     @property
     def values(self):

@@ -38,8 +38,8 @@ class TopLeftPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.slave_id_update, self.slave_id.item.button)
         self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
 
-        self.refresh_rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
-        self.checkbox = LabelValueSequence(parent=self, label='Show unused', interface=LABELED_CHECK_BOX)
+        # self.refresh_rate = LabelValueSequence(parent=self, label='Refresh rate', interface=LABELED_LABEL)
+        # self.checkbox = LabelValueSequence(parent=self, label='Show unused', interface=LABELED_CHECK_BOX)
 
         self.conn_button = ConnectButton(parent=self)
 
@@ -48,11 +48,11 @@ class TopLeftPanel(wx.Panel):
         self.top_inputs_sizer.Add(self.status)
         self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
-        self.top_inputs_sizer.Add(self.refresh_rate)
-        self.top_inputs_sizer.Add(self.checkbox, 0, wx.TOP, 2)
+        # self.top_inputs_sizer.Add(self.refresh_rate)
+        # self.top_inputs_sizer.Add(self.checkbox, 0, wx.TOP, 2)
 
-        self.top_left_sizer_v.Add(self.top_inputs_sizer, 5, wx.BOTTOM, 15)
-        self.top_left_sizer_v.Add(self.conn_button, 2, wx.BOTTOM | wx.ALIGN_RIGHT, 5)
+        self.top_left_sizer_v.Add(self.top_inputs_sizer, 0, wx.BOTTOM, 2)
+        self.top_left_sizer_v.Add(self.conn_button, 0, wx.BOTTOM | wx.ALIGN_RIGHT, 5)
 
         self.line = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
 
@@ -68,15 +68,18 @@ class TopLeftPanel(wx.Panel):
         self.assets.iface_handler_register(self._button_update)
         self.assets.iface_handler_register(self._port_update)
         self.assets.iface_handler_register(self._slave_id_update)
-        self.assets.iface_handler_register(self._refresh_rate_update)
+        # self.assets.iface_handler_register(self._refresh_rate_update)
 
     def _button_update(self):
         if self.conn_button:
             if self.conn_button:
-                if self.mbus.is_connected:
-                    self.conn_button.button.SetLabel('Disconnect')
-                else:
-                    self.conn_button.button.SetLabel('Connect')
+                try:
+                    if self.mbus.is_connected:
+                        self.conn_button.button.SetLabel('Disconnect')
+                    else:
+                        self.conn_button.button.SetLabel('Connect')
+                except RuntimeError:
+                    pass
 
     def _port_update(self):
         self.device_port.value = self.settings.device_port

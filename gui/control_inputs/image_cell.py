@@ -4,12 +4,13 @@ import os
 
 class BitmapImageCustom(wx.StaticBitmap):
 
-    def __init__(self, parent, path_to_file):
+    def __init__(self, parent, path_to_file, parent_class, **kwargs):
         self.path_to_file = path_to_file
         if os.path.isfile(self.path_to_file):
             self.image = wx.Image(self.path_to_file, wx.BITMAP_TYPE_PNG)
         else:
             raise FileNotFoundError
+        self.parent_class = parent_class
         # self.png = self.png.Scale(self.MaxImageSize, self.MaxImageSize, wx.IMAGE_QUALITY_HIGH)
         self.image = self.image.ConvertToBitmap()
         super().__init__(parent, -1, self.image, size=(self.image.GetWidth(), self.image.GetHeight()))
@@ -28,8 +29,8 @@ class VariableImageCell(wx.BoxSizer):
 
     def __init__(
             self, parent, initial_checked_status=False, visible=True,
-            true_image_path=None, false_image_path=None,
-            *args, **kwargs
+            true_image_path=None, false_image_path=None, is_button=False,
+            *args, secret_id=None, **kwargs
     ):
         super().__init__(wx.HORIZONTAL)
 
@@ -38,6 +39,10 @@ class VariableImageCell(wx.BoxSizer):
         self.cur_state = None
         self.parent = parent
 
+        if secret_id is not None:
+            print(self)
+            self.secret_id = secret_id
+
         self.true_image_address = true_image_path
         self.false_image_address = false_image_path
 
@@ -45,7 +50,8 @@ class VariableImageCell(wx.BoxSizer):
         self.true_state_image_set(path_to_file=true_image_path)
         self.false_state_image_set(path_to_file=false_image_path)
         self.invisible_image = BitmapImageCustom(parent=self.parent,
-                                                 path_to_file='./static/images/removed_button_5.png')
+                                                 path_to_file='./static/images/removed_button_5.png',
+                                                 parent_class=self, **kwargs)
         self.Add(self.invisible_image)
         self.invisible_image.Hide()
 
@@ -54,6 +60,11 @@ class VariableImageCell(wx.BoxSizer):
 
         self.cur_state = self.checked
         self.cur_invisible_state = self.is_visible
+
+        self.is_button = is_button
+
+    def method(self, event):
+        pass
 
     @property
     def checked(self):
@@ -66,7 +77,7 @@ class VariableImageCell(wx.BoxSizer):
 
     def _image_set(self, image_type, path):
         if path is not None:
-            self.instance = BitmapImageCustom(parent=self.parent, path_to_file=path)
+            self.instance = BitmapImageCustom(parent=self.parent, path_to_file=path, parent_class=self)
             self.image.append(self.instance)
             index = self.image.index(self.instance)
             if image_type:      # Actually should look like 'if image_type == True:'

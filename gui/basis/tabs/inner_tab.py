@@ -3,12 +3,11 @@ from gui.control_inputs.input_array_box import InputArray
 from settings import AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
 from defs import *
-import time
 
 
 class BaseInnerTab(wx.Panel):
 
-    def __init__(self, parent, *args, aydi=None, **kwargs):
+    def __init__(self, parent, *args, aydi=None, with_size=True, **kwargs):
         self.id = aydi
 
         style = None
@@ -23,31 +22,9 @@ class BaseInnerTab(wx.Panel):
         self.setup_button = None
         self._configuration = None
 
-        if 'inner_title' in kwargs:
-            self.inner_title = wx.StaticText(parent=self, label=kwargs['inner_title'])
-
-        self.inner_matrix = InputArray(
-            parent=self,
-            title='State of inputs:',
-            dimension=(3, 5),
-            col_titles=['1', '2', '3', '4', '5'],
-            row_titles=['X3', 'X2', 'X1'],
-            orientation=wx.VERTICAL,
-            *args,
-            **kwargs,
-        )
-
-        modbus_singleton = ModbusConnectionThreadSingleton()
-        self.modbus = modbus_singleton.modbus_comm_instance
+        self.inner_title = wx.StaticText(parent=self, label=kwargs['inner_title'])
 
         self.app_data = AppData()
-
-        self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-        if self.inner_title is not None:
-            self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
-        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 2)
-
-        self.SetSizer(self.inner_panel_sizer)
 
         if self.id is not None:
             if 'interface' in kwargs:
@@ -57,6 +34,21 @@ class BaseInnerTab(wx.Panel):
                     self.app_data.iface_handler_register(self._inputs_visibility_update)
             else:
                 self.interface = INPUT_INTERFACE
+
+        title = 'State of inputs:' if self.interface == INPUT_INTERFACE else 'State of outputs:'
+        self.inner_matrix = InputArray(parent=self, title=title, dimension=(3, 5),
+                                       col_titles=['1', '2', '3', '4', '5'], row_titles=['X3', 'X2', 'X1'],
+                                       orientation=wx.VERTICAL, *args, **kwargs)
+
+        modbus_singleton = ModbusConnectionThreadSingleton()
+        self.modbus = modbus_singleton.modbus_comm_instance
+
+        self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
+        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 10)
+
+        if with_size:
+            self.SetSizer(self.inner_panel_sizer)
 
         self.conf_prev = None
         self.app_data.iface_handler_register(self._inputs_state_set)
@@ -76,17 +68,12 @@ class BaseInnerTab(wx.Panel):
         if self.interface == INPUT_INTERFACE:
             values = self.configuration_get()
             if values != self.conf_prev:
-                # self.time_noticed = time.monotonic()
                 self.conf_prev = values
                 values = 0
                 for i in range(len(self.conf_prev)):
                     values |= int(self.conf_prev[i] << i)
                 if self.modbus.is_connected:
                     print(values, self.id)
-                    # check_time = time.monotonic()
-                    # print(check_time - self.time_noticed)
-                    # if check_time - self.time_noticed >= 0.7:
-                    #     self.time_noticed = check_time
                     self.modbus.queue_insert(values, self.id)
 
     def configuration_set(self, new_array):
