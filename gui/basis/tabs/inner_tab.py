@@ -3,6 +3,7 @@ from gui.control_inputs.input_array_box import InputArray
 from settings import AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
 from defs import *
+import time
 
 
 class BaseInnerTab(wx.Panel):
@@ -51,10 +52,15 @@ class BaseInnerTab(wx.Panel):
         if self.id is not None:
             if 'interface' in kwargs:
                 if kwargs['interface'] == DISPLAY_INTERFACE:
+                    self.interface = DISPLAY_INTERFACE
                     self.app_data.iface_handler_register(self._inputs_state_update)
                     self.app_data.iface_handler_register(self._inputs_visibility_update)
             else:
-                print('input interface')
+                self.interface = INPUT_INTERFACE
+
+        self.conf_prev = None
+        self.app_data.iface_handler_register(self._inputs_state_set)
+        self.time_noticed = None
 
     def _inputs_state_update(self):
         separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
@@ -66,6 +72,23 @@ class BaseInnerTab(wx.Panel):
         if separate_inputs_visibility_array is not None:
             self.visibility_set(separate_inputs_visibility_array)
 
+    def _inputs_state_set(self):
+        if self.interface == INPUT_INTERFACE:
+            values = self.configuration_get()
+            if values != self.conf_prev:
+                # self.time_noticed = time.monotonic()
+                self.conf_prev = values
+                values = 0
+                for i in range(len(self.conf_prev)):
+                    values |= int(self.conf_prev[i] << i)
+                if self.modbus.is_connected:
+                    print(values, self.id)
+                    # check_time = time.monotonic()
+                    # print(check_time - self.time_noticed)
+                    # if check_time - self.time_noticed >= 0.7:
+                    #     self.time_noticed = check_time
+                    self.modbus.queue_insert(values, self.id)
+
     def configuration_set(self, new_array):
         self.inner_matrix.values = new_array
 
@@ -73,4 +96,4 @@ class BaseInnerTab(wx.Panel):
         self.inner_matrix.visible_instances = new_array
 
     def configuration_get(self):
-        return self._configuration
+        return self.inner_matrix.values

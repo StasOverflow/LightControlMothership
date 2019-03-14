@@ -42,6 +42,9 @@ class WxWidgetCustomApp:
     def _mbus_data_get(self):
         self.app_data.mbus_data = self.modbus_connection.queue_data_get()
 
+    def _mbus_data_put(self):
+        pass
+
     '''Thread handler list'''
     def _app_settings_poll(self):
         while True:
@@ -58,6 +61,7 @@ class WxWidgetCustomApp:
         while True:
             self._poll_close_event()
             self._mbus_data_get()
+            self._mbus_data_put()
             time.sleep(.05)
 
     def run(self):

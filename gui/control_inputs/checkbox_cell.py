@@ -19,7 +19,8 @@ class CheckBoxCell(wx.BoxSizer):
 
     @property
     def checked(self):
-        self._checked = self.checkbox.IsChecked()
+        if self.checkbox:
+            self._checked = self.checkbox.IsChecked()
         return self._checked
 
     @checked.setter

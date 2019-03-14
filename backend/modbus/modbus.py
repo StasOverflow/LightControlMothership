@@ -27,7 +27,6 @@ class ModbusThread(threading.Thread):
 
         super().__init__(*args, **kwargs)
         self.daemon = True
-        self.connection_lock = threading.Lock()
 
         self.queue_income = queue.Queue()
         self.queue_outcome = queue.Queue()
@@ -45,6 +44,12 @@ class ModbusThread(threading.Thread):
         self._inner_mbus_is_conn = self.Cmd.DISCONNECT
         self.client = None
 
+        self.mbus_send_data = [0 for _ in range(4)]
+
+        self.port_lock = threading.Lock()
+        self.sl_id_lock = threading.Lock()
+        self.queue_lock = threading.Lock()
+
     @property
     def is_connected(self):
         return self._is_connected
@@ -56,32 +61,30 @@ class ModbusThread(threading.Thread):
             self._inner_mbus_is_conn = self.Cmd.CONNECT
         else:
             self._inner_mbus_is_conn = self.Cmd.DISCONNECT
-        print(self._inner_mbus_is_conn)
 
     def is_connected_state_set(self, boolean_value):
         self.queue_cmd.put(self.Cmd(boolean_value))
 
     def queue_data_get(self):
-        data = self.queue_income.get()
-        return data
+        if self.queue_income:
+            data = self.queue_income.get()
+            return data
 
-    def queue_insert(self, data):
-        self.queue_outcome.put(data)
+    def queue_insert(self, data, index):
+        self.mbus_send_data[index] = data
+        self.queue_outcome.put(self.mbus_send_data)
 
     def com_port_update(self, new_com_port):
         if not self.is_connected:
-            lock = threading.Lock()
-            with lock:
+            with self.port_lock:
                 self.port = new_com_port
         else:
             print('Error: PORT cant be changed while connected!')
 
     def slave_id_update(self, new_slave_id):
         if not self.is_connected:
-            lock = threading.Lock()
-            with lock:
+            with self.sl_id_lock:
                 self.slave_id = new_slave_id
-            print(self.slave_id)
         else:
             print('Error: Device ID cant be changed while connected!')
 
@@ -121,15 +124,19 @@ class ModbusThread(threading.Thread):
             if self._inner_mbus_is_conn == self.Cmd.CONNECT:
                 if self.queue_outcome.qsize():
                     try:
-                        sets = self.queue_outcome.get()
-                        self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
+                        with self.queue_lock:
+                            sets = self.queue_outcome.get()
+                            self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
                     except Exception as ex:
                         print(ex)
                 else:
                     try:
                         rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
-                        self.queue_income.put(rr.registers)
+                        with self.queue_lock:
+                            self.queue_income.put(rr.registers)
                     except Exception as ex:
                         print(ex)
-            time.sleep(0.05)
+                time.sleep(0.05)
+            else:
+                time.sleep(0.2)
         print('Serial Task: destroyed')
