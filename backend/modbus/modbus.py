@@ -14,7 +14,7 @@ class ModbusThread(threading.Thread):
 
     def __init__(
             self,
-            method='rtu',
+            conn_method='rtu',
             port='COM2',
             baudrate=19200,
             parity='E',
@@ -32,7 +32,7 @@ class ModbusThread(threading.Thread):
         self.queue_outcome = queue.Queue()
         self.queue_cmd = queue.Queue()
 
-        self.method = method
+        self.method = conn_method
         self.port = port
         self.baudrate = baudrate
         self.parity = parity
@@ -49,6 +49,9 @@ class ModbusThread(threading.Thread):
         self.port_lock = threading.Lock()
         self.sl_id_lock = threading.Lock()
         self.queue_lock = threading.Lock()
+        self.blink_lock = threading.Lock()
+
+        self.blink = False
 
     @property
     def is_connected(self):
@@ -86,7 +89,10 @@ class ModbusThread(threading.Thread):
             with self.sl_id_lock:
                 self.slave_id = new_slave_id
         else:
-            print('Error: Device ID cant be changed while connected!')
+            self.is_connected_state_set(False)
+            with self.sl_id_lock:
+                self.slave_id = new_slave_id
+            self.is_connected_state_set(True)
 
     def stop(self):
         print('Serial Task: command CLOSE')
@@ -111,6 +117,11 @@ class ModbusThread(threading.Thread):
         except Exception as ex:
             print('is connected exception', ex)
 
+    def blink_get(self):
+        with self.blink_lock:
+            blink = self.blink
+        return blink
+
     def run(self):
         while not self.stopped:
 
@@ -122,6 +133,7 @@ class ModbusThread(threading.Thread):
                     self.disconnect()
 
             if self._inner_mbus_is_conn == self.Cmd.CONNECT:
+                self.blink = not self.blink
                 if self.queue_outcome.qsize():
                     try:
                         with self.queue_lock:
@@ -129,6 +141,7 @@ class ModbusThread(threading.Thread):
                             self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
                     except Exception as ex:
                         print(ex)
+                        self.blink = False
                 else:
                     try:
                         with self.queue_lock:
@@ -136,7 +149,9 @@ class ModbusThread(threading.Thread):
                             self.queue_income.put(rr.registers)
                     except Exception as ex:
                         print(ex)
+                        self.blink = False
                 time.sleep(0.05)
             else:
+                self.blink = False
                 time.sleep(0.2)
         print('Serial Task: destroyed')

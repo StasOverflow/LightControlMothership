@@ -100,7 +100,10 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
                 pass
 
 
-class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
+class _RightColumnSpinCtrl(wx.BoxSizer):
+    """
+        SPIN CONTROL
+    """
 
     def __init__(
             self,
@@ -108,7 +111,7 @@ class _RightColumnSpinCtrl(wx.BoxSizer):  # wx.SpinCtrl
             parent=None,
             label=None,
             size=None,
-            button_required=True,
+            button_required=False,
             style=None,
             **kwargs
     ):

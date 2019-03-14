@@ -2,6 +2,7 @@ import wx
 from gui.control_inputs.input_array_box import InputArray
 from defs import *
 from settings import AppData
+from backend.modbus_backend import ModbusConnectionThreadSingleton
 
 
 class TopRightPanel(wx.Panel):
@@ -23,7 +24,7 @@ class TopRightPanel(wx.Panel):
             title='State of inputs:',
             interface=DISPLAY_INTERFACE,
             dimension=(3, 5),
-            col_titles=['1', '2', '3', '4', '5'],
+            col_titles=[' 1', ' 2', ' 3', ' 4', ' 5'],
             row_titles=['X3', 'X2', 'X1'],
             orientation=wx.VERTICAL,
             *args,
@@ -53,8 +54,10 @@ class TopRightPanel(wx.Panel):
         self.connection_matrix = InputArray(parent=self, dimension=(1, 1), orientation=wx.VERTICAL,
                                             interface=DISPLAY_INTERFACE, is_input_indication=False,
                                             *args, is_button=True, secret_ids=[5], row_titles=[''],
-                                            outlined=False,
+                                            outlined=False, is_conn=True,
                                             **kwargs)
+        self.prev_state = False
+        self.connection_matrix.visible_instances = (self.prev_state, )
 
         vertical_conn_btn_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -67,11 +70,23 @@ class TopRightPanel(wx.Panel):
 
         self.app_data = AppData()
         self.app_data.iface_handler_register(self._inputs_state_update)
+        self.app_data.iface_handler_register(self._conn_indication)
+
+        self.mbus = ModbusConnectionThreadSingleton()
+        self.mbus = self.mbus.modbus_comm_instance
 
         self.SetSizer(inner_panel_sizer)
 
     def _on_mouse_down(self, event):
         print('pressed', event.GetEventObject().parent_class.secret_id)
+
+    def _conn_indication(self):
+        state = self.mbus.is_connected
+        if state != self.prev_state:
+            self.prev_state = state
+            self.connection_matrix.visible_instances = (state, )
+        if self.mbus.is_connected:
+            self.connection_matrix.values = (self.mbus.blink_get(), )
 
     def _inputs_state_update(self):
         if self.app_data.mbus_data:

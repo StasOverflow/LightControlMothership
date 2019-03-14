@@ -14,7 +14,7 @@ class SettingsDialog(wx.Dialog):
 
         self.settings = None
 
-        self.SetSize((250, 230))
+        self.SetSize((250, 200))
         self.SetTitle(title)
         self.CenterOnParent()
 
@@ -46,20 +46,12 @@ class SettingsDialog(wx.Dialog):
                                     **kwargs,
                         )
 
-        self.refresh_time = LabelValueSequence(
-                                    parent=self.panel,
-                                    label='Refresh rate',
-                                    interface=LABELED_TEXT_INPUT,
-                                    initial_value=self.settings.refresh_rate,
-                        )
-
         self.button_accept = wx.Button(parent=self.panel, label='Accept')
 
         self.panel.Bind(wx.EVT_BUTTON, self.on_accept, self.button_accept)
 
         self.static_box_sizer.Add(self.port_setup)
         self.static_box_sizer.Add(self.slave_address)
-        self.static_box_sizer.Add(self.refresh_time)
 
         self.panel_sizer.Add(self.static_box_sizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 15)
         self.panel_sizer.Add(self.button_accept, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 3)
@@ -73,7 +65,6 @@ class SettingsDialog(wx.Dialog):
         else:
             self.settings.device_port = self.port_setup.value
         self.settings.slave_id = self.slave_address.value
-        self.settings.refresh_rate = self.refresh_time.value
         self.Destroy()
 
     def on_choice(self, event):
@@ -81,7 +72,6 @@ class SettingsDialog(wx.Dialog):
         if val is None or val == 'None':
             val = None
         self._pending_dev_port = val
-        # self.Destroy()
 
 
 class Ponel(wx.Panel):
