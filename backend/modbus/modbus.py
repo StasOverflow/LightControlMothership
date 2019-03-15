@@ -44,7 +44,7 @@ class ModbusThread(threading.Thread):
         self._inner_mbus_is_conn = self.Cmd.DISCONNECT
         self.client = None
 
-        self.mbus_send_data = [0 for _ in range(4)]
+        self.mbus_send_data = [0 for _ in range(5)]
 
         self.port_lock = threading.Lock()
         self.sl_id_lock = threading.Lock()
@@ -136,7 +136,7 @@ class ModbusThread(threading.Thread):
                         with self.queue_lock:
                             state = False
                             sets = self.queue_outcome.get()
-                            self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
+                            self.client.write_registers(1002, sets, count=5, unit=self.slave_id)
                     except Exception as ex:
                         state = True
                         print(ex)
@@ -150,7 +150,6 @@ class ModbusThread(threading.Thread):
                         print(ex)
                         state = True
                 time.sleep(0.05)
-                print(state)
                 self.exception_state = state
             else:
                 time.sleep(0.2)

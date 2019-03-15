@@ -43,10 +43,8 @@ class TopLeftPanel(wx.Panel):
         self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
 
         self.conn_button = WrappedButton(parent=self, label='Connect')
-        self.conf_button = WrappedButton(parent=self, label='Setup')
 
         self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conn_button.button)
-        self.Bind(wx.EVT_BUTTON, self.dialog_handler, self.conf_button.button)
 
         self.top_inputs_sizer.Add(self.status)
         self.top_inputs_sizer.Add(self.device_port)
@@ -55,8 +53,7 @@ class TopLeftPanel(wx.Panel):
         self.top_left_sizer_v.Add(self.top_inputs_sizer, 0, wx.BOTTOM, 2)
 
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        button_sizer.Add(self.conf_button, 0, wx.BOTTOM | wx.ALIGN_LEFT, 5)
-        button_sizer.Add(self.conn_button, 0, wx.LEFT, 8)
+        button_sizer.Add(self.conn_button, 0, wx.LEFT | wx.ALIGN_RIGHT, 90)
         self.top_left_sizer_v.Add(button_sizer, 0, wx.TOP, 65)
 
         self.line = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
@@ -78,10 +75,8 @@ class TopLeftPanel(wx.Panel):
         if self.conn_button:
             try:
                 if self.mbus.is_connected:
-                    self.conf_button.button.Enable()
                     self.conn_button.button.SetLabel('Disconnect')
                 else:
-                    self.conf_button.button.Disable()
                     self.conn_button.button.SetLabel('Connect')
             except RuntimeError:
                 pass

@@ -156,6 +156,9 @@ class AppData(metaclass=_Singleton):
     def iface_handler_register(self, handler):
         self.handler_list.append(handler)
 
+    def output_mode_get(self):
+        return self.mbus_data[6]
+
     @property
     def mbus_data(self):
         return self._mbus_data
@@ -163,6 +166,13 @@ class AppData(metaclass=_Singleton):
     @mbus_data.setter
     def mbus_data(self, value):
         self._mbus_data = value
+
+    def output_data_by_index(self, index):
+        if self.mbus_data is not None:
+            data = self.mbus_data[1]
+            return data & (1 << index)
+        else:
+            return None
 
     '''
         Combined data getters

@@ -96,7 +96,16 @@ class TopRightPanel(wx.Panel):
                 self.connection_matrix.values = (0, )
 
     def _on_mouse_down(self, event):
-        print('pressed', event.GetEventObject().parent_class.secret_id)
+        if self.mbus.is_connected and self.app_data.mbus_data is not None:
+            aydi = event.GetEventObject().parent_class.secret_id
+            aydi_shifted = (aydi - 1) * 2
+            mode_auto = self.app_data.output_mode_get()
+            if not (mode_auto & 3 << aydi_shifted):
+                print(aydi-1)
+                status_byte = mode_auto | (3 << aydi_shifted)
+                print('{:08b}'.format(status_byte))
+                self.mbus.queue_insert(status_byte, 4)
+        # print('pressed', event.GetEventObject().parent_class.secret_id)
 
     def _inputs_state_update(self):
         if self.app_data.mbus_data:
@@ -120,7 +129,7 @@ class TopRightPanel(wx.Panel):
         """
             Didn't manage to come up with a better way of determining, which matrix to configure
             then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
-            is top one
+            is top one)
         """
         if input_cfg:
             self.input_matrix.values = new_array

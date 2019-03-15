@@ -29,4 +29,4 @@ class TopPanel(wx.BoxSizer):
         self.sub_canvases.append(self.canvas)
 
         for canvas in self.sub_canvases:
-            self.Add(canvas, 1, wx.EXPAND)
+            self.Add(canvas, 1, wx.ALL)

@@ -12,7 +12,7 @@ class _BtmSubPanel(BaseTwoSplitTab):
                          aydi=aydi)
 
     def _left_panel_create(self, *args, **kwargs):
-        self.left_panel = BtmLeftPanel(self.top_page_splitter, *args, inner_title='Status',
+        self.left_panel = BtmLeftPanel(self.top_page_splitter, *args, inner_title='Status', with_indicator=True,
                                        style=wx.BORDER_RAISED, aydi=self.left_panel_id, **kwargs)
 
     def _right_panel_create(self, *args, **kwargs):
@@ -57,4 +57,4 @@ class BtmPanel(wx.BoxSizer):
         self.canvas = _BtmPanel(parent=parent, **kwargs)
 
         self.sub_canvases = self.canvas.sub_canvases
-        self.Add(self.canvas, 1, wx.EXPAND)
+        self.Add(self.canvas, 1, wx.ALL)
