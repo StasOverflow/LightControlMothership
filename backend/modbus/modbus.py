@@ -122,7 +122,7 @@ class ModbusThread(threading.Thread):
 
     def run(self):
         while not self.stopped:
-
+            state = False
             if self.queue_cmd.qsize():
                 cmd = self.queue_cmd.get()
                 if cmd == self.Cmd.CONNECT:
@@ -134,22 +134,24 @@ class ModbusThread(threading.Thread):
                 if self.queue_outcome.qsize():
                     try:
                         with self.queue_lock:
-                            self.exception_state = False
+                            state = False
                             sets = self.queue_outcome.get()
                             self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
                     except Exception as ex:
+                        state = True
                         print(ex)
-                        self.exception_state = True
                 else:
                     try:
                         with self.queue_lock:
-                            self.exception_state = False
+                            state = False
                             rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                             self.queue_income.put(rr.registers)
                     except Exception as ex:
                         print(ex)
-                        self.exception_state = True
+                        state = True
                 time.sleep(0.05)
+                print(state)
+                self.exception_state = state
             else:
                 time.sleep(0.2)
         print('Serial Task: destroyed')

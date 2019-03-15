@@ -3,6 +3,7 @@ from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
 from settings import Settings, AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
+from gui.main_frame.top_panel.left_panel.dialog.relay_dialog import RelayDialog
 
 
 class WrappedButton(wx.BoxSizer):
@@ -35,6 +36,8 @@ class TopLeftPanel(wx.Panel):
                                            interface=LABELED_SPIN_CONTROL,
                                            initial_value=0)
 
+        self.dialog_window = None
+
         if hasattr(self.slave_id.item, 'button'):
             self.Bind(wx.EVT_BUTTON, self.slave_id_update, self.slave_id.item.button)
         self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
@@ -43,7 +46,7 @@ class TopLeftPanel(wx.Panel):
         self.conf_button = WrappedButton(parent=self, label='Setup')
 
         self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conn_button.button)
-        self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conf_button.button)
+        self.Bind(wx.EVT_BUTTON, self.dialog_handler, self.conf_button.button)
 
         self.top_inputs_sizer.Add(self.status)
         self.top_inputs_sizer.Add(self.device_port)
@@ -88,6 +91,12 @@ class TopLeftPanel(wx.Panel):
 
     def _slave_id_update(self):
         self.slave_id.value = self.settings.slave_id
+
+    def dialog_handler(self, event):
+        self.dialog_window = RelayDialog(title='Relay mode setup')
+        self.dialog_window.ShowModal()
+        self.dialog_window.Close()
+        self.dialog_window.Destroy()
 
     def connect_disconnect(self, event):
         if not self.mbus.is_connected:

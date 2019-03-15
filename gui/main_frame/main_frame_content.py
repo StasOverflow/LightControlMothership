@@ -63,7 +63,10 @@ class MainFrame(wx.Frame):
     def status_bar_update(self):
         mbus_data = self.app_data.mbus_data
         if mbus_data:
-            self.status_text.SetLabel(str(mbus_data))
+            try:
+                self.status_text.SetLabel(str(mbus_data))
+            except RuntimeError:
+                pass
 
     def render(self):
         self.Show()

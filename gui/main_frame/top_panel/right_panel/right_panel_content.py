@@ -84,14 +84,16 @@ class TopRightPanel(wx.Panel):
         state = self.mbus.is_connected
         if state != self.prev_state:
             self.prev_state = state
-            if not self.mbus.exception_state:
-                self.connection_matrix.visible_instances = (state, )
+            self.connection_matrix.visible_instances = (state, )
         if self.mbus.is_connected:
-            time_current = time.monotonic()
-            if time_current - self.prev_blink_timestamp >= 0.05:
-                self.prev_blink_timestamp = time_current
-                self.blink_state = not self.blink_state
-            self.connection_matrix.values = (self.blink_state, )
+            if not self.mbus.exception_state:
+                time_current = time.monotonic()
+                if time_current - self.prev_blink_timestamp >= 0.05:
+                    self.prev_blink_timestamp = time_current
+                    self.blink_state = not self.blink_state
+                self.connection_matrix.values = (self.blink_state, )
+            else:
+                self.connection_matrix.values = (0, )
 
     def _on_mouse_down(self, event):
         print('pressed', event.GetEventObject().parent_class.secret_id)
