@@ -65,7 +65,7 @@ class SettingsDialog(wx.Dialog):
         else:
             self.settings.device_port = self.port_setup.value
         self.settings.slave_id = self.slave_address.value
-        self.Destroy()
+        self.Close()
 
     def on_choice(self, event):
         val = event.GetString()

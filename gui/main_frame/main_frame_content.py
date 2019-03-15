@@ -9,7 +9,6 @@ from settings import Settings, AppData
 class MainFrame(wx.Frame):
 
     def __init__(self, *args, pos=(0,0), size=(400, 300), title="", **kwargs):
-        print(size)
         self.size = size
         self.pos = (0, 0)
         self.super_sizer = wx.BoxSizer(wx.VERTICAL)

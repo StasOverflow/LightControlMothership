@@ -40,7 +40,6 @@ class VariableImageCell(wx.BoxSizer):
         self.parent = parent
 
         if secret_id is not None:
-            print(self)
             self.secret_id = secret_id
 
         self.true_image_address = true_image_path

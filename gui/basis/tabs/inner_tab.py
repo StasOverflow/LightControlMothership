@@ -73,7 +73,6 @@ class BaseInnerTab(wx.Panel):
                 for i in range(len(self.conf_prev)):
                     values |= int(self.conf_prev[i] << i)
                 if self.modbus.is_connected:
-                    print(values, self.id)
                     self.modbus.queue_insert(values, self.id)
 
     def configuration_set(self, new_array):

@@ -81,7 +81,6 @@ class InputArray(wx.BoxSizer):
             ]
             for j in range(self.rows_quantity)
         ]
-        # print(self.check_box_instance_matrix)
 
         self.title = title
         self.grid_render()

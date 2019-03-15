@@ -48,7 +48,6 @@ class TopRightPanel(wx.Panel):
 
         for index, instance in enumerate(self.output_matrix.instance_array):
             for image in instance.cell_instance.image:
-                print('object: ', image)
                 image.Bind(wx.EVT_LEFT_DOWN, self._on_mouse_down)
 
         conn_label = wx.StaticText(parent=self, label='ACT')
@@ -75,22 +74,11 @@ class TopRightPanel(wx.Panel):
         self.app_data = AppData()
         self.app_data.iface_handler_register(self._inputs_state_update)
         self.app_data.iface_handler_register(self._conn_indication)
-        self.app_data.iface_handler_register(self._blinker)
 
         self.mbus = ModbusConnectionThreadSingleton()
         self.mbus = self.mbus.modbus_comm_instance
 
         self.SetSizer(inner_panel_sizer)
-
-    def _blinker(self):
-        time_current = time.monotonic()
-        # print(time_current)
-        if time_current - self.prev_blink_timestamp >= 0.15:
-            self.prev_blink_timestamp = time_current
-            self.blink_state = not self.blink_state
-
-    def _on_mouse_down(self, event):
-        print('pressed', event.GetEventObject().parent_class.secret_id)
 
     def _conn_indication(self):
         state = self.mbus.is_connected
@@ -99,7 +87,14 @@ class TopRightPanel(wx.Panel):
             if not self.mbus.exception_state:
                 self.connection_matrix.visible_instances = (state, )
         if self.mbus.is_connected:
+            time_current = time.monotonic()
+            if time_current - self.prev_blink_timestamp >= 0.05:
+                self.prev_blink_timestamp = time_current
+                self.blink_state = not self.blink_state
             self.connection_matrix.values = (self.blink_state, )
+
+    def _on_mouse_down(self, event):
+        print('pressed', event.GetEventObject().parent_class.secret_id)
 
     def _inputs_state_update(self):
         if self.app_data.mbus_data:

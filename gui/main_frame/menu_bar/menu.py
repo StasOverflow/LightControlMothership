@@ -5,7 +5,6 @@ from gui.main_frame.menu_bar.dialog import SettingsDialog
 class MenuBarSequence(wx.MenuBar):
 
     def __init__(self, parent=None, label=None, *args, **kwargs):
-        print(parent)
         super().__init__()
 
         self._settings = None
