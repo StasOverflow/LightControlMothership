@@ -26,6 +26,9 @@ django-project-template/.gitignore
 # Icon must end with two \r
 Icon
 
+.hg/
+
+.hgignore
 
 # Thumbnails
 ._*

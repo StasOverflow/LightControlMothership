@@ -3,6 +3,7 @@ from gui.control_inputs.input_array_box import InputArray
 from defs import *
 from settings import AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
+import time
 
 
 class TopRightPanel(wx.Panel):
@@ -59,6 +60,9 @@ class TopRightPanel(wx.Panel):
         self.prev_state = False
         self.connection_matrix.visible_instances = (self.prev_state, )
 
+        self.blink_state = False
+        self.prev_blink_timestamp = 0
+
         vertical_conn_btn_sizer = wx.BoxSizer(wx.VERTICAL)
 
         vertical_conn_btn_sizer.Add(conn_label, 0,  wx.LEFT, 25)
@@ -71,11 +75,19 @@ class TopRightPanel(wx.Panel):
         self.app_data = AppData()
         self.app_data.iface_handler_register(self._inputs_state_update)
         self.app_data.iface_handler_register(self._conn_indication)
+        self.app_data.iface_handler_register(self._blinker)
 
         self.mbus = ModbusConnectionThreadSingleton()
         self.mbus = self.mbus.modbus_comm_instance
 
         self.SetSizer(inner_panel_sizer)
+
+    def _blinker(self):
+        time_current = time.monotonic()
+        # print(time_current)
+        if time_current - self.prev_blink_timestamp >= 0.15:
+            self.prev_blink_timestamp = time_current
+            self.blink_state = not self.blink_state
 
     def _on_mouse_down(self, event):
         print('pressed', event.GetEventObject().parent_class.secret_id)
@@ -84,9 +96,10 @@ class TopRightPanel(wx.Panel):
         state = self.mbus.is_connected
         if state != self.prev_state:
             self.prev_state = state
-            self.connection_matrix.visible_instances = (state, )
+            if not self.mbus.exception_state:
+                self.connection_matrix.visible_instances = (state, )
         if self.mbus.is_connected:
-            self.connection_matrix.values = (self.mbus.blink_get(), )
+            self.connection_matrix.values = (self.blink_state, )
 
     def _inputs_state_update(self):
         if self.app_data.mbus_data:

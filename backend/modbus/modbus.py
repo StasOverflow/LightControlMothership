@@ -51,7 +51,7 @@ class ModbusThread(threading.Thread):
         self.queue_lock = threading.Lock()
         self.blink_lock = threading.Lock()
 
-        self.blink = False
+        self.exception_state = False
 
     @property
     def is_connected(self):
@@ -117,10 +117,8 @@ class ModbusThread(threading.Thread):
         except Exception as ex:
             print('is connected exception', ex)
 
-    def blink_get(self):
-        with self.blink_lock:
-            blink = self.blink
-        return blink
+    def exception_state_get(self):
+        return self.exception_state
 
     def run(self):
         while not self.stopped:
@@ -133,25 +131,25 @@ class ModbusThread(threading.Thread):
                     self.disconnect()
 
             if self._inner_mbus_is_conn == self.Cmd.CONNECT:
-                self.blink = not self.blink
                 if self.queue_outcome.qsize():
                     try:
                         with self.queue_lock:
+                            self.exception_state = False
                             sets = self.queue_outcome.get()
                             self.client.write_registers(1002, sets, count=4, unit=self.slave_id)
                     except Exception as ex:
                         print(ex)
-                        self.blink = False
+                        self.exception_state = True
                 else:
                     try:
                         with self.queue_lock:
+                            self.exception_state = False
                             rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
                             self.queue_income.put(rr.registers)
                     except Exception as ex:
                         print(ex)
-                        self.blink = False
+                        self.exception_state = True
                 time.sleep(0.05)
             else:
-                self.blink = False
                 time.sleep(0.2)
         print('Serial Task: destroyed')
