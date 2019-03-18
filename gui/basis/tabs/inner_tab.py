@@ -40,9 +40,8 @@ class BaseInnerTab(wx.Panel):
             intermediate_sizer.Add(self.inter_instance, 0, wx.LEFT, 30)
         elif with_radio_panel:
             intermediate_sizer = wx.BoxSizer(wx.HORIZONTAL)
-            self.inter_title = wx.StaticText(parent=self, label='Output State')
-            self.inter_instance = InputArray(parent=self, dimension=(1, 1), outlined=False,
-                                             interface=DISPLAY_INTERFACE, is_input_indication=False,)
+            self.inter_title = wx.StaticText(parent=self, label='Output mode')
+            self.auto_mode_radio = wx.RadioButton(parent=self, label='Auto')
 
             intermediate_sizer.Add(self.inter_title, 0, wx.LEFT, 15)
             intermediate_sizer.Add(self.inter_instance, 0, wx.LEFT, 30)
@@ -75,7 +74,6 @@ class BaseInnerTab(wx.Panel):
 
         self.conf_prev = None
         self.app_data.iface_handler_register(self._inputs_state_set)
-        self.time_noticed = None
 
     def _ins_outs_state_update(self):
         separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
