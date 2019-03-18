@@ -1,8 +1,9 @@
 import wx
-from gui.main_frame.top_panel.top_panel_content import TopPanel
-from gui.main_frame.btm_panel.btm_panel_content import BtmPanel
+from gui.main_frame.a_top_panel.top_panel_content import TopPanel
+from gui.main_frame.b_btm_panel.btm_panel_content import BtmPanel
+from gui.main_frame.c_status_panel.staus_panel_content import StatusPanel
 import defs
-from gui.main_frame.menu_bar.menu import MenuBarSequence
+from gui.main_frame.a_menu_bar.menu import MenuBarSequence
 from settings import Settings, AppData
 
 
@@ -33,12 +34,7 @@ class MainFrame(wx.Frame):
         # Bottom of the page sequence
         self.btm_canvas = BtmPanel(parent=main_panel, style=wx.LEFT)
 
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.status_bottom_panel = wx.Panel(parent=main_panel)
-
-        self.status_text = wx.StaticText(parent=self.status_bottom_panel, label='')
-        sizer.Add(self.status_text, 0, wx.ALL, 5)
-        self.status_bottom_panel.SetSizer(sizer)
+        self.status_bottom_panel = StatusPanel(parent=main_panel)
 
         '''
             Second parameter in every main_sizer.Add method call is a proportion
@@ -57,16 +53,6 @@ class MainFrame(wx.Frame):
             won't be rendered
         '''
         self.SetMenuBar(self.menu_bar)
-
-        self.app_data.iface_handler_register(self.status_bar_update)
-
-    def status_bar_update(self):
-        mbus_data = self.app_data.mbus_data
-        if mbus_data:
-            try:
-                self.status_text.SetLabel(str(mbus_data))
-            except RuntimeError:
-                pass
 
     def render(self):
         self.Show()

@@ -3,7 +3,7 @@ from gui.utils.labeled_data import LabelValueSequence
 from gui.utils.label_types import *
 from settings import Settings, AppData
 from backend.modbus_backend import ModbusConnectionThreadSingleton
-from gui.main_frame.top_panel.left_panel.dialog.relay_dialog import RelayDialog
+from gui.main_frame.a_top_panel.left_panel.dialog.relay_dialog import RelayDialog
 
 
 class WrappedButton(wx.BoxSizer):

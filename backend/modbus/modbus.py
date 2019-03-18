@@ -19,6 +19,8 @@ class ModbusThread(threading.Thread):
             baudrate=19200,
             parity='E',
             timeout=1,
+            bytesize=8,
+            stopbits=1,
             slave_id=32,
             *args,
             **kwargs,
@@ -38,6 +40,8 @@ class ModbusThread(threading.Thread):
         self.parity = parity
         self.timeout = timeout
         self.slave_id = slave_id
+        self.bytesize = bytesize
+        self.stopbits = stopbits
 
         self.stopped = False
         self.is_connected = False
@@ -105,7 +109,8 @@ class ModbusThread(threading.Thread):
     def connect(self):
         try:
             self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.baudrate,
-                                       parity=self.parity, timeout=self.timeout)
+                                       parity=self.parity, timeout=self.timeout, bytesize=self.bytesize,
+                                       stopbits=self.stopbits)
             self.is_connected = True
         except Exception as ex:
             print('is connected exception', ex)

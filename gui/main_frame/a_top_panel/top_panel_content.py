@@ -1,7 +1,7 @@
 import wx
 from gui.basis.tabs.tab import BaseTwoSplitTab
-from gui.main_frame.top_panel.left_panel.left_panel_content import TopLeftPanel
-from gui.main_frame.top_panel.right_panel.right_panel_content import TopRightPanel
+from gui.main_frame.a_top_panel.left_panel.left_panel_content import TopLeftPanel
+from gui.main_frame.a_top_panel.right_panel.right_panel_content import TopRightPanel
 
 
 class _TopPanel(BaseTwoSplitTab):

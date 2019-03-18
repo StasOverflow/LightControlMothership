@@ -16,6 +16,7 @@ class Cell(wx.BoxSizer):
 
         self.cell_instance = instance_class(*args, **kwargs)
         self.Add(self.cell_instance)
+        self.cell_prev_state = None
 
     @property
     def checked(self):
@@ -26,7 +27,9 @@ class Cell(wx.BoxSizer):
         """
             Setter should be used to check/uncheck output for child cell
         """
-        self.cell_instance.checked = new_state
+        if self.cell_prev_state != new_state:
+            self.cell_prev_state = new_state
+            self.cell_instance.checked = new_state
 
     def hide(self):
         self.cell_instance.hide()

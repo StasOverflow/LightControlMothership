@@ -1,7 +1,7 @@
 import wx
 from gui.basis.tabs.tab import BaseTwoSplitTab
-from gui.main_frame.btm_panel.left_panel.left_panel_content import BtmLeftPanel
-from gui.main_frame.btm_panel.right_panel.right_panel_content import BtmRightPanel
+from gui.main_frame.b_btm_panel.left_panel.left_panel_content import BtmLeftPanel
+from gui.main_frame.b_btm_panel.right_panel.right_panel_content import BtmRightPanel
 from defs import *
 
 
