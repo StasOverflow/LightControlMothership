@@ -19,7 +19,7 @@ class WxWidgetCustomApp:
         self.app_data = AppData()
 
         '''Create a gui application with main frame'''
-        self.gui = GuiApp(size=(439, 527), title='Light Controller')
+        self.gui = GuiApp(size=(439, 520), title='Light Controller')
 
         '''Create threads'''
         modbus_singleton = ModbusConnectionThreadSingleton()
