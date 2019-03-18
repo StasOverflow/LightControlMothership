@@ -58,5 +58,7 @@ class StatusPanel(wx.Panel):
                     str(self.mbus.stopbits)
             if label != self.mbus_label:
                 self.mbus_label = label
-                self.mbus_status_text.SetLabel(self.mbus_label)
-            pass
+                try:
+                    self.mbus_status_text.SetLabel(self.mbus_label)
+                except RuntimeError:
+                    pass
