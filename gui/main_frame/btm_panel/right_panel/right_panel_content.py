@@ -25,7 +25,6 @@ class BtmRightPanel(BaseInnerTab):
 
             self.app_data.iface_handler_register(self._buttons_update)
 
-
         self.SetSizer(self.inner_panel_sizer)
 
         self.settings = Settings()
