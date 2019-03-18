@@ -51,6 +51,7 @@ class StatusPanel(wx.Panel):
             except RuntimeError:
                 pass
 
+
     def _mbus_data_update(self):
         if self.mbus.is_connected:
             label = 'Port: ' + str(self.mbus.port) + '; ' + str(self.mbus.baudrate) + '-' +\
