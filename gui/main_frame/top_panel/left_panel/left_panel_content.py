@@ -30,7 +30,6 @@ class TopLeftPanel(wx.Panel):
         self.top_left_sizer_v = wx.BoxSizer(wx.VERTICAL)
         self.top_inputs_sizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.status = LabelValueSequence(parent=self, label='Status', interface=LABELED_LABEL)
         self.device_port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
         self.slave_id = LabelValueSequence(parent=self, label='Slave ID',
                                            interface=LABELED_SPIN_CONTROL,
@@ -46,7 +45,6 @@ class TopLeftPanel(wx.Panel):
 
         self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conn_button.button)
 
-        self.top_inputs_sizer.Add(self.status)
         self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
 
@@ -54,7 +52,7 @@ class TopLeftPanel(wx.Panel):
 
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer.Add(self.conn_button, 0, wx.LEFT | wx.ALIGN_RIGHT, 90)
-        self.top_left_sizer_v.Add(button_sizer, 0, wx.TOP, 65)
+        self.top_left_sizer_v.Add(button_sizer, 0, wx.TOP, 85)
 
         self.line = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
 

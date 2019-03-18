@@ -148,6 +148,8 @@ class AppData(metaclass=_Singleton):
 
         self.handler_list = list()
 
+        self.incr = 0
+
     def layout_update(self):
         if len(self.handler_list):
             for handler in self.handler_list:
@@ -185,7 +187,7 @@ class AppData(metaclass=_Singleton):
             '''
             data = self.mbus_data[1]
             for index in range(4):
-                self.output_combined_state[3 - index] = bool(data & (1 << index))
+                self.output_combined_state[index] = bool(data & (1 << index))
             return self.output_combined_state
         else:
             return None

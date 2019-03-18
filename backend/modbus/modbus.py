@@ -74,6 +74,7 @@ class ModbusThread(threading.Thread):
             return data
 
     def queue_insert(self, data, index):
+        # self.mbus_send_data = self.
         self.mbus_send_data[index] = data
         self.queue_outcome.put(self.mbus_send_data)
 

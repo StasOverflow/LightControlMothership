@@ -7,7 +7,7 @@ from settings import Settings
 class BtmRightPanel(BaseInnerTab):
 
     def __init__(self, *args, **kwargs):
-        super(BtmRightPanel, self).__init__(*args, with_radiopanel=True, **kwargs)
+        super(BtmRightPanel, self).__init__(*args, with_radio_panel=True, **kwargs)
 
         if 0:
             button_sizer = wx.BoxSizer(wx.HORIZONTAL)

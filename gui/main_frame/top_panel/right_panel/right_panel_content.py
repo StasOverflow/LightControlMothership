@@ -26,16 +26,16 @@ class TopRightPanel(wx.Panel):
             interface=DISPLAY_INTERFACE,
             dimension=(3, 5),
             col_titles=[' 1', ' 2', ' 3', ' 4', ' 5'],
-            row_titles=['X3', 'X2', 'X1'],
+            row_titles=['X1', 'X2', 'X3'],
             orientation=wx.VERTICAL,
             *args,
             **kwargs,
         )
 
         self.output_matrix = InputArray(parent=self, title='State of outputs:', dimension=(1, 4),
-                                        col_titles=['K4', 'K3', 'K2', 'K1'], orientation=wx.VERTICAL,
+                                        col_titles=['K1', 'K2', 'K3', 'K4'], orientation=wx.VERTICAL,
                                         interface=DISPLAY_INTERFACE, is_input_indication=False,
-                                        *args, is_button=True, secret_ids=[4, 3, 2, 1], **kwargs)
+                                        *args, is_button=True, secret_ids=[1, 2, 3, 4], **kwargs)
 
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
 

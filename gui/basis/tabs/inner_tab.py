@@ -26,6 +26,9 @@ class BaseInnerTab(wx.Panel):
 
         self.inner_title = wx.StaticText(parent=self, label=kwargs['inner_title'])
 
+        modbus_singleton = ModbusConnectionThreadSingleton()
+        self.modbus = modbus_singleton.modbus_comm_instance
+
         self.app_data = AppData()
 
         intermediate_sizer = None
@@ -39,12 +42,30 @@ class BaseInnerTab(wx.Panel):
             intermediate_sizer.Add(self.inter_title, 0, wx.LEFT, 15)
             intermediate_sizer.Add(self.inter_instance, 0, wx.LEFT, 30)
         elif with_radio_panel:
+            self.with_radio_panel = True
             intermediate_sizer = wx.BoxSizer(wx.HORIZONTAL)
-            self.inter_title = wx.StaticText(parent=self, label='Output mode')
-            self.auto_mode_radio = wx.RadioButton(parent=self, label='Auto')
+            self.inter_title = wx.StaticText(parent=self, label='Mode:')
+            self.auto_mode_radio = wx.RadioButton(parent=self, id=0, label='Auto', style=wx.RB_GROUP)
+            self.off_mode_radio = wx.RadioButton(parent=self, id=1, label='Off')
+            self.on_mode_radio = wx.RadioButton(parent=self, id=2, label='On')
 
-            intermediate_sizer.Add(self.inter_title, 0, wx.LEFT, 15)
-            intermediate_sizer.Add(self.inter_instance, 0, wx.LEFT, 30)
+            try:
+                self.auto_mode_radio.Disable()
+                self.off_mode_radio.Disable()
+                self.on_mode_radio.Disable()
+            except RuntimeError:
+                pass
+
+            self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.auto_mode_radio)
+            self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.off_mode_radio)
+            self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.on_mode_radio)
+
+            intermediate_sizer.Add(self.inter_title, 0, wx.RIGHT, 8)
+            intermediate_sizer.Add(self.auto_mode_radio)
+            intermediate_sizer.Add(self.off_mode_radio)
+            intermediate_sizer.Add(self.on_mode_radio)
+
+            self.app_data.iface_handler_register(self._radio_buttons_visibility_handler)
 
         if self.id is not None:
             if 'interface' in kwargs:
@@ -57,16 +78,13 @@ class BaseInnerTab(wx.Panel):
 
         title = 'Inputs configuration:' if self.interface == INPUT_INTERFACE else 'Inputs state:'
         self.inner_matrix = InputArray(parent=self, title=title, dimension=(3, 5),
-                                       col_titles=['1', '2', '3', '4', '5'], row_titles=['X3', 'X2', 'X1'],
+                                       col_titles=['1', '2', '3', '4', '5'], row_titles=['X1', 'X2', 'X3'],
                                        orientation=wx.VERTICAL, *args, **kwargs)
-
-        modbus_singleton = ModbusConnectionThreadSingleton()
-        self.modbus = modbus_singleton.modbus_comm_instance
 
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
         if with_indicator or with_radio_panel:
-            self.inner_panel_sizer.Add(intermediate_sizer, 0, wx.RIGHT | wx.ALIGN_RIGHT, 15)
+            self.inner_panel_sizer.Add(intermediate_sizer, 0, wx.RIGHT | wx.ALIGN_RIGHT, 18)
         self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 10)
 
         if with_size:
@@ -74,6 +92,43 @@ class BaseInnerTab(wx.Panel):
 
         self.conf_prev = None
         self.app_data.iface_handler_register(self._inputs_state_set)
+        self.data_bits_prev = None
+
+    def _radio_button_callback(self, event):
+        if self.modbus.is_connected and self.app_data.mbus_data is not None:
+            print('handled', event.GetId())
+            data_byte = self.app_data.mbus_data[6]
+            data_bits = event.GetId()
+            shifting_val = self.id * 2
+            data_byte &= ~(3 << shifting_val)
+            data_byte |= (data_bits << shifting_val)
+            self.modbus.queue_insert(data_byte, 4)
+
+    def _radio_buttons_visibility_handler(self):
+        if self.modbus.is_connected:
+            if self.app_data.mbus_data is not None:
+                data_bits = (self.app_data.mbus_data[6] >> self.id * 2) & 3
+                if self.data_bits_prev != data_bits:
+                    self.data_bits_prev = data_bits
+                    if not data_bits:
+                        self.auto_mode_radio.SetValue(True)
+                    elif data_bits == 1:
+                        self.off_mode_radio.SetValue(True)
+                    elif data_bits == 2:
+                        self.on_mode_radio.SetValue(True)
+            try:
+                self.auto_mode_radio.Enable()
+                self.off_mode_radio.Enable()
+                self.on_mode_radio.Enable()
+            except RuntimeError:
+                pass
+        else:
+            try:
+                self.auto_mode_radio.Disable()
+                self.off_mode_radio.Disable()
+                self.on_mode_radio.Disable()
+            except RuntimeError:
+                pass
 
     def _ins_outs_state_update(self):
         separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
@@ -95,7 +150,9 @@ class BaseInnerTab(wx.Panel):
                 for i in range(len(self.conf_prev)):
                     values |= int(self.conf_prev[i] << i)
                 if self.modbus.is_connected:
+                    kostil_byte = self.app_data.mbus_data[6]
                     self.modbus.queue_insert(values, self.id)
+                    self.modbus.queue_insert(kostil_byte, 4)
 
     def configuration_set(self, new_array, out_state=None):
         self.inner_matrix.values = new_array
