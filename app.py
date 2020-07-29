@@ -13,17 +13,18 @@ class WxWidgetCustomApp:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        '''Define two singletones, containing data to share across application'''
+        # Define two singletones, containing data to share across application
         self.app_settings = Settings()
         self.app_settings.settings_load()
         self.app_data = AppData()
+        self.modbus_singleton = None
 
-        '''Create a gui application with main frame'''
-        self.gui = GuiApp(size=(439, 520), title='Light Controller')
+        # Create a gui application with main frame
+        self.gui = GuiApp(size=(439, 520), title="Light Controller")
 
-        '''Create threads'''
-        modbus_singleton = ModbusConnectionThreadSingleton()
-        self.modbus_connection = modbus_singleton.modbus_comm_instance
+        # Create threads
+        self.modbus_singleton = ModbusConnectionThreadSingleton()
+        self.modbus_connection = self.modbus_singleton.modbus_comm_instance
 
         self.poll_thread = threading.Thread(target=self._app_settings_poll)
         self.poll_thread.daemon = True
@@ -36,7 +37,7 @@ class WxWidgetCustomApp:
 
         self.app_settings.port_list = serial_ports()
 
-    '''Helper logic-wrapping functions'''
+    # Helper logic-wrapping functions
     def _poll_close_event(self):
         if self.gui.is_closing:
             sys.exit()
@@ -47,7 +48,7 @@ class WxWidgetCustomApp:
     def _mbus_data_put(self):
         pass
 
-    '''Thread handler list'''
+    # Thread handler list
     def _app_settings_poll(self):
         while True:
             self.app_settings.settings_save()
@@ -76,6 +77,8 @@ class WxWidgetCustomApp:
         self.main_logic_thread.start()
         self.modbus_connection.start()
         self.layout_thread.start()
+
+        # Called at the end, as mentioned everywhere
         self.gui.start()
 
 
@@ -83,7 +86,7 @@ if __name__ == '__main__':
     debug = 0
 
     if not debug:
-        '''Start the app'''
+        # Start the app
         app = WxWidgetCustomApp()
         app.run()
     elif debug == 1:

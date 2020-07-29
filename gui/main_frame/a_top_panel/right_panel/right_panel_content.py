@@ -97,7 +97,7 @@ class TopRightPanel(wx.Panel):
                 self.connection_matrix.values = (0, )
 
     def _on_mouse_down(self, event):
-        if self.mbus.is_connected and self.app_data.mbus_data is not None:
+        if self.mbus.is_connected and self.app_data.modbus_data is not None:
             aydi = event.GetEventObject().parent_class.secret_id
             aydi_shifted = (aydi - 1) * 2
             mode_auto = self.app_data.output_mode_get()
@@ -109,12 +109,12 @@ class TopRightPanel(wx.Panel):
         # print('pressed', event.GetEventObject().parent_class.secret_id)
 
     def _inputs_state_update(self):
-        if self.app_data.mbus_data:
+        if self.app_data.modbus_data:
             self.configuration_set(self.app_data.inputs_combined_data, input_cfg=True)
             self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
 
     def _inputs_visibility_update(self):
-        if self.app_data.mbus_data:
+        if self.app_data.modbus_data:
             self.visibility_set(self.app_data.inputs_combined_visibility)
 
     def array_hidden_state_set(self, new_order):

@@ -84,11 +84,13 @@ class Settings(metaclass=_Singleton):
             self.refresh_rate = int(sets['refresh_rate'])
         except Exception as e:
             print(e)
+        print(self)
 
     def __str__(self):
-        pretty = '{\"device_port\": ' + str(self.device_port) + '},' + \
-                 '{\"slave_id\": ' + str(self.slave_id) + '},' + \
-                 '{\"refresh_rate\": ' + str(self.refresh_rate) + '},'
+        pretty = '\n' + \
+                 '{\"device_port\": ' + str(self.device_port) + '},' + '\n' + \
+                 '{\"slave_id\": ' + str(self.slave_id) + '},' + '\n' + \
+                 '{\"refresh_rate\": ' + str(self.refresh_rate) + '},' + '\n'
         return pretty
 
 
@@ -143,8 +145,8 @@ class AppData(metaclass=_Singleton):
         for i in range(4):
             self.separate_inputs_checkboxes_state = None
 
-        self.mbus_data = None
-        self.mbus_online = False
+        self.modbus_data = None
+        self.modbus_online = False
 
         self.handler_list = list()
 
@@ -159,33 +161,29 @@ class AppData(metaclass=_Singleton):
         self.handler_list.append(handler)
 
     def output_mode_get(self):
-        return self.mbus_data[6]
+        return self.modbus_data[6]
 
     @property
-    def mbus_data(self):
-        return self._mbus_data
+    def modbus_data(self):
+        return self._modbus_data
 
-    @mbus_data.setter
-    def mbus_data(self, value):
-        self._mbus_data = value
+    @modbus_data.setter
+    def modbus_data(self, value):
+        self._modbus_data = value
 
     def output_data_by_index(self, index):
-        if self.mbus_data is not None:
-            data = self.mbus_data[1]
+        if self.modbus_data is not None:
+            data = self.modbus_data[1]
             return data & (1 << index)
         else:
             return None
 
-    '''
-        Combined data getters
-    '''
+    # Combined data getters
     @property
     def outputs_combined_data(self):
-        if self.mbus_data is not None:
-            '''
-                Get packed 'output state' data from modbus register 1
-            '''
-            data = self.mbus_data[1]
+        if self.modbus_data is not None:
+            # Get packed 'output state' data from modbus register 1
+            data = self.modbus_data[1]
             for index in range(4):
                 self.output_combined_state[index] = bool(data & (1 << index))
             return self.output_combined_state
@@ -194,32 +192,26 @@ class AppData(metaclass=_Singleton):
 
     @property
     def inputs_combined_data(self):
-        if self.mbus_data is not None:
-            '''
-                Get packed 'input state' data from modbus register 1
-            '''
-            data = self.mbus_data[0]
+        if self.modbus_data is not None:
+            # Get packed 'input state' data from modbus register 1
+            data = self.modbus_data[0]
             for index in range(15):
                 self.input_state_array[index] = bool(data & (1 << index))
             return self.input_state_array
         else:
             return None
-    '''
-        Visibility getters
-    '''
+
+    # Visibility getters
     @property
     def inputs_combined_visibility(self):
         inputs_combined_visibility = [False for _ in range(15)]
-        if self.mbus_data is not None:
+        if self.modbus_data is not None:
             data = 0
-            '''
-                Assemble data from modbus registers 2, 3, 4, 5
-            '''
+            # Assemble data from modbus registers 2, 3, 4, 5
             for i in range(4):
-                data |= self.mbus_data[2 + i]
-            '''
-                Iterate through visibility array and update with assembled data
-            '''
+                data |= self.modbus_data[2 + i]
+
+            # Iterate through visibility array and update with assembled data
             for index in range(15):
                 inputs_combined_visibility[index] = bool(data & (1 << index))
 
@@ -228,14 +220,11 @@ class AppData(metaclass=_Singleton):
 
     def separate_inputs_visibility_get_by_index(self, relay_index):
         inputs_combined_visibility = [False for _ in range(15)]
-        if self.mbus_data is not None:
-            '''
-                Get inputs_used by a specific relay from modbus register by relay's index
-            '''
-            data = self.mbus_data[2 + relay_index]
-            '''
-                Iterate through visibility array and update with assembled data
-            '''
+        if self.modbus_data is not None:
+            # Get inputs_used by a specific relay from modbus register by relay's index
+            data = self.modbus_data[2 + relay_index]
+
+            # Iterate through visibility array and update with assembled data
             for index in range(15):
                 inputs_combined_visibility[index] = bool(data & (1 << index))
             return inputs_combined_visibility
@@ -244,14 +233,11 @@ class AppData(metaclass=_Singleton):
 
     def separate_inputs_state_get_by_index(self, relay_index):
         inputs_state = [False for _ in range(15)]
-        if self.mbus_data is not None:
-            '''
-                Get inputs_used by a specific relay from modbus register by relay's index
-            '''
-            data = self.mbus_data[2 + relay_index]
-            '''
-                Iterate through visibility array and update with assembled data
-            '''
+        if self.modbus_data is not None:
+            # Get inputs_used by a specific relay from modbus register by relay's index
+            data = self.modbus_data[2 + relay_index]
+
+            # Iterate through visibility array and update with assembled data
             for index in range(15):
                 inputs_state[index] = self.inputs_combined_data[index] & bool(data & (1 << index))
             return inputs_state

@@ -4,7 +4,7 @@ from gui.main_frame.main_frame_content import MainFrame
 
 class GuiApp:
     def __init__(self, size=None, title="", *args, **kwargs):
-        self.application = wx.App(False)
+        self.application = wx.App()
         self.main_frame = MainFrame(*args, size=size, title=title, **kwargs)
         self.is_closing = False
 

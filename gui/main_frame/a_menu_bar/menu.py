@@ -1,20 +1,16 @@
 import wx
 from gui.main_frame.a_menu_bar.dialog import SettingsDialog
+from settings import Settings, AppData
 
 
 class MenuBarSequence(wx.MenuBar):
 
-    def __init__(self, parent=None, label=None, *args, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super().__init__()
 
-        self._settings = None
-
-        if 'default_settings' in kwargs:
-            self.settings = kwargs.pop('default_settings')
+        self._settings = Settings()
 
         self.getter_method = None
-        if 'port_getter_method' in kwargs:
-            self.getter_method = kwargs.pop('port_getter_method')
 
         self.parent = parent
 
@@ -34,8 +30,6 @@ class MenuBarSequence(wx.MenuBar):
     def on_click_conn(self, event):
         self.dialog_window = SettingsDialog(
                                 title='Connection setup',
-                                port_getter_method=self.getter_method,
-                                settings=self.settings
                             )
         self.dialog_window.ShowModal()
         self.dialog_window.Close()
@@ -53,10 +47,11 @@ class MenuBarSequence(wx.MenuBar):
         self._settings = new_value
 
 
+# In case we need to debug window separately
 def main():
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'win.py', size=(600, 500))
+    frame = wx.Frame(None, -1, 'win.py', size=(400, 400))
 
     menu_bar = MenuBarSequence(parent=frame)
     frame.SetMenuBar(menu_bar)

@@ -95,9 +95,9 @@ class BaseInnerTab(wx.Panel):
         self.data_bits_prev = None
 
     def _radio_button_callback(self, event):
-        if self.modbus.is_connected and self.app_data.mbus_data is not None:
+        if self.modbus.is_connected and self.app_data.modbus_data is not None:
             print('handled', event.GetId())
-            data_byte = self.app_data.mbus_data[6]
+            data_byte = self.app_data.modbus_data[6]
             data_bits = event.GetId()
             shifting_val = self.id * 2
             data_byte &= ~(3 << shifting_val)
@@ -106,8 +106,8 @@ class BaseInnerTab(wx.Panel):
 
     def _radio_buttons_visibility_handler(self):
         if self.modbus.is_connected:
-            if self.app_data.mbus_data is not None:
-                data_bits = (self.app_data.mbus_data[6] >> self.id * 2) & 3
+            if self.app_data.modbus_data is not None:
+                data_bits = (self.app_data.modbus_data[6] >> self.id * 2) & 3
                 if self.data_bits_prev != data_bits:
                     self.data_bits_prev = data_bits
                     if not data_bits:
@@ -150,7 +150,7 @@ class BaseInnerTab(wx.Panel):
                 for i in range(len(self.conf_prev)):
                     values |= int(self.conf_prev[i] << i)
                 if self.modbus.is_connected:
-                    kostil_byte = self.app_data.mbus_data[6]
+                    kostil_byte = self.app_data.modbus_data[6]
                     self.modbus.queue_insert(values, self.id)
                     self.modbus.queue_insert(kostil_byte, 4)
 
