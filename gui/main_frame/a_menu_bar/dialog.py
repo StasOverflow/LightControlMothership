@@ -1,4 +1,3 @@
-import os
 import wx
 from gui.utils.label_types import *
 from gui.utils.labeled_data import LabelValueSequence
@@ -18,6 +17,7 @@ class SettingsDialog(wx.Dialog):
         self.SetTitle(title)
         self.CenterOnParent()
         self.settings = Settings()
+        self._garbage_evt_collector = 0
 
         # Create Background Panel and its sizer
         self.panel = wx.Panel(self)
@@ -49,33 +49,36 @@ class SettingsDialog(wx.Dialog):
         self.button_accept = wx.Button(parent=self.panel, label='Accept')
         self.button_refresh = wx.Button(parent=self.panel, label='Refresh')
 
-        self.panel.Bind(wx.EVT_BUTTON, self.port_setup.item.update_choices, self.button_refresh)
+        # Bind callbacks to newly created buttons
+        self.panel.Bind(wx.EVT_BUTTON, self.port_setup.item.update_cb, self.button_refresh)
         self.panel.Bind(wx.EVT_BUTTON, self.on_accept, self.button_accept)
 
-        self.button_sizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.button_sizer.Add(self.button_accept, 1, wx.ALL | wx.ALIGN_LEFT, 8)
-        self.button_sizer.Add(self.button_refresh, 1, wx.ALL | wx.ALIGN_RIGHT, 8)
-
+        # Wrap controls
         self.static_box_sizer.Add(self.port_setup)
         self.static_box_sizer.Add(self.slave_address)
 
-        self.panel_sizer.Add(self.static_box_sizer, 5, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 15)
+        # Wrap buttons into sizer
+        self.button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.button_sizer.Add(self.button_accept, 1, wx.ALL | wx.ALIGN_LEFT, 8)
+        self.button_sizer.Add(self.button_refresh, 1, wx.ALL | wx.ALIGN_RIGHT, 8)
 
+        # Wrap window items into window wrapper
+        self.panel_sizer.Add(self.static_box_sizer, 5, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 15)
         self.panel_sizer.Add(self.button_sizer, 2, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 3)
 
+        # Set panel sizer
         self.panel.SetSizer(self.panel_sizer)
 
     def _ports_update(self, event):
+        self._garbage_evt_collector = event
         self.settings.port_list = serial_ports()
 
     def on_accept(self, event):
+        self._garbage_evt_collector = event
         idx = self.port_setup.item.port_index
         self.settings.device_port = self.settings.port_list[idx]
         self.settings.slave_id = self.slave_address.value
 
-        print(self.settings.device_port)
-        print(self.settings.slave_id)
         self.Close()
 
 

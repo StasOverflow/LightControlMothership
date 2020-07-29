@@ -14,6 +14,7 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         super().__init__(wx.HORIZONTAL)
         self.settings = Settings()
         self.choices_data = None
+        self.timer = None
         self.port_index = 0
         self._garbage_evt_collector = 0
 
@@ -21,7 +22,7 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         self.choicer = wx.Choice(parent=parent, size=(73, -1))
 
         # Handle choicer selection
-        self.update_choices(wx.EVT_CHOICE)
+        self.update_choices()
         self.port_index = self.choicer.FindString(self.settings.device_port, False)
         if self.port_index == -1:
             self.port_index = 0
@@ -33,31 +34,51 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         # Add choicer to a sizer (which is this class itself)
         self.Add(self.choicer, 1, wx.LEFT, 0)
 
+        # Insert a certain delay for refresh button
+        self._can_be_refreshed = 1
+        self.timer = wx.Timer()
+        self.timer_evt_handler = wx.EvtHandler()
+        self.timer.SetOwner(self.timer_evt_handler, id=228)
+        self.timer_evt_handler.Bind(wx.EVT_TIMER, self._refresh, self.timer, id=228)
+
+        self.timer.Start(500, True)
+
+    def _refresh(self, event):
+        self._garbage_evt_collector = event
+        self.timer.Start(500, True)
+        self._can_be_refreshed = 1
+
     def _choice_cb(self, event):
         self._garbage_evt_collector = event
-        self.port_index = self.choicer.GetSelection()
+        if self.port_index:
+            self.port_index = self.choicer.GetSelection()
 
-    def update_choices(self, event):
-        if self.choicer:
-            self.settings.port_list = serial_ports()
-            self.choices_data = self.settings.port_list
+    def update_cb(self, event):
+        if self._can_be_refreshed == 1:
+            self._can_be_refreshed = 0
+            self._garbage_evt_collector = event
+            self.update_choices()
 
-            self.choicer.Clear()
-            self.choicer.Append(self.choices_data)
-            self.choices_data = self.settings.port_list
+    def update_choices(self):
+            if self.choicer:
+                self.settings.port_list = serial_ports()
+                self.choices_data = self.settings.port_list
 
-            string_id = self.port_index
-            if string_id == -1:
-                string_id = 0
+                self.choicer.Clear()
+                self.choicer.Append(self.choices_data)
+                self.choices_data = self.settings.port_list
 
-            self.choicer.SetSelection(string_id)
-            self.choicer.Layout()
+                string_id = self.port_index
+                if string_id == -1:
+                    string_id = 0
+
+                self.choicer.SetSelection(string_id)
+                self.choicer.Layout()
 
 
 class ComPortSelector(wx.BoxSizer):
 
-    def __init__(self, label_caption, *args, parent=None,
-                 initial_value='None', margin=3):
+    def __init__(self, label_caption, parent=None, margin=3):
 
         # Initial constructions
         super().__init__(wx.HORIZONTAL)
@@ -82,18 +103,3 @@ class ComPortSelector(wx.BoxSizer):
 
         self.Add(self.label, 0, label_style, label_margin)
         self.Add(self.item, 0, value_style, value_margin)
-
-    @property
-    def value(self):
-        if self.item is not None:
-            return self.item.value
-        else:
-            return 'COM1'
-
-    @value.setter
-    def value(self, new_value):
-        if self.item is not None:
-            if self.item.value != new_value:
-                self.item.value = new_value
-                self.item.Layout()
-

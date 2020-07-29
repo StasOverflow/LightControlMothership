@@ -44,77 +44,6 @@ class _RightColumnCheckbox(wx.CheckBox):
             self.SetValue(self._value)
 
 
-class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
-
-    event = wx.EVT_CHOICE
-
-    def __init__(self, *args, parent=None, button_required=True, label=None, size=None, initial_value=None, **kwargs):
-
-        super().__init__(wx.HORIZONTAL)
-
-        self.choices_data = None
-        self.settings = Settings()
-
-        self.choicer = wx.Choice(parent, size=(73, -1), choices=self.choices_data)
-
-        if button_required:
-            self.button = wx.Button(*args, parent=parent, size=(25, 23))
-
-            path_to_file = './static/images/refresh_3.png'
-            if os.path.isfile(path_to_file):
-                self.image = wx.Image(path_to_file, wx.BITMAP_TYPE_PNG)
-                self.image = self.image.ConvertToBitmap()
-            else:
-                raise FileNotFoundError
-            self.button.SetBitmap(self.image, wx.LEFT)
-
-            self.Add(self.button, 0, wx.BOTTOM, 5)
-
-        self.Add(self.choicer, 1, wx.LEFT, 0)
-
-        self.data_special_setter()
-        self.update_choices()
-        self.value = initial_value
-
-    @execute_every
-    def update_choices(self):
-        if self.choicer:
-            self.data_special_setter()
-            if self.choicer.GetItems() != self.choices_data:
-                self.choicer.Clear()
-                self.choicer.Append(self.choices_data)
-
-    @property
-    def choices_data(self):
-        data = ['']
-        if self._choices_data is not None:
-            if self.settings.port_list:
-                data = self._choices_data
-        return data
-
-    @choices_data.setter
-    def choices_data(self, choices):
-        self._choices_data = choices
-
-    def data_special_setter(self):
-        self.choices_data = self.settings.port_list
-
-    @property
-    def value(self):
-        return self.choices_data[self.choicer.GetCurrentSelection()]
-
-    @value.setter
-    def value(self, new_value):
-        print(new_value)
-
-        if new_value is not None:
-            try:
-                self.choicer.SetSelection(self.choices_data.index(new_value))
-                self.button.Layout()
-            except ValueError:
-                pass
-
-
 class _RightColumnSpinCtrl(wx.BoxSizer):
     """
         SPIN CONTROL
@@ -194,7 +123,6 @@ class LabelValueSequence(wx.BoxSizer):
     ITEM_LIST = {
         LABELED_LABEL: _RightColumnLabel,
         LABELED_CHECK_BOX: _RightColumnCheckbox,
-        LABELED_CHOICE_BOX: _RightColumnChoice,
         LABELED_SPIN_CONTROL: _RightColumnSpinCtrl,
         LABELED_TEXT_INPUT: _RightColumnTextInput,
     }
