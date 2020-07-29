@@ -34,6 +34,8 @@ class WxWidgetCustomApp:
         self.layout_thread = threading.Thread(target=self._layout_thread_handler)
         self.layout_thread.daemon = True
 
+        self.app_settings.port_list = serial_ports()
+
     '''Helper logic-wrapping functions'''
     def _poll_close_event(self):
         if self.gui.is_closing:
@@ -49,7 +51,6 @@ class WxWidgetCustomApp:
     def _app_settings_poll(self):
         while True:
             self.app_settings.settings_save()
-            self.app_settings.port_list = serial_ports()
             time.sleep(0.5)
 
     def _layout_thread_handler(self):

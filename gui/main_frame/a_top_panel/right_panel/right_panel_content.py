@@ -32,10 +32,11 @@ class TopRightPanel(wx.Panel):
             **kwargs,
         )
 
-        self.output_matrix = InputArray(parent=self, title='State of outputs:', dimension=(1, 4),
-                                        col_titles=['K1', 'K2', 'K3', 'K4'], orientation=wx.VERTICAL,
-                                        interface=DISPLAY_INTERFACE, is_input_indication=False,
-                                        *args, is_button=True, secret_ids=[1, 2, 3, 4], **kwargs)
+        self.output_matrix = InputArray(parent=self, title='State of outputs:', dimension=(2, 4),
+                                        col_titles=['K1', 'K2', 'K3', 'K4'], #, 'K5', 'K6', 'K7', 'K8'],
+                                        orientation=wx.VERTICAL, interface=DISPLAY_INTERFACE,
+                                        is_input_indication=False, *args, is_button=True,
+                                        secret_ids=[1, 2, 3, 4, 5, 6, 7, 8], **kwargs)
 
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -53,7 +54,7 @@ class TopRightPanel(wx.Panel):
         conn_label = wx.StaticText(parent=self, label='ACT')
         self.connection_matrix = InputArray(parent=self, dimension=(1, 1), orientation=wx.VERTICAL,
                                             interface=DISPLAY_INTERFACE, is_input_indication=False,
-                                            *args, is_button=True, secret_ids=[5], row_titles=[''],
+                                            *args, is_button=True, secret_ids=[8], row_titles=[''],
                                             outlined=False, is_conn=True,
                                             **kwargs)
         self.prev_state = False

@@ -48,20 +48,32 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
 
     event = wx.EVT_CHOICE
 
-    def __init__(self, *args, parent=None, label=None, size=None, initial_value=None, **kwargs):
+    def __init__(self, *args, parent=None, button_required=True, label=None, size=None, initial_value=None, **kwargs):
 
         super().__init__(wx.HORIZONTAL)
 
         self.choices_data = None
         self.settings = Settings()
 
-        self.choicer = wx.Choice(parent, size=(71, -1), choices=self.choices_data)
-        self.Add(self.choicer, 0, wx.LEFT, 0)
+        self.choicer = wx.Choice(parent, size=(73, -1), choices=self.choices_data)
+
+        if button_required:
+            self.button = wx.Button(*args, parent=parent, size=(25, 23))
+
+            path_to_file = './static/images/refresh_3.png'
+            if os.path.isfile(path_to_file):
+                self.image = wx.Image(path_to_file, wx.BITMAP_TYPE_PNG)
+                self.image = self.image.ConvertToBitmap()
+            else:
+                raise FileNotFoundError
+            self.button.SetBitmap(self.image, wx.LEFT)
+
+            self.Add(self.button, 0, wx.BOTTOM, 5)
+
+        self.Add(self.choicer, 1, wx.LEFT, 0)
 
         self.data_special_setter()
-
         self.update_choices()
-
         self.value = initial_value
 
     @execute_every
@@ -93,9 +105,12 @@ class _RightColumnChoice(wx.BoxSizer):  # wx.Choices
 
     @value.setter
     def value(self, new_value):
+        print(new_value)
+
         if new_value is not None:
             try:
                 self.choicer.SetSelection(self.choices_data.index(new_value))
+                self.button.Layout()
             except ValueError:
                 pass
 
@@ -136,7 +151,7 @@ class _RightColumnSpinCtrl(wx.BoxSizer):
             else:
                 raise FileNotFoundError
             self.button.SetBitmap(self.image, wx.LEFT)
-            self.button.SetBitmapMargins((2, 2))  # default is 4 but that seems too big to me.
+            self.button.SetBitmapMargins((2, 2))
 
             self.Add(self.button)
 
@@ -191,7 +206,9 @@ class LabelValueSequence(wx.BoxSizer):
 
         colon_label = str(label + ':')
 
-        self.label = wx.StaticText(parent=parent, label=colon_label, size=(95, -1))
+        x_size = 95
+
+        self.label = wx.StaticText(parent=parent, label=colon_label, size=(x_size, -1))
 
         item_class = self.ITEM_LIST[interface]
 

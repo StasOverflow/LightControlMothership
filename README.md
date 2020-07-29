@@ -1,12 +1,31 @@
-# Following instructions are valid only for Win10 platform 
+# LIGHT CONTROLLER
+
+-----
+
+##### Instructions are valid only for Win10 platform 
 
 To install the app:
 
 - Activate virtualenv
 
+        $ python -m venv env
+        
+        -For linux:   
+            $ source .env/bin/activate
+        
+        -For windows:
+            $ .\env\Scripts\activate
+            
+        Note: deactivation of virtualenv can be perfromed by:
+            $ decativate 
+            
+
 - Install requirements
 
         $ pip install -r requirements.txt
+        
+        - You might also need download and install pywin32 from:
+            https://sourceforge.net/projects/pywin32/files/
     
 - Install wxPython for your platform
         
@@ -15,7 +34,7 @@ To install the app:
 
 - Run installation script
         
-        $ pyinstaller app.spec -n Light Controller
+        $ pyinstaller app.spec
         
         - To create .spec file run: 
             $ pyi-makespec your_app_name.py

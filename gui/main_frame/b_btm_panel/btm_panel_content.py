@@ -32,9 +32,9 @@ class _BtmPanel(wx.Panel):
 
         notebook = wx.Notebook(self, **kwargs)
         self.sub_canvases = list()
-        for i in range(4):
+        for i in range(8):
             self.sub_canvases.append(_BtmSubPanel(parent=notebook, aydi=i))
-            notebook.AddPage(self.sub_canvases[i], "Group " + str(1 + i))
+            notebook.AddPage(self.sub_canvases[i], "Relay " + str(1 + i))
 
         '''
             Here goes a very important line of a code, setting notebook

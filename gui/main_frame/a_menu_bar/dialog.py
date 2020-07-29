@@ -2,6 +2,7 @@ import wx
 from gui.utils.label_types import *
 from gui.utils.labeled_data import LabelValueSequence
 from settings import Settings
+from backend.ports.ports import serial_ports
 
 
 class SettingsDialog(wx.Dialog):
@@ -35,7 +36,8 @@ class SettingsDialog(wx.Dialog):
                                     initial_value=self.settings.device_port,
                                     **kwargs
                         )
-        self.Bind(self.port_setup.item.event, self.on_choice, self.port_setup.item.choicer)
+        self.panel.Bind(wx.EVT_BUTTON, self._ports_update, self.port_setup.item.button)
+        self.panel.Bind(self.port_setup.item.event, self.on_choice, self.port_setup.item.choicer)
 
         self.slave_address = LabelValueSequence(
                                     parent=self.panel,
@@ -57,6 +59,10 @@ class SettingsDialog(wx.Dialog):
         self.panel_sizer.Add(self.button_accept, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 3)
 
         self.panel.SetSizer(self.panel_sizer)
+
+    def _ports_update(self, event):
+        self.settings.port_list = serial_ports()
+        self.port_setup.item.data_special_setter()
 
     def on_accept(self, event):
         if self._pending_dev_port is not None:
