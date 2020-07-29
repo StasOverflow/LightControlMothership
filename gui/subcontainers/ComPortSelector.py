@@ -41,11 +41,11 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         self.timer.SetOwner(self.timer_evt_handler, id=228)
         self.timer_evt_handler.Bind(wx.EVT_TIMER, self._refresh, self.timer, id=228)
 
-        self.timer.Start(500, True)
+        self.timer.Start(1000, True)
 
     def _refresh(self, event):
         self._garbage_evt_collector = event
-        self.timer.Start(500, True)
+        self.timer.Start(1000, True)
         self._can_be_refreshed = 1
 
     def _choice_cb(self, event):
