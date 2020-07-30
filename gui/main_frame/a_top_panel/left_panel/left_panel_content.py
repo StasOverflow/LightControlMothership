@@ -37,21 +37,12 @@ class TopLeftPanel(wx.Panel):
 
         self.dialog_window = None
 
-        if hasattr(self.slave_id.item, 'button'):
-            self.Bind(wx.EVT_BUTTON, self.slave_id_update, self.slave_id.item.button)
-        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
-
-        self.conn_button = WrappedButton(parent=self, label='Connect')
-
-        self.Bind(wx.EVT_BUTTON, self.connect_disconnect, self.conn_button.button)
-
         self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
 
         self.top_left_sizer_v.Add(self.top_inputs_sizer, 0, wx.BOTTOM, 2)
 
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        button_sizer.Add(self.conn_button, 0, wx.LEFT | wx.ALIGN_RIGHT, 90)
         self.top_left_sizer_v.Add(button_sizer, 0, wx.TOP, 85)
 
         self.line = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
@@ -65,19 +56,8 @@ class TopLeftPanel(wx.Panel):
 
         self.SetSizer(self.top_left_sizer_main)
 
-        self.app_data.iface_handler_register(self._button_update)
         self.app_data.iface_handler_register(self._port_update)
         self.app_data.iface_handler_register(self._slave_id_update)
-
-    def _button_update(self):
-        if self.conn_button:
-            try:
-                if self.mbus.is_connected:
-                    self.conn_button.button.SetLabel('Disconnect')
-                else:
-                    self.conn_button.button.SetLabel('Connect')
-            except RuntimeError:
-                pass
 
     def _port_update(self):
         self.device_port.value = self.settings.device_port
@@ -90,25 +70,6 @@ class TopLeftPanel(wx.Panel):
         self.dialog_window.ShowModal()
         self.dialog_window.Close()
         self.dialog_window.Destroy()
-
-    def connect_disconnect(self, event):
-        if not self.mbus.is_connected:
-            if self.settings.device_port is not None and self.settings.slave_id is not None:
-                self.mbus.com_port_update(self.settings.device_port)
-                self.mbus.slave_id_update(self.settings.slave_id)
-                self.mbus.is_connected_state_set(True)
-            else:
-                if self.settings.device_port is not None:
-                    pass
-                else:
-                    print('self settings device port is not not None')
-                if self.settings.slave_id is not None:
-                    pass
-                else:
-                    print('self.settings.slave_id is not not None')
-
-        else:
-            self.mbus.is_connected_state_set(False)
 
     def slave_id_update(self, event):
         self.settings.slave_id = self.slave_id.value

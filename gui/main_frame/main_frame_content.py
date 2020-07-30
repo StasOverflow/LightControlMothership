@@ -1,5 +1,6 @@
 import wx
 from gui.main_frame.a_top_panel.top_panel_content import TopPanel
+from gui.main_frame.aa_mid_panel.mid_panel_content import MidPanel
 from gui.main_frame.b_btm_panel.btm_panel_content import BtmPanel
 from gui.main_frame.c_status_panel.staus_panel_content import StatusPanel
 import defs
@@ -9,7 +10,7 @@ from settings import Settings, AppData
 
 class MainFrame(wx.Frame):
 
-    def __init__(self, pos=(0, 0), size=(400, 300), title="", **kwargs):
+    def __init__(self, pos=(0, 0), size=(400, 300), title=""):
         self.size = size
         self.pos = pos
 
@@ -29,7 +30,7 @@ class MainFrame(wx.Frame):
         self.Center()
 
         # Create Menu Bar
-        self.menu_bar = MenuBarSequence(parent=self, **kwargs)
+        self.menu_bar = MenuBarSequence(parent=self)
 
         main_panel = wx.Panel(parent=self, size=self.size)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -37,6 +38,9 @@ class MainFrame(wx.Frame):
         # Top of the page sequence
         self.top_canvas = TopPanel(parent=main_panel, iface_types=(defs.INPUT_INTERFACE,
                                                                    defs.DISPLAY_INTERFACE))
+
+        # Mid of the page sequence
+        self.mid_canvas = MidPanel(parent=main_panel)
 
         # Bottom of the page sequence
         self.btm_canvas = BtmPanel(parent=main_panel, style=wx.LEFT)
@@ -49,6 +53,7 @@ class MainFrame(wx.Frame):
             value for every element of the window
         """
         main_sizer.Add(self.top_canvas, 0,  wx.EXPAND)
+        main_sizer.Add(self.mid_canvas, 0, wx.EXPAND)
         main_sizer.Add(self.btm_canvas, 0, wx.EXPAND)
         main_sizer.Add(self.status_bottom_panel, 0, wx.EXPAND)
 

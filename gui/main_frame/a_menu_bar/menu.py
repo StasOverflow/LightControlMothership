@@ -1,33 +1,67 @@
 import wx
 from gui.main_frame.a_menu_bar.dialog import SettingsDialog
-from settings import Settings, AppData
+from settings import Settings
+from backend.modbus_backend import ModbusConnectionThreadSingleton
 
 
 class MenuBarSequence(wx.MenuBar):
 
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, parent=None):
+
+        # Basic construction stuff
         super().__init__()
-
-        self._settings = Settings()
-
-        self.getter_method = None
-
         self.parent = parent
+        self.settings = Settings()
+        self._garbage_event_collector = 0
 
-        self.connection_menu = wx.Menu()
-        self.connect = self.connection_menu.Append(-1, 'Connection', 'Connection')
+        instance = ModbusConnectionThreadSingleton()
+        self.modbus = instance.thread_instance_get()
 
-        self.help_menu = wx.Menu()
-        self.about = self.help_menu.Append(-1, 'About', 'About')
+        # Start with connect menu
+        self.conn_submenu = wx.Menu()
+        self.conn_submenu_item_connect = self.conn_submenu.Append(-1, 'Connect...', 'Connect...')
+        self.conn_submenu_item_disconnect = self.conn_submenu.Append(-1, 'Disconnect', 'Disconnect')
+        self.conn_submenu.AppendSeparator()
+        self.conn_submenu_item_quick_conn = self.conn_submenu.Append(-1, 'Quick Connect', 'Quick Connect')
 
-        self.Append(self.connection_menu, 'Settings')
-        self.Append(self.help_menu, 'Help')
+        # TODO: Decide if this one is needed
+        # self.help_menu = wx.Menu()
+        # self.about = self.help_menu.Append(-1, 'About', 'About')
+
+        self.Append(self.conn_submenu, 'Connection')
+        # self.Append(self.help_menu, 'Help')
 
         self.dialog_window = None
 
-        parent.Bind(wx.EVT_MENU, self.on_click_conn, self.connect)
+        parent.Bind(wx.EVT_MENU, self.on_click_conn, self.conn_submenu_item_connect)
+        parent.Bind(wx.EVT_MENU, self.on_clock_dc, self.conn_submenu_item_disconnect)
+        parent.Bind(wx.EVT_MENU, self.on_click_quick_conn, self.conn_submenu_item_quick_conn)
+
+        # Insert a certain delay for refresh button
+        self.timer = wx.Timer()
+        self.timer_evt_handler = wx.EvtHandler()
+        self.timer.SetOwner(self.timer_evt_handler, id=228)
+        self.timer_evt_handler.Bind(wx.EVT_TIMER, self._refresh, self.timer, id=228)
+
+        self._refresh(wx.EVT_TIMER)
+
+    # Refresh callback, which is called every _some_time
+    def _refresh(self, event):
+        self._garbage_evt_collector = event
+
+        if self.modbus.is_connected:
+            self.conn_submenu_item_connect.Enable(False)
+            self.conn_submenu_item_disconnect.Enable(True)
+            self.conn_submenu_item_quick_conn.Enable(False)
+        else:
+            self.conn_submenu_item_connect.Enable(True)
+            self.conn_submenu_item_disconnect.Enable(False)
+            self.conn_submenu_item_quick_conn.Enable(True)
+        self.timer.Start(200, True)
 
     def on_click_conn(self, event):
+        self._garbage_event_collector = event
+
         self.dialog_window = SettingsDialog(
                                 title='Connection setup',
                             )
@@ -35,21 +69,26 @@ class MenuBarSequence(wx.MenuBar):
         self.dialog_window.Close()
         self.dialog_window.Destroy()
 
-    @property
-    def settings(self):
-        if hasattr(self, 'dialog_window'):
-            if self.dialog_window:
-                self._settings = self.dialog_window.settings
-        return self._settings
+    def on_clock_dc(self, event):
+        self._garbage_event_collector = event
+        self.modbus.is_connected_state_set(False)
 
-    @settings.setter
-    def settings(self, new_value):
-        self._settings = new_value
+    def on_click_quick_conn(self, event):
+        self._garbage_event_collector = event
+
+        if not self.modbus.is_connected:
+            if self.settings.device_port is not None and self.settings.slave_id is not None:
+                self.modbus.com_port_update(self.settings.device_port)
+                self.modbus.slave_id_update(self.settings.slave_id)
+                self.modbus.is_connected_state_set(True)
 
 
-# In case we need to debug window separately
+# In case we need to debug menu separately
 def main():
     app = wx.App()
+
+    settings = Settings()
+    settings.settings_load()
 
     frame = wx.Frame(None, -1, 'win.py', size=(400, 400))
 

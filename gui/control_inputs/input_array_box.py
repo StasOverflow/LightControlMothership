@@ -18,10 +18,6 @@ def print_decorator(func):
 
 class InputArray(wx.BoxSizer):
 
-    @staticmethod
-    def zeroer(value):
-        return 1 if value is not None else 0
-
     def __init__(
             self,
             parent,
@@ -34,9 +30,9 @@ class InputArray(wx.BoxSizer):
             secret_ids=None,
             orientation=wx.HORIZONTAL,
             outlined=True,
-            *args,
-            **kwargs,
     ):
+
+        # Basic Construction procedure
         super().__init__(orientation)
         self.cols_quantity = dimension[1]
         self.rows_quantity = dimension[0]
@@ -44,34 +40,34 @@ class InputArray(wx.BoxSizer):
         self.row_titles = row_titles
         self.parent = parent
         self.outlined = outlined
+        self.cell_active_quantity = self.cols_quantity * self.rows_quantity
 
+        # FIXME: What are secret ids ?
         if secret_ids is None:
             secret_id_array = [None for _ in range(15)]
         else:
             secret_id_array = secret_ids
-        '''
-            In case table's rows or cols labels are not None, we create 
-            display matrix one row or(and) col larger then initial dimension
-        '''
-        self.addit_row = self.zeroer(self.col_titles)
-        self.addit_col = self.zeroer(self.row_titles)
-        if self.addit_row:
+
+        # If row or col is named, than title list should be extended
+        self.additional_row = self.col_titles is not None
+        self.additional_col = self.row_titles is not None
+        if self.additional_row:
             if self.row_titles is not None:
                 self.row_titles = [''] + self.row_titles
-        if self.addit_col:
+        if self.additional_col:
             if self.col_titles is not None:
                 self.col_titles = [''] + self.col_titles
 
+        # FIXME: Assigning cell titles other than '' doesn't work
         self.cell_titles = [
-            '' for _ in range(self.rows_quantity * self.cols_quantity)
+            '' for _ in range(self.cell_active_quantity)
         ] if cell_titles is None else cell_titles
 
         self.instance_array = [
             Cell(
                 self.parent, interface_type=interface,
                 label=self.cell_titles[i], secret_id=secret_id_array[i],
-                **kwargs
-            ) for i in range(self.cols_quantity * self.rows_quantity)
+            ) for i in range(self.cell_active_quantity)
         ]
 
         self.instance_matrix = [
@@ -91,26 +87,27 @@ class InputArray(wx.BoxSizer):
             box_sizer = wx.StaticBoxSizer(static_box, wx.HORIZONTAL)
         else:
             box_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        display_matrix = wx.GridSizer(0)
-        display_matrix.SetHGap(15)
-        display_matrix.SetVGap(15)
-        display_matrix.SetCols(self.cols_quantity + self.addit_col)
-        display_matrix.SetRows(self.rows_quantity + self.addit_row)
-        for row_index in range(len(self.instance_matrix) + self.addit_row):
-            if row_index == 0 and self.addit_row:
+
+        col_quantity = self.cols_quantity + self.additional_col
+        row_quantity = self.rows_quantity + self.additional_row
+
+        display_matrix = wx.GridSizer(row_quantity, col_quantity, hgap=15, vgap=15)
+
+        for row_id in range(self.cell_active_quantity + self.additional_row):
+            if row_id == 0 and self.additional_row:
                 for col_title in self.col_titles:
                     label = wx.StaticText(self.parent, label=col_title)
                     display_matrix.Add(label, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
             else:
                 integer = 0
-                fxd_row_id = row_index-self.addit_row
-                for col_index in range(len(self.instance_matrix[fxd_row_id]) + self.addit_col):
+                fxd_row_id = row_id-self.additional_row
+                for col_id in range(len(self.instance_matrix[fxd_row_id]) + self.additional_col):
                     integer += 1
-                    if col_index == 0 and self.addit_col:
-                        label = wx.StaticText(self.parent, label=self.row_titles[row_index])
+                    if col_id == 0 and self.additional_col:
+                        label = wx.StaticText(self.parent, label=self.row_titles[row_id])
                         display_matrix.Add(label, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
                     else:
-                        fxd_col_id = col_index - self.addit_col
+                        fxd_col_id = col_id - self.additional_col
                         display_matrix.Add(
                             self.instance_matrix[fxd_row_id][fxd_col_id],
                             1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND
@@ -158,17 +155,11 @@ class InputArray(wx.BoxSizer):
             self.instance_array[index].is_visible = bool_value
 
 
-class Supapanel(wx.Panel):
-
-    def __init__(self, parent):
-        super().__init__(parent)
-
-
 def main():
 
     app = wx.App()
     da_frame = wx.Frame(parent=None, title='Calculator')
-    da_panel = Supapanel(parent=da_frame)
+    da_panel = wx.Panel(parent=da_frame)
 
     da_panel.Centre()
 
@@ -178,7 +169,10 @@ def main():
         dimension=(3, 5),
         col_titles=['1', '2', '3', '4', '5'],
         row_titles=['X3', 'X2', 'X1'],
-        orientation=wx.VERTICAL
+        cell_titles=['A', 'B', 'C', 'D', 'E',
+                     'A', 'B', 'C', 'D', 'E',
+                     'A', 'B', 'C', 'D', 'E'],
+        orientation=wx.VERTICAL,
     )
 
     da_panel.SetSizer(checkboxer)

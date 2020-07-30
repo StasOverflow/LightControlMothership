@@ -17,13 +17,15 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         self.timer = None
         self.port_index = 0
         self._garbage_evt_collector = 0
+        self._some_time = 1000
 
         # Create COM port drop down list
         self.choicer = wx.Choice(parent=parent, size=(73, -1))
 
         # Handle choicer selection
         self.update_choices()
-        self.port_index = self.choicer.FindString(self.settings.device_port, False)
+        if self.settings.device_port is not None:
+            self.port_index = self.choicer.FindString(self.settings.device_port, False)
         if self.port_index == -1:
             self.port_index = 0
         self.choicer.SetSelection(self.port_index)
@@ -41,16 +43,17 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
         self.timer.SetOwner(self.timer_evt_handler, id=228)
         self.timer_evt_handler.Bind(wx.EVT_TIMER, self._refresh, self.timer, id=228)
 
-        self.timer.Start(1000, True)
+        self.timer.Start(self._some_time, True)
 
+    # Refresh callback, which is called every _some_time
     def _refresh(self, event):
         self._garbage_evt_collector = event
-        self.timer.Start(1000, True)
+        self.timer.Start(self._some_time, True)
         self._can_be_refreshed = 1
 
     def _choice_cb(self, event):
         self._garbage_evt_collector = event
-        if self.port_index:
+        if self.port_index is not None:
             self.port_index = self.choicer.GetSelection()
 
     def update_cb(self, event):
@@ -63,6 +66,8 @@ class _ComPortChoice(wx.BoxSizer):  # wx.Choices
             if self.choicer:
                 self.settings.port_list = serial_ports()
                 self.choices_data = self.settings.port_list
+
+                print(self.choices_data, self.port_index)
 
                 self.choicer.Clear()
                 self.choicer.Append(self.choices_data)
