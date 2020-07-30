@@ -8,17 +8,15 @@ import time
 
 class TopRightPanel(wx.Panel):
 
-    def __init__(self, parent=None, iface_types=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
 
         self.inner_title = None
         self.setup_button = None
 
         self.input_matrix = InputArray(
-            parent=self,
-            title='State of inputs:',
-            interface=DISPLAY_INTERFACE,
-            dimension=(3, 5),
+            parent=self, title='State of inputs:',
+            interface=DISPLAY_INTERFACE, dimension=(3, 5),
             col_titles=[' 1', ' 2', ' 3', ' 4', ' 5'],
             row_titles=['X1', 'X2', 'X3'],
         )
@@ -30,7 +28,6 @@ class TopRightPanel(wx.Panel):
         #                                 secret_ids=[1, 2, 3, 4, 5, 6, 7, 8], **kwargs)
 
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
         # output_matrix_wrapper = wx.BoxSizer(wx.HORIZONTAL)
@@ -62,14 +59,56 @@ class TopRightPanel(wx.Panel):
         # btm_of_page_sizer.Add(output_matrix_wrapper)
         # inner_panel_sizer.Add(btm_of_page_sizer)
 
-        # self.app_data = AppData()
-        # self.app_data.iface_handler_register(self._inputs_state_update)
+        self.app_data = AppData()
+        self.app_data.iface_handler_register(self._inputs_state_update)
 
-        self.mbus = ModbusConnectionThreadSingleton()
-        self.mbus = self.mbus.thread_instance_get()
+        self.modbus = ModbusConnectionThreadSingleton()
+        self.modbus = self.modbus.thread_instance_get()
 
         self.SetSizer(inner_panel_sizer)
 
+    def _inputs_state_update(self):
+        if self.app_data.modbus_data:
+            self.configuration_set(self.app_data.inputs_combined_data, input_cfg=True)
+            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
+        else:
+            pass
+
+    def configuration_get(self, matrix_inputs=True):
+        # if matrix_inputs:
+        return self.input_matrix.values
+        # else:
+        #     return self.output_matrix.values
+
+    def configuration_set(self, new_array, input_cfg=True):
+        """
+            Didn't manage to come up with a better way of determining, which matrix to configure
+            then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
+            is top one)
+        """
+        # if input_cfg:
+        self.input_matrix.values = new_array
+        # else:
+        #     self.output_matrix.values = new_array
+
+    # def _inputs_visibility_update(self):
+    #     if self.app_data.modbus_data:
+    #         self.visibility_set(self.app_data.inputs_combined_visibility)
+
+    def array_hidden_state_set(self, new_order):
+        self.input_matrix.visible_instances = new_order
+
+    def array_hidden_state_update(self):
+        pass
+
+    def array_hidden_state_get(self):
+        return self.input_matrix.visible_instances
+
+    # def visibility_set(self, new_array):
+    #     self.output_matrix.visible_instances = new_array
+
+    def configuration_update(self, *args, **kwargs):
+        pass
     '''
     def _on_mouse_down(self, event):
         if self.mbus.is_connected and self.app_data.modbus_data is not None:
@@ -82,45 +121,4 @@ class TopRightPanel(wx.Panel):
                 print('{:08b}'.format(status_byte))
                 self.mbus.queue_insert(status_byte, 4)
         # print('pressed', event.GetEventObject().parent_class.secret_id)
-
-    def _inputs_state_update(self):
-        if self.app_data.modbus_data:
-            self.configuration_set(self.app_data.inputs_combined_data, input_cfg=True)
-            self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
-
-    def _inputs_visibility_update(self):
-        if self.app_data.modbus_data:
-            self.visibility_set(self.app_data.inputs_combined_visibility)
-
-    def array_hidden_state_set(self, new_order):
-        self.input_matrix.visible_instances = new_order
-
-    def array_hidden_state_update(self):
-        pass
-
-    def array_hidden_state_get(self):
-        return self.input_matrix.visible_instances
-
-    def configuration_set(self, new_array, input_cfg=True):
-        """
-            Didn't manage to come up with a better way of determining, which matrix to configure
-            then pass a Bool value, indicating that we either DO or DO NOT use input_matrix(which
-            is top one)
-        """
-        if input_cfg:
-            self.input_matrix.values = new_array
-        else:
-            self.output_matrix.values = new_array
-
-    def visibility_set(self, new_array):
-        self.output_matrix.visible_instances = new_array
-
-    def configuration_update(self, *args, **kwargs):
-        pass
-
-    def configuration_get(self, matrix_inputs=True):
-        if matrix_inputs:
-            return self.input_matrix.values
-        else:
-            return self.output_matrix.values
 '''

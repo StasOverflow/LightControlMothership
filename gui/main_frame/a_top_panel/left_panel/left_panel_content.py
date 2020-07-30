@@ -19,7 +19,7 @@ class TopLeftPanel(wx.Panel):
 
         # Assign instance of modbus singleton, to have access to its props
         instance = ModbusConnectionThreadSingleton()
-        self.mbus = instance.thread_instance_get()
+        self.modbus = instance.thread_instance_get()
 
         # Create sizers
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
@@ -72,10 +72,10 @@ class TopLeftPanel(wx.Panel):
         self._conn_indication()
 
     def _conn_indication(self):
-        modbus_conn_state = 1 if self.mbus.is_connected else 0
+        modbus_conn_state = 1 if self.modbus.is_connected else 0
         self.activity_led.visible_instances = (modbus_conn_state,)
         if modbus_conn_state:
-            if not self.mbus.exception_state:
+            if not self.modbus.exception_state:
                 if self._can_be_refreshed == 1:
                     self._can_be_refreshed = 0
                     self.conn_blink_state = not self.conn_blink_state
@@ -93,4 +93,4 @@ class TopLeftPanel(wx.Panel):
     def slave_id_update(self, event):
         self.output_garbage_collector = event
         self.settings.slave_id = self.slave_id.value
-        self.mbus.slave_id_update(self.settings.slave_id)
+        self.modbus.slave_id_update(self.settings.slave_id)

@@ -40,12 +40,13 @@ class WxWidgetCustomApp:
     # Helper logic-wrapping functions
     def _poll_close_event(self):
         if self.gui.is_closing:
+            self.gui.application.Destroy()
             sys.exit()
 
-    def _mbus_data_get(self):
-        self.app_data.mbus_data = self.modbus_connection.queue_data_get()
+    def _modbus_data_get(self):
+        self.app_data.modbus_data = self.modbus_connection.queue_data_get()
 
-    def _mbus_data_put(self):
+    def _modbus_data_put(self):
         pass
 
     # Thread handler list
@@ -62,8 +63,8 @@ class WxWidgetCustomApp:
     def _main_logic_handler(self):
         while True:
             self._poll_close_event()
-            self._mbus_data_get()
-            self._mbus_data_put()
+            self._modbus_data_get()
+            self._modbus_data_put()
             time.sleep(.05)
 
     def run(self):

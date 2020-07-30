@@ -38,7 +38,7 @@ class CheckBoxCell(wx.BoxSizer):
         self.render()
 
     def render(self):
-        if self.checkbox is not None:
+        if self.checkbox:
             self.checkbox.Show()
 
     @property

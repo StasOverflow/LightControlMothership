@@ -45,10 +45,10 @@ class ModbusThread(threading.Thread):
 
         self.stopped = False
         self.is_connected = False
-        self._inner_mbus_is_conn = self.Cmd.DISCONNECT
+        self._inner_modbus_is_conn = self.Cmd.DISCONNECT
         self.client = None
 
-        self.mbus_send_data = [0 for _ in range(5)]
+        self.modbus_send_data = [0 for _ in range(5)]
 
         self.port_lock = threading.Lock()
         self.sl_id_lock = threading.Lock()
@@ -65,9 +65,9 @@ class ModbusThread(threading.Thread):
     def is_connected(self, value):
         self._is_connected = value
         if self._is_connected:
-            self._inner_mbus_is_conn = self.Cmd.CONNECT
+            self._inner_modbus_is_conn = self.Cmd.CONNECT
         else:
-            self._inner_mbus_is_conn = self.Cmd.DISCONNECT
+            self._inner_modbus_is_conn = self.Cmd.DISCONNECT
 
     def is_connected_state_set(self, boolean_value):
         self.queue_cmd.put(self.Cmd(boolean_value))
@@ -78,9 +78,9 @@ class ModbusThread(threading.Thread):
             return data
 
     def queue_insert(self, data, index):
-        # self.mbus_send_data = self.
-        self.mbus_send_data[index] = data
-        self.queue_outcome.put(self.mbus_send_data)
+        # self.modbus_send_data[index] = data
+        # self.queue_outcome.put(self.modbus_send_data)
+        pass
 
     def com_port_update(self, new_com_port):
         if not self.is_connected:
@@ -136,7 +136,7 @@ class ModbusThread(threading.Thread):
                 else:
                     self.disconnect()
 
-            if self._inner_mbus_is_conn == self.Cmd.CONNECT:
+            if self._inner_modbus_is_conn == self.Cmd.CONNECT:
                 if self.queue_outcome.qsize():
                     try:
                         with self.queue_lock:

@@ -19,7 +19,7 @@ class BtmRightPanel(BaseInnerTab):
 
         self.data_received = False
 
-        self.mbus_data = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+        self.modbus_data = self.app_data.separate_inputs_visibility_get_by_index(self.id)
 
     def _ins_outs_state_update(self, force=False):
         separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
@@ -28,12 +28,12 @@ class BtmRightPanel(BaseInnerTab):
 
     def _conf_receive(self, force=False):
         if self.modbus.is_connected:
-            mbus_data_new = self.app_data.separate_inputs_visibility_get_by_index(self.id)
-            if self.mbus_data != mbus_data_new:
-                self.mbus_data = mbus_data_new
+            modbus_data_new = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+            if self.modbus_data != modbus_data_new:
+                self.modbus_data = modbus_data_new
                 self._ins_outs_state_update()
         else:
-            self.mbus_data = None
+            self.modbus_data = None
 
     def configuration_receive(self, *args, **kwargs):
         print(self.id)
