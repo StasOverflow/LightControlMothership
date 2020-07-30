@@ -22,7 +22,7 @@ class TopPanel(wx.BoxSizer):
         super().__init__(wx.HORIZONTAL)
 
         '''
-        We use a list of sub_canvases to make top panel code look more like bottom panel's one 
+            We use a list of sub_canvases to make top panel code look more like bottom panel's one 
         '''
         self.canvas = _TopPanel(*args, **kwargs)
         self.sub_canvases = list()

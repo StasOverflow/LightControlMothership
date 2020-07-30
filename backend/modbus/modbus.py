@@ -156,7 +156,7 @@ class ModbusThread(threading.Thread):
                         print(ex)
                         state = True
                 time.sleep(0.05)
-                self.exception_state = state
             else:
                 time.sleep(0.2)
+            self.exception_state = state
         print('Serial Task: destroyed')

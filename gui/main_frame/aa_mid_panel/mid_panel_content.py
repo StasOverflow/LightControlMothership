@@ -1,33 +1,32 @@
 import wx
-from gui.basis.tabs.tab import BaseTwoSplitTab
-from gui.main_frame.b_btm_panel.left_panel.left_panel_content import BtmLeftPanel
-from gui.main_frame.b_btm_panel.right_panel.right_panel_content import BtmRightPanel
+from gui.control_inputs.input_array_box import InputArray
 from defs import *
 
 
 class _MidPanelContent(wx.Panel):
 
     def __init__(self, parent=None):
-
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         super().__init__(parent=parent)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        # notebook = wx.Notebook(self, **kwargs)
-        # self.sub_canvases = list()
-        # for i in range(8):
-        #     self.sub_canvases.append(_BtmSubPanel(parent=notebook, aydi=i))
-        #     notebook.AddPage(self.sub_canvases[i], "Relay " + str(1 + i))
+        # Create display matrix for Relays
+        self.output_matrix = InputArray(parent=self, title='State of outputs:',
+                                        dimension=(1, 8),
+                                        col_titles=['K1', 'K2', 'K3', 'K4',
+                                                    'K5', 'K6', 'K7', 'K8'],
+                                        interface=DISPLAY_INTERFACE,
+                                        secret_ids=[1, 2, 3, 4, 5, 6, 7, 8], )
+        self.output_matrix_wrapper = wx.BoxSizer(wx.VERTICAL)
+        self.output_matrix_wrapper.Add(self.output_matrix, 0, wx.RIGHT | wx.ALIGN_RIGHT, 18)
 
-        '''
-            Here goes a very important line of a code, setting notebook
-            item's color to default window color instead of white color,
-            chosen by default, when creating widget
-        '''
-        # notebook.SetOwnBackgroundColour(self.GetBackgroundColour())
-        #
-        # bottom_inner_sizer.Add(notebook, 5, wx.EXPAND | wx.CENTER)
+        # Create an override button
+        self.override_btn = wx.Button(parent=self, label='Override')
 
-        # self.sizer.Add(bottom_inner_sizer, 1, wx.EXPAND)
+        # Assemble panel sizer
+        self.sizer.Add(self.override_btn, 2, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 40)
+        self.sizer.Add(self.output_matrix_wrapper, 6, wx.TOP | wx.BOTTOM, 10)
+
+        # Apply panel sizer
         self.SetSizer(self.sizer)
 
 
@@ -38,5 +37,4 @@ class MidPanel(wx.BoxSizer):
 
         self.canvas = _MidPanelContent(parent=parent)
 
-        # self.sub_canvases = self.canvas.sub_canvases
-        self.Add(self.canvas, 1, wx.ALL)
+        self.Add(self.canvas, 1, wx.EXPAND)

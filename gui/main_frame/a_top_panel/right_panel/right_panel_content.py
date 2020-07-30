@@ -21,9 +21,6 @@ class TopRightPanel(wx.Panel):
             dimension=(3, 5),
             col_titles=[' 1', ' 2', ' 3', ' 4', ' 5'],
             row_titles=['X1', 'X2', 'X3'],
-            orientation=wx.VERTICAL,
-            # *args,
-            # **kwargs,
         )
 
         # self.output_matrix = InputArray(parent=self, title='State of outputs:', dimension=(2, 4),
@@ -45,7 +42,7 @@ class TopRightPanel(wx.Panel):
         #     for image in instance.cell_instance.image:
         #         image.Bind(wx.EVT_LEFT_DOWN, self._on_mouse_down)
 
-        conn_label = wx.StaticText(parent=self, label='ACT')
+        # conn_label = wx.StaticText(parent=self, label='ACT')
         # self.connection_matrix = InputArray(parent=self, dimension=(1, 1), orientation=wx.VERTICAL,
         #                                     interface=DISPLAY_INTERFACE, is_input_indication=False,
         #                                     *args, is_button=True, secret_ids=[8], row_titles=[''],
@@ -57,8 +54,8 @@ class TopRightPanel(wx.Panel):
         self.blink_state = False
         self.prev_blink_timestamp = 0
 
-        vertical_conn_btn_sizer = wx.BoxSizer(wx.VERTICAL)
-        vertical_conn_btn_sizer.Add(conn_label, 0,  wx.LEFT, 25)
+        # vertical_conn_btn_sizer = wx.BoxSizer(wx.VERTICAL)
+        # vertical_conn_btn_sizer.Add(conn_label, 0,  wx.LEFT, 25)
         # vertical_conn_btn_sizer.Add(self.connection_matrix, 0, wx.TOP | wx.RIGHT, 10)
 
         # btm_of_page_sizer.Add(vertical_conn_btn_sizer, 0, wx.RIGHT | wx.TOP, 10)
@@ -67,29 +64,13 @@ class TopRightPanel(wx.Panel):
 
         # self.app_data = AppData()
         # self.app_data.iface_handler_register(self._inputs_state_update)
-        # self.app_data.iface_handler_register(self._conn_indication)
 
         self.mbus = ModbusConnectionThreadSingleton()
         self.mbus = self.mbus.thread_instance_get()
 
         self.SetSizer(inner_panel_sizer)
 
-'''
-    def _conn_indication(self):
-        state = self.mbus.is_connected
-        if state != self.prev_state:
-            self.prev_state = state
-            self.connection_matrix.visible_instances = (state, )
-        if self.mbus.is_connected:
-            if not self.mbus.exception_state:
-                time_current = time.monotonic()
-                if time_current - self.prev_blink_timestamp >= 0.05:
-                    self.prev_blink_timestamp = time_current
-                    self.blink_state = not self.blink_state
-                self.connection_matrix.values = (self.blink_state, )
-            else:
-                self.connection_matrix.values = (0, )
-
+    '''
     def _on_mouse_down(self, event):
         if self.mbus.is_connected and self.app_data.modbus_data is not None:
             aydi = event.GetEventObject().parent_class.secret_id

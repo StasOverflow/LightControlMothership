@@ -37,8 +37,8 @@ class BaseInnerTab(wx.Panel):
             intermediate_sizer = wx.BoxSizer(wx.HORIZONTAL)
             self.inter_title = wx.StaticText(parent=self, label='Output State')
             self.inter_instance = InputArray(parent=self, dimension=(1, 1), outlined=False,
-                                             interface=DISPLAY_INTERFACE, is_input_indication=False,)
-
+                                             interface=DISPLAY_INTERFACE)
+                                            # is_input_indication=False,
             intermediate_sizer.Add(self.inter_title, 0, wx.LEFT, 15)
             intermediate_sizer.Add(self.inter_instance, 0, wx.LEFT, 30)
         elif with_radio_panel:
@@ -78,8 +78,8 @@ class BaseInnerTab(wx.Panel):
 
         title = 'Inputs configuration:' if self.interface == INPUT_INTERFACE else 'Inputs state:'
         self.inner_matrix = InputArray(parent=self, title=title, dimension=(3, 5),
-                                       col_titles=['1', '2', '3', '4', '5'], row_titles=['X1', 'X2', 'X3'],
-                                       orientation=wx.VERTICAL, *args, **kwargs)
+                                       col_titles=['1', '2', '3', '4', '5'],
+                                       row_titles=['X1', 'X2', 'X3'])
 
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)

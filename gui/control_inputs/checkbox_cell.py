@@ -26,10 +26,12 @@ class CheckBoxCell(wx.BoxSizer):
     @checked.setter
     def checked(self, new_state):
         self._checked = new_state
-        self.checkbox.SetValue(self._checked)
+        if self.checkbox:
+            self.checkbox.SetValue(self._checked)
 
     def hide(self):
-        self.checkbox.Hide()
+        if self.checkbox:
+            self.checkbox.Hide()
 
     def show(self):
         # Just an alias to self.render()

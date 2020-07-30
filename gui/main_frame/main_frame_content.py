@@ -48,10 +48,6 @@ class MainFrame(wx.Frame):
         # Under bottom of the page sequence
         self.status_bottom_panel = StatusPanel(parent=main_panel)
 
-        """
-            Second parameter in every main_sizer.Add method call is a proportion
-            value for every element of the window
-        """
         main_sizer.Add(self.top_canvas, 0,  wx.EXPAND)
         main_sizer.Add(self.mid_canvas, 0, wx.EXPAND)
         main_sizer.Add(self.btm_canvas, 0, wx.EXPAND)

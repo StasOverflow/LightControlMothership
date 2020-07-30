@@ -2,7 +2,7 @@ import wx
 from gui.utils.label_types import *
 from gui.utils.labeled_data import LabelValueSequence
 
-from gui.subcontainers.ComPortSelector import ComPortSelector
+from gui.subcontainers.com_port_selector import ComPortSelector
 from settings import Settings
 from backend.ports.ports import serial_ports
 from backend.modbus_backend import ModbusConnectionThreadSingleton
@@ -45,7 +45,7 @@ class SettingsDialog(wx.Dialog):
                                     interface=LABELED_SPIN_CONTROL,
                                     button_required=False,
                                     initial_value=self.settings.slave_id,
-                        )
+                            )
 
         # Create Control Buttons
         self.button_accept = wx.Button(parent=self.panel, label='Accept')
