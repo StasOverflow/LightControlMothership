@@ -5,63 +5,53 @@ from defs import *
 from settings import Settings, AppData
 from gui.control_inputs.input_array_box import InputArray
 from backend.modbus_backend import ModbusConnectionThreadSingleton
-from gui.main_frame.a_top_panel.left_panel.dialog.relay_dialog import RelayDialog
-
-
-class WrappedButton(wx.BoxSizer):
-
-    def __init__(self, parent, label='Connect'):
-        super().__init__(wx.HORIZONTAL)
-
-        self.button = wx.Button(parent=parent, label=label, style=wx.EXPAND, size=(80, 27))
-        self.Add(self.button, 1, wx.TOP, 18)
 
 
 class TopLeftPanel(wx.Panel):
 
     def __init__(self, parent):
+        # Initial Constructor routines
         wx.Panel.__init__(self, parent)
         self.settings = Settings()
         self.app_data = AppData()
         self.output_garbage_collector = 0
         self.conn_blink_state = 0
 
+        # Assign instance of modbus singleton, to have access to its props
         instance = ModbusConnectionThreadSingleton()
         self.mbus = instance.thread_instance_get()
 
+        # Create sizers
         self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
-        self.top_left_sizer_v = wx.BoxSizer(wx.VERTICAL)
+        self.act_indicator_wrapper = wx.BoxSizer(wx.HORIZONTAL)
         self.top_inputs_sizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.device_port = LabelValueSequence(parent=self, label='Device Port', interface=LABELED_LABEL)
+        # Create window sequences
+        self.device_port = LabelValueSequence(parent=self, label='Device Port',
+                                              interface=LABELED_LABEL)
         self.slave_id = LabelValueSequence(parent=self,
                                            label='Slave ID',
                                            interface=LABELED_SPIN_CONTROL,
                                            button_required=False,
                                            initial_value=self.settings.slave_id)
-        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
-
-        self.action_indicator_wrapper = wx.BoxSizer(wx.HORIZONTAL)
         self.act_label = wx.StaticText(parent=self, label='Activity')
         self.activity_led = InputArray(parent=self, dimension=(1, 1), is_conn=True,
                                        interface=DISPLAY_INTERFACE, outlined=False)
 
-        self.action_indicator_wrapper.Add(self.act_label, 5, wx.ALL, 5)
-        self.action_indicator_wrapper.Add(self.activity_led, 2, wx.ALL, 5)
+        # Wrap indicator
+        self.act_indicator_wrapper.Add(self.act_label, 5, wx.ALL, 5)
+        self.act_indicator_wrapper.Add(self.activity_led, 2, wx.ALL, 5)
 
+        # Wrap top inputs
         self.top_inputs_sizer.Add(self.device_port)
         self.top_inputs_sizer.Add(self.slave_id)
+        self.top_inputs_sizer.Add(self.act_indicator_wrapper, 1, wx.TOP | wx.ALIGN_LEFT, 25)
 
-        self.top_left_sizer_v.Add(self.top_inputs_sizer, 1, wx.BOTTOM, 2)
-        self.top_left_sizer_v.Add(self.action_indicator_wrapper, 1, wx.TOP | wx.ALIGN_LEFT, 25)
-
-        self.top_left_sizer_h = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.top_left_sizer_h.Add(self.top_left_sizer_v, 0, wx.LEFT, 25)
-
-        self.top_left_sizer_main.Add(self.top_left_sizer_h, 0, wx.EXPAND | wx.TOP, 16)
-
+        # Wrap existing into intermediate sizer, to add padding
+        self.top_left_sizer_main.Add(self.top_inputs_sizer, 1, wx.ALL, 20)
         self.SetSizer(self.top_left_sizer_main)
+
+        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
 
         self.app_data.iface_handler_register(self._port_update)
         self.app_data.iface_handler_register(self._slave_id_update)
@@ -74,7 +64,7 @@ class TopLeftPanel(wx.Panel):
 
         self.timer.Start(100, True)
 
-    # Refresh callback, which is called every _some_time
+    # Refresh callback, which is called every 100
     def _refresh_conn_activity(self, event):
         self._garbage_evt_collector = event
         self.timer.Start(100, True)
