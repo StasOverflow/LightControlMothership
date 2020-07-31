@@ -222,11 +222,11 @@ class AppData(metaclass=_Singleton):
         inputs_combined_visibility = [False for _ in range(15)]
         if self.modbus_data is not None:
             # Get inputs_used by a specific relay from modbus register by relay's index
-            data = self.modbus_data[2 + relay_index]
+            # data = self.modbus_data[2 + relay_index]
 
             # Iterate through visibility array and update with assembled data
-            for index in range(15):
-                inputs_combined_visibility[index] = bool(data & (1 << index))
+            # for index in range(15):
+            #     inputs_combined_visibility[index] = bool(data & (1 << index))
             return inputs_combined_visibility
         else:
             return inputs_combined_visibility

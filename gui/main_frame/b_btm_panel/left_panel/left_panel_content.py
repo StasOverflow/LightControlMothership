@@ -10,60 +10,25 @@ class BtmLeftPanel(wx.Panel):
     def __init__(self, parent):
 
         # Basic Construction stuff
-        super().__init__(parent, style=wx.BORDER_RAISED)
-        self._configuration = None
-        self.radio_title = None
-        self.inner_title = None
+        super().__init__(parent)
         self.app_data = AppData()
-        self.modbus = None
+        self._output_garbage_collector = 0
 
-        # Create modbus instance, to have access to it
+        # Create modbus instance, to have access to its props
         instance = ModbusConnectionThreadSingleton()
         self.modbus = instance.thread_instance_get()
 
-        # Create content for top panel
-        # self.radio_title = wx.StaticText(parent=self, label='Input Mode:')
-        # self.direct_mode_radio = wx.RadioButton(parent=self, id=0,
-        #                                         label='Direct',
-        #                                         style=wx.RB_GROUP)
-        # self.toggle_mode_radio = wx.RadioButton(parent=self, id=1,
-        #                                         label='Toggle')
-
-        # Wrap content of top panel into sizer
-        # top_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        # top_sizer.Add(self.radio_title, 0, wx.RIGHT, 8)
-        # top_sizer.Add(self.direct_mode_radio)
-        # top_sizer.Add(self.toggle_mode_radio)
-
-        # Bind callbacks and disable initially
-        # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.direct_mode_radio)
-        # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.toggle_mode_radio)
-
-        # try:
-            # self.direct_mode_radio.Disable()
-            # self.toggle_mode_radio.Disable()
-        # except RuntimeError:
-        #     pass
-
         # Create content for
-        self.inner_matrix = InputArray(parent=self, title='Inputs Configurations',
+        self.inner_matrix = InputArray(parent=self, title='Associated inputs:',
                                        dimension=(3, 5),
                                        col_titles=['1', '2', '3', '4', '5'],
                                        row_titles=['X1', 'X2', 'X3'])
 
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-
-        # self.inner_title = wx.StaticText(parent=self, label='Input')
-        # self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
-
-        # self.inner_panel_sizer.Add(top_sizer, 0, wx.TOP | wx.BOTTOM | wx.CENTER, 13)
-        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 15)
-
+        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.ALIGN_CENTER, 10)
         self.SetSizer(self.inner_panel_sizer)
 
         self.app_data.iface_handler_register(self._radio_buttons_visibility_handler)
-
-        # self.app_data.iface_handler_register(self._inputs_state_set)
 
     def _radio_button_callback(self, event):
         if self.modbus.is_connected and self.app_data.modbus_data is not None:

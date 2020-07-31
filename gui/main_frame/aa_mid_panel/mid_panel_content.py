@@ -13,7 +13,7 @@ class _MidPanelContent(wx.Panel):
         self.settings = Settings()
         self.app_data = AppData()
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.output_garbage_collector = 0
+        self._output_garbage_collector = 0
         self.act_indicator_wrapper = wx.BoxSizer(wx.VERTICAL)
         self.slave_id_sequence_wrapper = wx.BoxSizer(wx.VERTICAL)
 
@@ -52,8 +52,8 @@ class _MidPanelContent(wx.Panel):
         # Wrap slave id
         slave_id_label_wrapper = wx.BoxSizer(wx.HORIZONTAL)
         slave_id_control_wrapper = wx.BoxSizer(wx.HORIZONTAL)
-        slave_id_label_wrapper.Add(self.slave_id_label, 1, wx.LEFT, 8)
-        slave_id_control_wrapper.Add(self.slave_id_control, 1, wx.LEFT, 4)
+        slave_id_label_wrapper.Add(self.slave_id_label, 1, wx.LEFT, 3)
+        slave_id_control_wrapper.Add(self.slave_id_control, 1, wx.LEFT, 8)
         self.slave_id_sequence_wrapper.Add(slave_id_label_wrapper, 3, wx.TOP, 18)
         self.slave_id_sequence_wrapper.Add(slave_id_control_wrapper, 2, wx.TOP, 4)
 
@@ -81,7 +81,7 @@ class _MidPanelContent(wx.Panel):
         self.value = self.settings.slave_id
 
     def slave_id_update(self, event):
-        self.output_garbage_collector = event
+        self._output_garbage_collector = event
         self.settings.slave_id = self.value
         self.modbus.slave_id_update(self.settings.slave_id)
 

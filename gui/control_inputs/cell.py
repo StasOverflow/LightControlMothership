@@ -20,13 +20,15 @@ class Cell(wx.BoxSizer):
 
     def disable(self):
         if self.interface_type == INPUT_INTERFACE:
-            self.cell_instance.checkbox.Disable()
+            if self.cell_instance.checkbox:
+                self.cell_instance.checkbox.Disable()
         else:
             pass
 
     def enable(self):
         if self.interface_type == INPUT_INTERFACE:
-            self.cell_instance.checkbox.Enable()
+            if self.cell_instance.checkbox:
+                self.cell_instance.checkbox.Enable()
         else:
             pass
 

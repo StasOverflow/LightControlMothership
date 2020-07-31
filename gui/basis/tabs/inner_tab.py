@@ -67,14 +67,13 @@ class BaseInnerTab(wx.Panel):
 
             self.app_data.iface_handler_register(self._radio_buttons_visibility_handler)
 
-        if self.id is not None:
-            if 'interface' in kwargs:
-                if kwargs['interface'] == DISPLAY_INTERFACE:
-                    self.interface = DISPLAY_INTERFACE
-                    self.app_data.iface_handler_register(self._ins_outs_state_update)
-                    self.app_data.iface_handler_register(self._inputs_visibility_update)
-            else:
-                self.interface = INPUT_INTERFACE
+        if 'interface' in kwargs:
+            if kwargs['interface'] == DISPLAY_INTERFACE:
+                self.interface = DISPLAY_INTERFACE
+                self.app_data.iface_handler_register(self._ins_outs_state_update)
+                self.app_data.iface_handler_register(self._inputs_visibility_update)
+        else:
+            self.interface = INPUT_INTERFACE
 
         title = 'Inputs configuration:' if self.interface == INPUT_INTERFACE else 'Inputs state:'
         self.inner_matrix = InputArray(parent=self, title=title, dimension=(3, 5),
@@ -99,7 +98,7 @@ class BaseInnerTab(wx.Panel):
             print('handled', event.GetId())
             data_byte = self.app_data.modbus_data[6]
             data_bits = event.GetId()
-            shifting_val = self.id * 2
+            shifting_val = 0    # self.id * 2
             data_byte &= ~(3 << shifting_val)
             data_byte |= (data_bits << shifting_val)
             self.modbus.queue_insert(data_byte, 4)
@@ -107,7 +106,7 @@ class BaseInnerTab(wx.Panel):
     def _radio_buttons_visibility_handler(self):
         if self.modbus.is_connected:
             if self.app_data.modbus_data is not None:
-                data_bits = (self.app_data.modbus_data[6] >> self.id * 2) & 3
+                data_bits = 0       # (self.app_data.modbus_data[6] >> self.id * 2) & 3
                 if self.data_bits_prev != data_bits:
                     self.data_bits_prev = data_bits
                     if not data_bits:
@@ -131,15 +130,17 @@ class BaseInnerTab(wx.Panel):
                 pass
 
     def _ins_outs_state_update(self):
-        separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
-        out_data = self.app_data.output_data_by_index(self.id)
-        if separate_input_data_array is not None:
-            self.configuration_set(separate_input_data_array, out_data)
+        pass
+        # separate_input_data_array = self.app_data.separate_inputs_state_get_by_index(self.id)
+        # out_data = self.app_data.output_data_by_index(self.id)
+        # if separate_input_data_array is not None:
+        #     self.configuration_set(separate_input_data_array, out_data)
 
     def _inputs_visibility_update(self):
-        separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
-        if separate_inputs_visibility_array is not None:
-            self.visibility_set(separate_inputs_visibility_array)
+        pass
+        # separate_inputs_visibility_array = self.app_data.separate_inputs_visibility_get_by_index(self.id)
+        # if separate_inputs_visibility_array is not None:
+        #     self.visibility_set(separate_inputs_visibility_array)
 
     def _inputs_state_set(self):
         if self.interface == INPUT_INTERFACE:
