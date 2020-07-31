@@ -31,9 +31,6 @@ class _MidPanelContent(wx.Panel):
         instance = ModbusConnectionThreadSingleton()
         self.modbus = instance.thread_instance_get()
 
-        # Create an override button
-        # self.override_btn = wx.Button(parent=self, label='Override')
-
         # Create an activity Led
         self.act_label = wx.StaticText(parent=self, label='Activity')
         self.activity_led = InputArray(parent=self, dimension=(1, 1), is_conn=True,
