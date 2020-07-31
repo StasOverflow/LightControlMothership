@@ -37,18 +37,7 @@ class TopLeftPanel(wx.Panel):
         self.top_left_sizer_main.Add(self.top_inputs_sizer, 1, wx.ALL, 20)
         self.SetSizer(self.top_left_sizer_main)
 
-        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id.item.spin)
-
         self.app_data.iface_handler_register(self._port_update)
-        self.app_data.iface_handler_register(self._slave_id_update)
 
     def _port_update(self):
         self.device_port.value = self.settings.device_port
-
-    def _slave_id_update(self):
-        self.slave_id.value = self.settings.slave_id
-
-    def slave_id_update(self, event):
-        self.output_garbage_collector = event
-        self.settings.slave_id = self.slave_id.value
-        self.modbus.slave_id_update(self.settings.slave_id)

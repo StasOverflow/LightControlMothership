@@ -1,5 +1,6 @@
 import wx
 from defs import *
+from settings import Settings, AppData
 from gui.control_inputs.input_array_box import InputArray
 from backend.modbus_backend import ModbusConnectionThreadSingleton
 
@@ -9,11 +10,15 @@ class _MidPanelContent(wx.Panel):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.conn_blink_state = 0
+        self.settings = Settings()
+        self.app_data = AppData()
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.act_indicator_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        self.output_garbage_collector = 0
+        self.act_indicator_wrapper = wx.BoxSizer(wx.VERTICAL)
+        self.slave_id_sequence_wrapper = wx.BoxSizer(wx.VERTICAL)
 
         # Create display matrix for Relays
-        self.output_matrix = InputArray(parent=self, title='State of outputs:',
+        self.output_matrix = InputArray(parent=self, title='Outputs state:',
                                         dimension=(1, 8),
                                         col_titles=['K1', 'K2', 'K3', 'K4',
                                                     'K5', 'K6', 'K7', 'K8'],
@@ -34,12 +39,34 @@ class _MidPanelContent(wx.Panel):
         self.activity_led = InputArray(parent=self, dimension=(1, 1), is_conn=True,
                                        interface=DISPLAY_INTERFACE, outlined=False)
 
+        # Create Slave id sequence
+        self.slave_id_label = wx.StaticText(parent=self, label='Slave ID')
+        self.slave_id_control = wx.SpinCtrl(parent=self, size=(60, -1),
+                                            style=wx.TE_LEFT, max=999)
+
         # Wrap indicator
-        self.act_indicator_wrapper.Add(self.act_label, 5, wx.ALL, 5)
-        self.act_indicator_wrapper.Add(self.activity_led, 0, wx.ALL, 5)
+        act_label_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        led_activity_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        act_label_wrapper.Add(self.act_label, 1, wx.LEFT, 8)
+        led_activity_wrapper.Add(self.activity_led, 1, wx.LEFT, 21)
+        self.act_indicator_wrapper.Add(act_label_wrapper, 2,  wx.TOP, 12)
+        self.act_indicator_wrapper.Add(led_activity_wrapper, 2, wx.TOP, 14)
+
+        # Wrap slave id
+        slave_id_label_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        slave_id_control_wrapper = wx.BoxSizer(wx.HORIZONTAL)
+        slave_id_label_wrapper.Add(self.slave_id_label, 1, wx.LEFT, 8)
+        slave_id_control_wrapper.Add(self.slave_id_control, 1, wx.LEFT, 4)
+        self.slave_id_sequence_wrapper.Add(slave_id_label_wrapper, 3, wx.TOP, 18)
+        self.slave_id_sequence_wrapper.Add(slave_id_control_wrapper, 2, wx.TOP, 4)
+
+        # Bind events
+        self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id_control)
+        self.app_data.iface_handler_register(self._slave_id_update)
 
         # Assemble panel sizer
-        self.sizer.Add(self.act_indicator_wrapper, 2, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
+        self.sizer.Add(self.act_indicator_wrapper, 1, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
+        self.sizer.Add(self.slave_id_sequence_wrapper, 1, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
         self.sizer.Add(self.output_matrix_wrapper, 6, wx.TOP | wx.BOTTOM | wx.EXPAND, 10)
 
         # Apply panel sizer
@@ -52,6 +79,15 @@ class _MidPanelContent(wx.Panel):
         self.timer_evt_handler.Bind(wx.EVT_TIMER, self._refresh_conn_activity, self.timer, id=228)
 
         self.timer.Start(100, True)
+
+    def _slave_id_update(self):
+        self.value = self.settings.slave_id
+
+    def slave_id_update(self, event):
+        self.slave_id_control.UnShare()
+        self.output_garbage_collector = event
+        self.settings.slave_id = self.value
+        self.modbus.slave_id_update(self.settings.slave_id)
 
     # Refresh callback, which is called every 100
     def _refresh_conn_activity(self, event):
@@ -72,6 +108,21 @@ class _MidPanelContent(wx.Panel):
             else:
                 self.activity_led.values = (0,)
                 self.conn_blink_state = 0
+
+    @property
+    def value(self):
+        if self.slave_id_control:
+            try:
+                value = self.slave_id_control.GetValue()
+            except Exception as e:
+                print(e)
+                value = None
+            return value
+
+    @value.setter
+    def value(self, new_value):
+        if self.slave_id_control:
+            self.slave_id_control.SetValue(new_value)
 
 
 class MidPanel(wx.BoxSizer):

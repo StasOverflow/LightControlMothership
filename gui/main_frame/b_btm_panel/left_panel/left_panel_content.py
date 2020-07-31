@@ -22,28 +22,28 @@ class BtmLeftPanel(wx.Panel):
         self.modbus = instance.thread_instance_get()
 
         # Create content for top panel
-        self.radio_title = wx.StaticText(parent=self, label='Input Mode:')
-        self.direct_mode_radio = wx.RadioButton(parent=self, id=0,
-                                                label='Direct',
-                                                style=wx.RB_GROUP)
-        self.toggle_mode_radio = wx.RadioButton(parent=self, id=1,
-                                                label='Toggle')
+        # self.radio_title = wx.StaticText(parent=self, label='Input Mode:')
+        # self.direct_mode_radio = wx.RadioButton(parent=self, id=0,
+        #                                         label='Direct',
+        #                                         style=wx.RB_GROUP)
+        # self.toggle_mode_radio = wx.RadioButton(parent=self, id=1,
+        #                                         label='Toggle')
 
         # Wrap content of top panel into sizer
-        top_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        top_sizer.Add(self.radio_title, 0, wx.RIGHT, 8)
-        top_sizer.Add(self.direct_mode_radio)
-        top_sizer.Add(self.toggle_mode_radio)
+        # top_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        # top_sizer.Add(self.radio_title, 0, wx.RIGHT, 8)
+        # top_sizer.Add(self.direct_mode_radio)
+        # top_sizer.Add(self.toggle_mode_radio)
 
         # Bind callbacks and disable initially
-        self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.direct_mode_radio)
-        self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.toggle_mode_radio)
+        # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.direct_mode_radio)
+        # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.toggle_mode_radio)
 
-        try:
-            self.direct_mode_radio.Disable()
-            self.toggle_mode_radio.Disable()
-        except RuntimeError:
-            pass
+        # try:
+            # self.direct_mode_radio.Disable()
+            # self.toggle_mode_radio.Disable()
+        # except RuntimeError:
+        #     pass
 
         # Create content for
         self.inner_matrix = InputArray(parent=self, title='Inputs Configurations',
@@ -56,8 +56,8 @@ class BtmLeftPanel(wx.Panel):
         # self.inner_title = wx.StaticText(parent=self, label='Input')
         # self.inner_panel_sizer.Add(self.inner_title, 0, wx.ALL, 5)
 
-        self.inner_panel_sizer.Add(top_sizer, 0, wx.TOP | wx.BOTTOM | wx.CENTER, 13)
-        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.TOP | wx.CENTER, 10)
+        # self.inner_panel_sizer.Add(top_sizer, 0, wx.TOP | wx.BOTTOM | wx.CENTER, 13)
+        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.CENTER, 15)
 
         self.SetSizer(self.inner_panel_sizer)
 

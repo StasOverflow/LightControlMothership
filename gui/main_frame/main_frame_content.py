@@ -48,7 +48,7 @@ class MainFrame(wx.Frame):
         self.status_bottom_panel = StatusPanel(parent=main_panel)
 
         main_sizer.Add(self.top_canvas, 0,  wx.EXPAND)
-        main_sizer.Add(self.mid_canvas, 0, wx.EXPAND)
+        main_sizer.Add(self.mid_canvas, 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 2)
         main_sizer.Add(self.btm_canvas, 0, wx.EXPAND)
         main_sizer.Add(self.status_bottom_panel, 0, wx.EXPAND)
 
