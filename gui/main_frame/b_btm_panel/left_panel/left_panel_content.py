@@ -19,18 +19,28 @@ class BtmLeftPanel(wx.Panel):
         self.modbus = instance.thread_instance_get()
 
         # Create content for
-        self.inner_matrix = InputArray(parent=self, title='Associated inputs:',
+        self.input_matrix = InputArray(parent=self, title='Associated inputs:',
                                        dimension=(3, 5),
                                        col_titles=['1', '2', '3', '4', '5'],
                                        row_titles=['X1', 'X2', 'X3'])
 
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.ALIGN_CENTER, 10)
+        self.inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER, 10)
         self.SetSizer(self.inner_panel_sizer)
 
-        self.app_data.iface_handler_register(self._radio_buttons_visibility_handler)
+        self.input_matrix.disable()
+        self.app_data.iface_handler_register(self._matrix_update)
+
+    def _matrix_update(self):
+        if self.modbus.is_connected:
+            self.input_matrix.enable()
+            # self.configuration_set(self.app_data.inputs_combined_data)
+            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
+        else:
+            self.input_matrix.disable()
 
     def _radio_button_callback(self, event):
+        self._output_garbage_collector = event
         if self.modbus.is_connected and self.app_data.modbus_data is not None:
             pass
             # print('handled', event.GetId())
