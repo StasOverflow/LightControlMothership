@@ -23,6 +23,7 @@ class BaseTwoSplitTab(wx.Panel):
         except NameError as e:
             print(e)
 
+        self.top_page_splitter.SetMinimumPaneSize(212)
         self.top_page_splitter.SetSashGravity(.5)
 
         self.top_page_inner_sizer.Add(self.top_page_splitter, 1, wx.EXPAND)

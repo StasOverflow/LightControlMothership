@@ -36,14 +36,13 @@ class MainFrame(wx.Frame):
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Top of the page sequence
-        self.top_canvas = TopPanel(parent=main_panel, iface_types=(defs.INPUT_INTERFACE,
-                                                                   defs.DISPLAY_INTERFACE))
+        self.top_canvas = TopPanel(parent=main_panel)
 
         # Mid of the page sequence
         self.mid_canvas = MidPanel(parent=main_panel)
 
         # Bottom of the page sequence
-        self.btm_canvas = BtmPanel(parent=main_panel, style=wx.LEFT)
+        self.btm_canvas = BtmPanel(parent=main_panel)
 
         # Under bottom of the page sequence
         self.status_bottom_panel = StatusPanel(parent=main_panel)
