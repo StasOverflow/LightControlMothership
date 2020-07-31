@@ -3,7 +3,6 @@ from gui.main_frame.a_top_panel.top_panel_content import TopPanel
 from gui.main_frame.aa_mid_panel.mid_panel_content import MidPanel
 from gui.main_frame.b_btm_panel.btm_panel_content import BtmPanel
 from gui.main_frame.c_status_panel.staus_panel_content import StatusPanel
-import defs
 from gui.main_frame.a_menu_bar.menu import MenuBarSequence
 from settings import Settings, AppData
 
@@ -38,7 +37,7 @@ class MainFrame(wx.Frame):
         # Top of the page sequence
         self.top_canvas = TopPanel(parent=main_panel)
 
-        # Mid of the page sequence
+        # # Mid of the page sequence
         self.mid_canvas = MidPanel(parent=main_panel)
 
         # Bottom of the page sequence
@@ -48,18 +47,18 @@ class MainFrame(wx.Frame):
         self.status_bottom_panel = StatusPanel(parent=main_panel)
 
         main_sizer.Add(self.top_canvas, 0,  wx.EXPAND)
-        main_sizer.Add(self.mid_canvas, 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 2)
+        main_sizer.Add(self.mid_canvas, 0, wx.EXPAND | wx.BOTTOM, 10)
         main_sizer.Add(self.btm_canvas, 0, wx.EXPAND)
         main_sizer.Add(self.status_bottom_panel, 0, wx.EXPAND)
 
         main_panel.SetSizer(main_sizer)
         main_panel.Layout()
 
-        """
+        '''
             Must be called after all items are set, according to doc files. 
             If not, any items, initialized after calling SetMenuBar method
             won't be rendered
-        """
+        '''
         self.SetMenuBar(self.menu_bar)
 
     def render(self):

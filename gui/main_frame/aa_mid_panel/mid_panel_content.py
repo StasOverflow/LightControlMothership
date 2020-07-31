@@ -64,7 +64,7 @@ class _MidPanelContent(wx.Panel):
         # Assemble panel sizer
         self.sizer.Add(self.act_indicator_wrapper, 1, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
         self.sizer.Add(self.slave_id_sequence_wrapper, 1, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
-        self.sizer.Add(self.output_matrix_wrapper, 6, wx.TOP | wx.BOTTOM | wx.EXPAND, 10)
+        self.sizer.Add(self.output_matrix_wrapper, 6, wx.EXPAND, 0)
 
         # Apply panel sizer
         self.SetSizer(self.sizer)
@@ -81,7 +81,6 @@ class _MidPanelContent(wx.Panel):
         self.value = self.settings.slave_id
 
     def slave_id_update(self, event):
-        self.slave_id_control.UnShare()
         self.output_garbage_collector = event
         self.settings.slave_id = self.value
         self.modbus.slave_id_update(self.settings.slave_id)

@@ -4,40 +4,64 @@ from gui.utils.label_types import *
 from defs import *
 from settings import Settings, AppData
 from gui.control_inputs.input_array_box import InputArray
+from backend.modbus_backend import ModbusConnectionThreadSingleton
 
 
 class TopLeftPanel(wx.Panel):
 
-    def __init__(self, parent):
-        # Initial Constructor routines
-        wx.Panel.__init__(self, parent)
-        self.settings = Settings()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.app_data = AppData()
-        self.output_garbage_collector = 0
 
-        # Create sizers
-        self.top_left_sizer_main = wx.BoxSizer(wx.HORIZONTAL)
-        self.top_inputs_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.modbus = ModbusConnectionThreadSingleton()
+        self.modbus = self.modbus.thread_instance_get()
 
-        # Create window sequences
-        self.device_port = LabelValueSequence(parent=self, label='Device Port',
-                                              interface=LABELED_LABEL)
-        self.slave_id = LabelValueSequence(parent=self,
-                                           label='Slave ID',
-                                           interface=LABELED_SPIN_CONTROL,
-                                           button_required=False,
-                                           initial_value=self.settings.slave_id)
+        self.input_matrix = InputArray(parent=self, title='Inputs mode toggle:',
+                                       interface=INPUT_INTERFACE, dimension=(3, 5),
+                                       col_titles=['1', '2', '3', '4', '5'],
+                                       row_titles=['X1', 'X2', 'X3'])
 
-        # Wrap top inputs
-        self.top_inputs_sizer.Add(self.device_port)
-        self.top_inputs_sizer.Add(self.slave_id)
-        # self.top_inputs_sizer.Add(self.act_indicator_wrapper, 1, wx.TOP | wx.ALIGN_LEFT, 25)
+        inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
+        inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.CENTER, 15)
 
-        # Wrap existing into intermediate sizer, to add padding
-        self.top_left_sizer_main.Add(self.top_inputs_sizer, 1, wx.ALL, 20)
-        self.SetSizer(self.top_left_sizer_main)
+        self.input_matrix.disable()
+        self.app_data.iface_handler_register(self._matrix_update)
 
-        self.app_data.iface_handler_register(self._port_update)
+        self.SetSizer(inner_panel_sizer)
 
-    def _port_update(self):
-        self.device_port.value = self.settings.device_port
+    def _matrix_update(self):
+        if self.modbus.is_connected:
+            self.input_matrix.enable()
+            # self.configuration_set(self.app_data.inputs_combined_data)
+            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
+        else:
+            self.input_matrix.disable()
+    #
+    # def configuration_get(self):
+    #     return self.input_matrix.values
+    #
+    # def configuration_set(self, new_array):
+    #     self.input_matrix.values = new_array
+    #
+    # def array_hidden_state_set(self, new_order):
+    #     self.input_matrix.visible_instances = new_order
+    #
+    # def array_hidden_state_update(self):
+    #     pass
+    #
+    # def array_hidden_state_get(self):
+    #     return self.input_matrix.visible_instances
+
+
+def main():
+    app = wx.App()
+
+    frame = wx.Frame(None, -1, 'win.py', size=(600, 500))
+    TopLeftPanel(parent=frame)
+    frame.Show()
+
+    app.MainLoop()
+
+
+if __name__ == '__main__':
+    main()

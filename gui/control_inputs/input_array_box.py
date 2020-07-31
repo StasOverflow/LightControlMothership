@@ -123,6 +123,14 @@ class InputArray(wx.BoxSizer):
         box_sizer.Add(display_matrix)
         self.Add(box_sizer, 0, wx.TOP, 0)
 
+    def enable(self):
+        for cell in self.instance_array:
+            cell.enable()
+
+    def disable(self):
+        for cell in self.instance_array:
+            cell.disable()
+
     @property
     def values(self):
         value_list = list()
@@ -175,9 +183,6 @@ def main():
         dimension=(3, 5),
         col_titles=['1', '2', '3', '4', '5'],
         row_titles=['X3', 'X2', 'X1'],
-        cell_titles=['A', 'B', 'C', 'D', 'E',
-                     'A', 'B', 'C', 'D', 'E',
-                     'A', 'B', 'C', 'D', 'E'],
     )
 
     da_panel.SetSizer(checkboxer)

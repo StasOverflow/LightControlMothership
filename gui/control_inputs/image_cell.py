@@ -62,6 +62,12 @@ class VariableImageCell(wx.BoxSizer):
 
         self.is_button = is_button
 
+    def disable(self):
+        pass
+
+    def enable(self):
+        pass
+
     def method(self, event):
         pass
 

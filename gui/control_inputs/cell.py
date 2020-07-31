@@ -1,22 +1,34 @@
 import wx
-import defs
+from defs import *
 from gui.control_inputs.app_cells import AppSpecificImageCell
 from gui.control_inputs.app_cells import AppSpecificCheckBoxCell
 
 
 class Cell(wx.BoxSizer):
 
-    def __init__(self, *args, interface_type=defs.DISPLAY_INTERFACE, **kwargs):
+    def __init__(self, *args, interface_type, **kwargs):
         super().__init__(wx.HORIZONTAL)
 
         self.interface_type = interface_type
-        if self.interface_type == defs.DISPLAY_INTERFACE:
+        if self.interface_type == DISPLAY_INTERFACE:
             instance_class = AppSpecificImageCell
         else:
             instance_class = AppSpecificCheckBoxCell
 
         self.cell_instance = instance_class(*args, **kwargs)
         self.Add(self.cell_instance)
+
+    def disable(self):
+        if self.interface_type == INPUT_INTERFACE:
+            self.cell_instance.checkbox.Disable()
+        else:
+            pass
+
+    def enable(self):
+        if self.interface_type == INPUT_INTERFACE:
+            self.cell_instance.checkbox.Enable()
+        else:
+            pass
 
     @property
     def checked(self):
@@ -52,7 +64,7 @@ class SuperPanel(wx.Panel):
         super().__init__(parent=parent)
         self._garbage_evt_collector = 0
 
-        self.cell = Cell(parent=self, interface_type=defs.INPUT_INTERFACE)
+        self.cell = Cell(parent=self, interface_type=INPUT_INTERFACE)
 
         self.switch_button = wx.Button(parent=self, label='switch', pos=(40, 40))
 
