@@ -34,7 +34,8 @@ class _BtmSubPanel(wx.Panel):
 
         self.output_state_label = wx.StaticText(parent=self, label='State:')
         self.output_led = InputArray(parent=self, dimension=(1, 1),
-                                     interface=DISPLAY_INTERFACE, outlined=False)
+                                     interface=DISPLAY_INTERFACE, outlined=False,
+                                     is_input_indication=False)
 
         # Create both panels
         self._left_panel_create(self)
@@ -134,6 +135,12 @@ class _BtmPanel(wx.Panel):
     def __init__(self, parent=None):
 
         super().__init__(parent=parent)
+
+        self.app_data = AppData()
+
+        self.modbus = ModbusConnectionThreadSingleton()
+        self.modbus = self.modbus.thread_instance_get()
+
         self.btm_page_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.notebook_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -153,6 +160,28 @@ class _BtmPanel(wx.Panel):
 
         self.btm_page_sizer.Add(self.notebook_sizer, 0, wx.EXPAND)
         self.SetSizer(self.btm_page_sizer)
+
+        self.app_data.iface_handler_register(self._out_led_update)
+        self.app_data.iface_handler_register(self._in_panels_update)
+
+    def _in_panels_update(self):
+        for out_id in range(8):
+            left_panel = self.sub_canvases[out_id].left_panel
+            right_panel = self.sub_canvases[out_id].right_panel
+            for in_id in range(15):
+                # Update left panel value
+                value = self.app_data.output_associated_input_get(out_id, in_id)
+                left_panel.input_matrix.value_set_by_index(in_id, value)
+
+                # Update right panel visibility and value
+                is_visible = self.app_data.output_associated_input_get(out_id, in_id)
+                value = self.app_data.input_state_get(in_id)
+                right_panel.input_matrix.visibility_set_by_index(in_id, is_visible)
+                right_panel.input_matrix.value_set_by_index(in_id, value)
+
+    def _out_led_update(self):
+        for i in range(8):
+            self.sub_canvases[i].output_led.values = [self.app_data.output_state_get(i), ]
 
 
 class BtmPanel(wx.BoxSizer):

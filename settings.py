@@ -153,6 +153,7 @@ class AppData(metaclass=_Singleton):
         self.incr = 0
 
     def layout_update(self):
+        # Consists of handlers, added in separate layout parts
         if len(self.handler_list):
             for handler in self.handler_list:
                 handler()
@@ -160,24 +161,53 @@ class AppData(metaclass=_Singleton):
     def iface_handler_register(self, handler):
         self.handler_list.append(handler)
 
-    def output_mode_get(self):
-        return self.modbus_data[6]
-
     @property
     def modbus_data(self):
-        return self._modbus_data
+        if self._modbus_data:
+            return self._modbus_data
+        else:
+            return [0 for _ in range(12)]
 
     @modbus_data.setter
     def modbus_data(self, value):
         self._modbus_data = value
 
-    def output_data_by_index(self, index):
-        if self.modbus_data is not None:
-            data = self.modbus_data[1]
-            return data & (1 << index)
-        else:
-            return None
+    def output_associated_input_get(self, out_id, input_id):
+        ret = 0
+        if 0 <= out_id < 8:
+            ret = self.modbus_data[2 + out_id] & (1 << input_id)
+        return True if ret else False
 
+    def output_associated_input_set(self, out_id, input_id, value):
+        if 0 <= out_id < 8:
+            ret = self.modbus_data[2 + out_id] & (1 << input_id)
+        return True if ret else False
+
+    def output_state_get(self, out_id):
+        ret = 0
+        if 0 <= out_id < 8:
+            ret = self.modbus_data[1] & (1 << out_id)
+        return True if ret else False
+
+    def input_state_get(self, inp_id):
+        ret = 0
+        if 0 <= inp_id < 15:
+            ret = self.modbus_data[0] & (1 << inp_id)
+        return True if ret else False
+
+    def input_trigger_type_is_toggle_get(self, inp_id):
+        # Get output state by id
+        ret = 0
+        if 0 <= inp_id < 15:
+            ret = self.modbus_data[11] & (1 << inp_id)
+        return True if ret else False
+
+    def __str__(self):
+        pretty = self.input_config
+        return pretty
+
+
+'''
     # Combined data getters
     @property
     def outputs_combined_data(self):
@@ -243,7 +273,4 @@ class AppData(metaclass=_Singleton):
             return inputs_state
         else:
             return inputs_state
-
-    def __str__(self):
-        pretty = self.input_config
-        return pretty
+'''

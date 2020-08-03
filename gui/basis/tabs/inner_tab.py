@@ -101,7 +101,7 @@ class BaseInnerTab(wx.Panel):
             shifting_val = 0    # self.id * 2
             data_byte &= ~(3 << shifting_val)
             data_byte |= (data_bits << shifting_val)
-            self.modbus.queue_insert(data_byte, 4)
+            self.modbus.queue_data_set(data_byte, 4)
 
     def _radio_buttons_visibility_handler(self):
         if self.modbus.is_connected:
@@ -152,8 +152,8 @@ class BaseInnerTab(wx.Panel):
                     values |= int(self.conf_prev[i] << i)
                 if self.modbus.is_connected:
                     kostil_byte = self.app_data.modbus_data[6]
-                    self.modbus.queue_insert(values, self.id)
-                    self.modbus.queue_insert(kostil_byte, 4)
+                    self.modbus.queue_data_set(values, self.id)
+                    self.modbus.queue_data_set(kostil_byte, 4)
 
     def configuration_set(self, new_array, out_state=None):
         self.inner_matrix.values = new_array

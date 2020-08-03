@@ -25,8 +25,6 @@ class ModbusThread(threading.Thread):
             *args,
             **kwargs,
     ):
-        self.app_state = settings.AppData()
-
         super().__init__(*args, **kwargs)
         self.daemon = True
 
@@ -77,10 +75,9 @@ class ModbusThread(threading.Thread):
             data = self.queue_income.get()
             return data
 
-    def queue_insert(self, data, index):
-        # self.modbus_send_data[index] = data
-        # self.queue_outcome.put(self.modbus_send_data)
-        pass
+    def queue_data_set(self, data):
+        if self.queue_outcome:
+            self.queue_outcome.put(data)
 
     def com_port_update(self, new_com_port):
         if not self.is_connected:
@@ -108,8 +105,9 @@ class ModbusThread(threading.Thread):
 
     def connect(self):
         try:
-            self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.baudrate,
-                                       parity=self.parity, timeout=self.timeout, bytesize=self.bytesize,
+            self.client = ModbusClient(method=self.method, port=self.port,
+                                       baudrate=self.baudrate, parity=self.parity,
+                                       timeout=self.timeout, bytesize=self.bytesize,
                                        stopbits=self.stopbits)
             self.is_connected = True
         except Exception as ex:
@@ -142,7 +140,7 @@ class ModbusThread(threading.Thread):
                         with self.queue_lock:
                             state = False
                             sets = self.queue_outcome.get()
-                            self.client.write_registers(1002, sets, count=5, unit=self.slave_id)
+                            self.client.write_registers(1002, sets, count=10, unit=self.slave_id)
                     except Exception as ex:
                         state = True
                         print(ex)

@@ -13,6 +13,7 @@ class BtmLeftPanel(wx.Panel):
         super().__init__(parent)
         self.app_data = AppData()
         self._output_garbage_collector = 0
+        self._input_matrix_enabled = False
 
         # Create modbus instance, to have access to its props
         instance = ModbusConnectionThreadSingleton()
@@ -33,11 +34,14 @@ class BtmLeftPanel(wx.Panel):
 
     def _matrix_update(self):
         if self.modbus.is_connected:
-            self.input_matrix.enable()
-            # self.configuration_set(self.app_data.inputs_combined_data)
-            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
+            if self._input_matrix_enabled is False:
+                self.input_matrix.enable()
+                self._input_matrix_enabled = True
         else:
-            self.input_matrix.disable()
+            if self._input_matrix_enabled is True:
+                self.input_matrix.disable()
+                self._input_matrix_enabled = False
+
 
     def _radio_button_callback(self, event):
         self._output_garbage_collector = event

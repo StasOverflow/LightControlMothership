@@ -5,7 +5,6 @@ from backend.ports.ports import serial_ports
 from backend.modbus_backend import ModbusConnectionThreadSingleton
 from gui.gui import GuiApp
 from settings import Settings, AppData
-import random
 
 
 class WxWidgetCustomApp:
@@ -32,22 +31,26 @@ class WxWidgetCustomApp:
         self.main_logic_thread = threading.Thread(target=self._main_logic_handler)
         self.main_logic_thread.daemon = True
 
+        self.data_thread = threading.Thread(target=self._modbus_data_handler)
+        self.data_thread.daemon = True
+
         self.layout_thread = threading.Thread(target=self._layout_thread_handler)
         self.layout_thread.daemon = True
 
-        self.app_settings.port_list = serial_ports()
-
-    # Helper logic-wrapping functions
     def _poll_close_event(self):
+        # TODO: Resolve access violation
         if self.gui.is_closing:
             self.gui.application.Destroy()
-            sys.exit()
+            # sys.exit()
 
     def _modbus_data_get(self):
         self.app_data.modbus_data = self.modbus_connection.queue_data_get()
 
     def _modbus_data_put(self):
-        pass
+        data = list()
+        for data_id in range(2, 11):
+            data = self.app_data.modbus_data[data_id]
+        self.modbus_connection.queue_data_set(data)
 
     # Thread handler list
     def _app_settings_poll(self):
@@ -63,6 +66,10 @@ class WxWidgetCustomApp:
     def _main_logic_handler(self):
         while True:
             self._poll_close_event()
+            time.sleep(.05)
+
+    def _modbus_data_handler(self):
+        while True:
             self._modbus_data_get()
             self._modbus_data_put()
             time.sleep(.05)
@@ -77,9 +84,10 @@ class WxWidgetCustomApp:
         self.poll_thread.start()
         self.main_logic_thread.start()
         self.modbus_connection.start()
+        self.data_thread.start()
         self.layout_thread.start()
 
-        # Called at the end, as mentioned everywhere
+        # GUI.start() Called at the end, as mentioned everywhere
         self.gui.start()
 
 

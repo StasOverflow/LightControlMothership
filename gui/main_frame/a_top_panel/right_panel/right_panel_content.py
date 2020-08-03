@@ -27,41 +27,6 @@ class TopRightPanel(wx.Panel):
         self.SetSizer(inner_panel_sizer)
 
     def _inputs_state_update(self):
-        if self.app_data.modbus_data:
-            self.configuration_set(self.app_data.inputs_combined_data)
-            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
-        else:
-            pass
+        for i in range(15):
+            self.input_matrix.value_set_by_index(i, self.app_data.input_state_get(i))
 
-    def configuration_get(self):
-        return self.input_matrix.values
-
-    def configuration_set(self, new_array):
-        self.input_matrix.values = new_array
-
-    # def _inputs_visibility_update(self):
-    #     if self.app_data.modbus_data:
-    #         self.visibility_set(self.app_data.inputs_combined_visibility)
-
-    def array_hidden_state_set(self, new_order):
-        self.input_matrix.visible_instances = new_order
-
-    def array_hidden_state_update(self):
-        pass
-
-    def array_hidden_state_get(self):
-        return self.input_matrix.visible_instances
-
-    '''
-    def _on_mouse_down(self, event):
-        if self.mbus.is_connected and self.app_data.modbus_data is not None:
-            aydi = event.GetEventObject().parent_class.secret_id
-            aydi_shifted = (aydi - 1) * 2
-            mode_auto = self.app_data.output_mode_get()
-            if not (mode_auto & 3 << aydi_shifted):
-                print(aydi-1)
-                status_byte = mode_auto | (3 << aydi_shifted)
-                print('{:08b}'.format(status_byte))
-                self.mbus.queue_insert(status_byte, 4)
-        # print('pressed', event.GetEventObject().parent_class.secret_id)
-    '''

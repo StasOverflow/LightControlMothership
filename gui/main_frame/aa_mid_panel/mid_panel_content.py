@@ -23,7 +23,8 @@ class _MidPanelContent(wx.Panel):
                                         col_titles=['K1', 'K2', 'K3', 'K4',
                                                     'K5', 'K6', 'K7', 'K8'],
                                         interface=DISPLAY_INTERFACE,
-                                        secret_ids=[1, 2, 3, 4, 5, 6, 7, 8], )
+                                        secret_ids=[1, 2, 3, 4, 5, 6, 7, 8],
+                                        is_input_indication=False)
         self.output_matrix_wrapper = wx.BoxSizer(wx.VERTICAL)
         self.output_matrix_wrapper.Add(self.output_matrix, 0, wx.RIGHT | wx.ALIGN_RIGHT, 18)
 
@@ -69,6 +70,9 @@ class _MidPanelContent(wx.Panel):
         # Apply panel sizer
         self.SetSizer(self.sizer)
 
+        # Register handler to update output state
+        self.app_data.iface_handler_register(self._output_indication_update)
+
         # Insert a certain delay for refresh button
         self.timer = wx.Timer()
         self.timer_evt_handler = wx.EvtHandler()
@@ -84,6 +88,10 @@ class _MidPanelContent(wx.Panel):
         self._output_garbage_collector = event
         self.settings.slave_id = self.value
         self.modbus.slave_id_update(self.settings.slave_id)
+
+    def _output_indication_update(self):
+        for i in range(8):
+            self.output_matrix.value_set_by_index(i, self.app_data.output_state_get(i))
 
     # Refresh callback, which is called every 100
     def _refresh_conn_activity(self, event):

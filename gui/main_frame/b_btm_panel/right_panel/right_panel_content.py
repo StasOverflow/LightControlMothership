@@ -18,13 +18,13 @@ class BtmRightPanel(wx.Panel):
         self.modbus = instance.thread_instance_get()
 
         # Create content for
-        self.inner_matrix = InputArray(parent=self, title='Corresponding inputs state:',
+        self.input_matrix = InputArray(parent=self, title='Corresponding inputs state:',
                                        dimension=(3, 5), interface=DISPLAY_INTERFACE,
                                        col_titles=['1', '2', '3', '4', '5'],
                                        row_titles=['X1', 'X2', 'X3'])
 
         self.inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.inner_panel_sizer.Add(self.inner_matrix, 0, wx.ALL | wx.ALIGN_CENTER, 10)
+        self.inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.ALIGN_CENTER, 10)
         self.SetSizer(self.inner_panel_sizer)
     #
     #     self.SetSizer(self.inner_panel_sizer)

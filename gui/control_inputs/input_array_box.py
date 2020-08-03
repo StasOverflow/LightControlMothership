@@ -168,6 +168,10 @@ class InputArray(wx.BoxSizer):
         for index, bool_value in enumerate(new_array):
             self.instance_array[index].is_visible = bool_value
 
+    def visibility_set_by_index(self, index, is_visible):
+        if index > 0 or index < len(self.instance_array):
+            self.instance_array[index].is_visible = is_visible
+
 
 def main():
 

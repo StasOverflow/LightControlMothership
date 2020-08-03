@@ -12,6 +12,7 @@ class TopLeftPanel(wx.Panel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.app_data = AppData()
+        self._input_matrix_enabled = False
 
         self.modbus = ModbusConnectionThreadSingleton()
         self.modbus = self.modbus.thread_instance_get()
@@ -31,12 +32,18 @@ class TopLeftPanel(wx.Panel):
 
     def _matrix_update(self):
         if self.modbus.is_connected:
-            self.input_matrix.enable()
-            # self.configuration_set(self.app_data.inputs_combined_data)
-            # self.configuration_set(self.app_data.outputs_combined_data, input_cfg=False)
+            if self._input_matrix_enabled is False:
+                self.input_matrix.enable()
+                self._input_matrix_enabled = True
+
+            for i in range(15):
+                toggle = self.app_data.input_trigger_type_is_toggle_get(i)
+                self.input_matrix.value_set_by_index(i, toggle)
         else:
-            self.input_matrix.disable()
-    #
+            if self._input_matrix_enabled is True:
+                self.input_matrix.disable()
+                self._input_matrix_enabled = False
+
     # def configuration_get(self):
     #     return self.input_matrix.values
     #
