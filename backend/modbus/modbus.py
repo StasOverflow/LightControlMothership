@@ -5,12 +5,22 @@ import time
 import settings
 from enum import Enum
 
+from settings import AppData
+
 
 class ModbusThread(threading.Thread):
 
     class Cmd(Enum):
         DISCONNECT = 0
         CONNECT = 1
+
+    class State(Enum):
+        IDLE = 0
+        CONN_ESTABLISH = 1
+        CONN_CONFIRM = 2
+        READ = 3
+        WRITE = 4
+        CONN_DEMOLISH = 5
 
     def __init__(
             self,
@@ -27,6 +37,8 @@ class ModbusThread(threading.Thread):
     ):
         super().__init__(*args, **kwargs)
         self.daemon = True
+
+        self.app_data = AppData()
 
         self.queue_income = queue.Queue()
         self.queue_outcome = queue.Queue()
@@ -46,18 +58,30 @@ class ModbusThread(threading.Thread):
         self._inner_modbus_is_conn = self.Cmd.DISCONNECT
         self.client = None
 
-        self.modbus_send_data = [0 for _ in range(5)]
-
         self.port_lock = threading.Lock()
         self.sl_id_lock = threading.Lock()
         self.queue_lock = threading.Lock()
         self.blink_lock = threading.Lock()
 
+        self._rr = None
+        self._wr = None
+
+        self.state_machine_state = self.State.IDLE
+
         self.exception_state = False
+        self.data_exchange_in_process = False
+        self.connection_cmd_sent = False
+        self.state_read = True
+
+        self.cmd_current = None
 
     @property
     def is_connected(self):
-        return self._is_connected
+        return self.data_exchange_in_process
+
+    @property
+    def connection_cmd(self):
+        return self.cmd_current
 
     @is_connected.setter
     def is_connected(self, value):
@@ -91,10 +115,10 @@ class ModbusThread(threading.Thread):
             with self.sl_id_lock:
                 self.slave_id = new_slave_id
         else:
-            self.is_connected_state_set(False)
             with self.sl_id_lock:
+                self.disconnect()
                 self.slave_id = new_slave_id
-            self.is_connected_state_set(True)
+                self.connect()
 
     def stop(self):
         print('Serial Task: command CLOSE')
@@ -124,37 +148,78 @@ class ModbusThread(threading.Thread):
     def exception_state_get(self):
         return self.exception_state
 
+    def modbus_execution(self):
+
+        if self.queue_cmd.qsize():
+            self.cmd_current = self.queue_cmd.get()
+
+        if (self.cmd_current == self.Cmd.DISCONNECT) and \
+           (self.state_machine_state != self.State.IDLE):
+            self.state_machine_state = self.State.CONN_DEMOLISH
+
+        if self.state_machine_state == self.State.IDLE:
+            if self.cmd_current == self.Cmd.CONNECT:
+                self.state_machine_state = self.State.CONN_ESTABLISH
+            self.data_exchange_in_process = False
+
+        elif self.state_machine_state == self.State.CONN_ESTABLISH:
+            self.data_exchange_in_process = False
+            self.connect()
+            self.state_machine_state = self.State.CONN_CONFIRM
+
+        elif self.state_machine_state == self.State.CONN_CONFIRM:
+            try:
+                with self.queue_lock:
+                    rr = self.client.read_holding_registers(1000, count=13,
+                                                            unit=self.slave_id)
+                if rr.registers:
+                    self.state_machine_state = self.State.READ
+                    self.app_data.modbus_data = rr.registers
+                    self.app_data.modbus_send_data = rr.registers[2:12]
+
+            except Exception as ex:
+                self.state_machine_state = self.State.CONN_DEMOLISH
+                self.data_exchange_in_process = False
+                print('establish exception ', ex)
+
+        elif self.state_machine_state == self.State.READ:
+            try:
+                with self.queue_lock:
+                    rr = self.client.read_holding_registers(1000, count=13,
+                                                            unit=self.slave_id)
+                self.queue_income.put(rr.registers)
+                self.data_exchange_in_process = True
+            except Exception as ex:
+                self.data_exchange_in_process = False
+                print('Read exception ', ex)
+
+            if self.data_exchange_in_process:
+                self.state_machine_state = self.State.WRITE
+
+        elif self.state_machine_state == self.State.WRITE:
+            if not self.queue_outcome.empty():
+                try:
+                    with self.queue_lock:
+                        sets = self.queue_outcome.get()
+                        self.client.write_registers(1002, sets, count=10, unit=self.slave_id)
+                    self.data_exchange_in_process = True
+                except Exception as ex:
+                    self.data_exchange_in_process = False
+                    print('Write exception ', ex)
+
+            self.state_machine_state = self.State.READ
+
+        elif self.state_machine_state == self.State.CONN_DEMOLISH:
+            self.disconnect()
+            self.state_machine_state = self.State.IDLE
+            self.data_exchange_in_process = False
+
+        else:
+            pass
+
+        time.sleep(0.05)
+
     def run(self):
         while not self.stopped:
-            state = False
-            if self.queue_cmd.qsize():
-                cmd = self.queue_cmd.get()
-                if cmd == self.Cmd.CONNECT:
-                    self.connect()
-                else:
-                    self.disconnect()
-
-            if self._inner_modbus_is_conn == self.Cmd.CONNECT:
-                if self.queue_outcome.qsize():
-                    try:
-                        with self.queue_lock:
-                            state = False
-                            sets = self.queue_outcome.get()
-                            self.client.write_registers(1002, sets, count=10, unit=self.slave_id)
-                    except Exception as ex:
-                        state = True
-                        print(ex)
-                else:
-                    try:
-                        with self.queue_lock:
-                            state = False
-                            rr = self.client.read_holding_registers(1000, count=13, unit=self.slave_id)
-                            self.queue_income.put(rr.registers)
-                    except Exception as ex:
-                        print(ex)
-                        state = True
-                time.sleep(0.05)
-            else:
-                time.sleep(0.2)
-            self.exception_state = state
+            self.modbus_execution()
         print('Serial Task: destroyed')

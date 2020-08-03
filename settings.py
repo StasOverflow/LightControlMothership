@@ -138,15 +138,10 @@ class AppData(metaclass=_Singleton):
     def __init__(self):
         self.input_config = list()
         self.config_combined_instance = None
-        self.output_combined_state = [False for _ in range(4)]
-        self.input_state_array = [False for _ in range(15)]
-        self.inputs_combined_visibility_state = [False for _ in range(15)]
-
-        for i in range(4):
-            self.separate_inputs_checkboxes_state = None
 
         self.modbus_data = None
         self.modbus_online = False
+        self.modbus_send_data = None
 
         self.handler_list = list()
 
@@ -165,112 +160,73 @@ class AppData(metaclass=_Singleton):
     def modbus_data(self):
         if self._modbus_data:
             return self._modbus_data
-        else:
-            return [0 for _ in range(12)]
 
     @modbus_data.setter
     def modbus_data(self, value):
         self._modbus_data = value
 
+    def output_mode_set(self, out_id, value):
+        # Get output state by id
+        if 0 <= value <= 3 and 0 <= out_id < 8:
+            if self.modbus_data:
+                self.modbus_send_data[8] &= ~(3 << out_id*2)
+                self.modbus_send_data[8] |= (value << out_id*2)
+
+    def output_mode_get(self, out_id):
+        # Get output state by id
+        ret = 0
+        if self.modbus_data:
+            if 0 <= out_id < 8:
+                ret = self.modbus_data[10] & (3 << out_id*2)
+        return ret >> out_id*2
+
     def output_associated_input_get(self, out_id, input_id):
         ret = 0
-        if 0 <= out_id < 8:
-            ret = self.modbus_data[2 + out_id] & (1 << input_id)
+        if self.modbus_data:
+            if 0 <= out_id < 8:
+                ret = self.modbus_data[2 + out_id] & (1 << input_id)
         return True if ret else False
 
-    def output_associated_input_set(self, out_id, input_id, value):
-        if 0 <= out_id < 8:
-            ret = self.modbus_data[2 + out_id] & (1 << input_id)
-        return True if ret else False
+    def output_associated_input_set_mask(self, out_id, array):
+        if self.modbus_data is not None and array:
+            if 0 <= out_id < 8:
+                mask = 0
+                for element_id, item in enumerate(array):
+                    if item:
+                        mask |= (1 << element_id)
+                self.modbus_send_data[out_id] = mask
 
     def output_state_get(self, out_id):
         ret = 0
-        if 0 <= out_id < 8:
-            ret = self.modbus_data[1] & (1 << out_id)
+        if self.modbus_data:
+            if 0 <= out_id < 8:
+                ret = self.modbus_data[1] & (1 << out_id)
         return True if ret else False
 
     def input_state_get(self, inp_id):
         ret = 0
-        if 0 <= inp_id < 15:
-            ret = self.modbus_data[0] & (1 << inp_id)
+        if self.modbus_data:
+            if 0 <= inp_id < 15:
+                ret = self.modbus_data[0] & (1 << inp_id)
         return True if ret else False
 
     def input_trigger_type_is_toggle_get(self, inp_id):
         # Get output state by id
         ret = 0
-        if 0 <= inp_id < 15:
-            ret = self.modbus_data[11] & (1 << inp_id)
+        if self.modbus_data:
+            if 0 <= inp_id < 15:
+                ret = self.modbus_data[11] & (1 << inp_id)
         return True if ret else False
+
+    def input_trigger_type_is_toggle_set_mask(self, array):
+        if self.modbus_data is not None and array:
+            mask = 0
+            for element_id, item in enumerate(array):
+                if item:
+                    mask |= (1 << element_id)
+            self.modbus_send_data[9] = mask
 
     def __str__(self):
         pretty = self.input_config
         return pretty
 
-
-'''
-    # Combined data getters
-    @property
-    def outputs_combined_data(self):
-        if self.modbus_data is not None:
-            # Get packed 'output state' data from modbus register 1
-            data = self.modbus_data[1]
-            for index in range(4):
-                self.output_combined_state[index] = bool(data & (1 << index))
-            return self.output_combined_state
-        else:
-            return None
-
-    @property
-    def inputs_combined_data(self):
-        if self.modbus_data is not None:
-            # Get packed 'input state' data from modbus register 1
-            data = self.modbus_data[0]
-            for index in range(15):
-                self.input_state_array[index] = bool(data & (1 << index))
-            return self.input_state_array
-        else:
-            return None
-
-    # Visibility getters
-    @property
-    def inputs_combined_visibility(self):
-        inputs_combined_visibility = [False for _ in range(15)]
-        if self.modbus_data is not None:
-            data = 0
-            # Assemble data from modbus registers 2, 3, 4, 5
-            for i in range(4):
-                data |= self.modbus_data[2 + i]
-
-            # Iterate through visibility array and update with assembled data
-            for index in range(15):
-                inputs_combined_visibility[index] = bool(data & (1 << index))
-
-            self.inputs_combined_visibility_state = inputs_combined_visibility
-        return self.inputs_combined_visibility_state
-
-    def separate_inputs_visibility_get_by_index(self, relay_index):
-        inputs_combined_visibility = [False for _ in range(15)]
-        if self.modbus_data is not None:
-            # Get inputs_used by a specific relay from modbus register by relay's index
-            # data = self.modbus_data[2 + relay_index]
-
-            # Iterate through visibility array and update with assembled data
-            # for index in range(15):
-            #     inputs_combined_visibility[index] = bool(data & (1 << index))
-            return inputs_combined_visibility
-        else:
-            return inputs_combined_visibility
-
-    def separate_inputs_state_get_by_index(self, relay_index):
-        inputs_state = [False for _ in range(15)]
-        if self.modbus_data is not None:
-            # Get inputs_used by a specific relay from modbus register by relay's index
-            data = self.modbus_data[2 + relay_index]
-
-            # Iterate through visibility array and update with assembled data
-            for index in range(15):
-                inputs_state[index] = self.inputs_combined_data[index] & bool(data & (1 << index))
-            return inputs_state
-        else:
-            return inputs_state
-'''

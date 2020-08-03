@@ -1,6 +1,8 @@
 import time
 import sys
 import threading
+from itertools import accumulate
+
 from backend.ports.ports import serial_ports
 from backend.modbus_backend import ModbusConnectionThreadSingleton
 from gui.gui import GuiApp
@@ -47,10 +49,10 @@ class WxWidgetCustomApp:
         self.app_data.modbus_data = self.modbus_connection.queue_data_get()
 
     def _modbus_data_put(self):
-        data = list()
-        for data_id in range(2, 11):
-            data = self.app_data.modbus_data[data_id]
-        self.modbus_connection.queue_data_set(data)
+        if self.modbus_connection.is_connected:
+            if self.app_data.modbus_send_data:
+                print(self.app_data.modbus_send_data)
+                self.modbus_connection.queue_data_set(self.app_data.modbus_send_data)
 
     # Thread handler list
     def _app_settings_poll(self):
@@ -69,9 +71,13 @@ class WxWidgetCustomApp:
             time.sleep(.05)
 
     def _modbus_data_handler(self):
+        action = 0
         while True:
-            self._modbus_data_get()
-            self._modbus_data_put()
+            if action:
+                self._modbus_data_get()
+            else:
+                self._modbus_data_put()
+            action ^= 1
             time.sleep(.05)
 
     def run(self):

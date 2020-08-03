@@ -49,7 +49,7 @@ class MenuBarSequence(wx.MenuBar):
     def _refresh(self, event):
         self._garbage_evt_collector = event
 
-        if self.modbus.is_connected:
+        if self.modbus.connection_cmd == self.modbus.Cmd.CONNECT:
             self.conn_submenu_item_connect.Enable(False)
             self.conn_submenu_item_disconnect.Enable(True)
             self.conn_submenu_item_quick_conn.Enable(False)

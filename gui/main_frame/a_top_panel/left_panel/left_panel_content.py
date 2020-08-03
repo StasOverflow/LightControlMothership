@@ -13,6 +13,7 @@ class TopLeftPanel(wx.Panel):
         super().__init__(parent)
         self.app_data = AppData()
         self._input_matrix_enabled = False
+        self._in_matrix_update_stage = 0
 
         self.modbus = ModbusConnectionThreadSingleton()
         self.modbus = self.modbus.thread_instance_get()
@@ -26,38 +27,46 @@ class TopLeftPanel(wx.Panel):
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.CENTER, 15)
 
         self.input_matrix.disable()
-        self.app_data.iface_handler_register(self._matrix_update)
+        self.app_data.iface_handler_register(self._in_matrix_update)
 
         self.SetSizer(inner_panel_sizer)
 
-    def _matrix_update(self):
-        if self.modbus.is_connected:
-            if self._input_matrix_enabled is False:
-                self.input_matrix.enable()
-                self._input_matrix_enabled = True
+    def _in_matrix_update(self):
+        connection_established = self.modbus.is_connected
 
+        if self._in_matrix_update_stage == 0:
+            if connection_established:
+                self._in_matrix_update_stage = 1
+
+        elif self._in_matrix_update_stage == 1:
             for i in range(15):
                 toggle = self.app_data.input_trigger_type_is_toggle_get(i)
                 self.input_matrix.value_set_by_index(i, toggle)
+
+            if connection_established:
+                self._in_matrix_update_stage = 2
+            else:
+                self._in_matrix_update_stage = 0
+
+        elif self._in_matrix_update_stage == 2:
+            val_list = []
+            for in_id in range(15):
+                value = self.input_matrix.value_get_by_index(in_id)
+                val_list.append(value)
+
+            self.app_data.input_trigger_type_is_toggle_set_mask(val_list)
+
+            if not connection_established:
+                self._in_matrix_update_stage = 0
+
+        if connection_established:
+            if self._input_matrix_enabled is False:
+                self.input_matrix.enable()
+                self._input_matrix_enabled = True
         else:
             if self._input_matrix_enabled is True:
                 self.input_matrix.disable()
                 self._input_matrix_enabled = False
-
-    # def configuration_get(self):
-    #     return self.input_matrix.values
-    #
-    # def configuration_set(self, new_array):
-    #     self.input_matrix.values = new_array
-    #
-    # def array_hidden_state_set(self, new_order):
-    #     self.input_matrix.visible_instances = new_order
-    #
-    # def array_hidden_state_update(self):
-    #     pass
-    #
-    # def array_hidden_state_get(self):
-    #     return self.input_matrix.visible_instances
 
 
 def main():

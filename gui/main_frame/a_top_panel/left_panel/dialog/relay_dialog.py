@@ -54,10 +54,11 @@ class RelayDialog(wx.Dialog):
         self.panel.SetSizer(self.panel_sizer)
 
     def radio_box_handler(self, event):
-        self.relay_cfg_byte &= ~(3 << event.GetEventObject().id*2)
-        self.relay_cfg_byte |= event.GetSelection() << 2 * event.GetEventObject().id
-        print("{0:b}".format(self.relay_cfg_byte))
-        self.modbus.queue_data_set(self.relay_cfg_byte, 4)
+        pass
+        # self.relay_cfg_byte &= ~(3 << event.GetEventObject().id*2)
+        # self.relay_cfg_byte |= event.GetSelection() << 2 * event.GetEventObject().id
+        # print("{0:b}".format(self.relay_cfg_byte))
+        # self.modbus.queue_data_set(self.relay_cfg_byte, 4)
 
     def on_accept(self, event):
         self.Close()

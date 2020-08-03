@@ -90,7 +90,7 @@ class SettingsDialog(wx.Dialog):
     def on_connect(self, event):
         self.on_accept(event)
 
-        if not self.modbus.is_connected:
+        if self.modbus.connection_cmd != self.modbus.Cmd.CONNECT:
             if self.settings.device_port is not None and self.settings.slave_id is not None:
                 self.modbus.com_port_update(self.settings.device_port)
                 self.modbus.slave_id_update(self.settings.slave_id)

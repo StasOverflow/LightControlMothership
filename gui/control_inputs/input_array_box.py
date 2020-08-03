@@ -148,6 +148,10 @@ class InputArray(wx.BoxSizer):
         if index > 0 or index < len(self.instance_array):
             self.instance_array[index].checked = value
 
+    def value_get_by_index(self, index):
+        if index > 0 or index < len(self.instance_array):
+            return self.instance_array[index].checked
+
     @property
     def instance_array(self):
         return self._instance_array

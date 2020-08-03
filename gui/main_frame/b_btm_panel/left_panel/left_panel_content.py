@@ -42,7 +42,6 @@ class BtmLeftPanel(wx.Panel):
                 self.input_matrix.disable()
                 self._input_matrix_enabled = False
 
-
     def _radio_button_callback(self, event):
         self._output_garbage_collector = event
         if self.modbus.is_connected and self.app_data.modbus_data is not None:
