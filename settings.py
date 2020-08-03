@@ -65,6 +65,7 @@ class Settings(metaclass=_Singleton):
 
     def settings_save(self):
         if self.settings_changed:
+            print('Settings changed')
             self.settings_changed = False
             config = configparser.ConfigParser()
             config['PORT SETTINGS'] = {}

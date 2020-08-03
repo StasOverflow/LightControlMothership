@@ -77,6 +77,7 @@ class ModbusThread(threading.Thread):
 
     @property
     def is_connected(self):
+        print('data exchange ', self.data_exchange_in_process)
         return self.data_exchange_in_process
 
     @property
@@ -95,9 +96,11 @@ class ModbusThread(threading.Thread):
         self.queue_cmd.put(self.Cmd(boolean_value))
 
     def queue_data_get(self):
-        if self.queue_income:
+        if not self.queue_income.empty():
             data = self.queue_income.get()
             return data
+        else:
+            return None
 
     def queue_data_set(self, data):
         if self.queue_outcome:

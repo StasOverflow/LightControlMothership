@@ -199,7 +199,6 @@ class _BtmPanel(wx.Panel):
             for out_id in range(8):
                 self.sub_canvases[out_id].rb_value = self.app_data.output_mode_get(out_id)
                 val_list.append(self.app_data.output_mode_get(out_id))
-            print(val_list)
 
             if connection_established:
                 self._rb_update_stage = 2

@@ -26,6 +26,7 @@ class WxWidgetCustomApp:
         # Create threads
         self.modbus_singleton = ModbusConnectionThreadSingleton()
         self.modbus_connection = self.modbus_singleton.modbus_comm_instance
+        self.modbus_connection.daemon = True
 
         self.poll_thread = threading.Thread(target=self._app_settings_poll)
         self.poll_thread.daemon = True
@@ -41,42 +42,74 @@ class WxWidgetCustomApp:
 
     def _poll_close_event(self):
         # TODO: Resolve access violation
+        closed = False
         if self.gui.is_closing:
-            self.gui.application.Destroy()
-            # sys.exit()
+            self.modbus_connection.disconnect()
+            self.modbus_connection.stop()
+            self.modbus_connection.join()
+            self.layout_thread.join()
+            self.poll_thread.join()
+            self.data_thread.join(0.5)
+            closed = True
+            # self.gui.application.Destroy()
+            # self.gui.application.Close()
+
+        return closed
 
     def _modbus_data_get(self):
-        self.app_data.modbus_data = self.modbus_connection.queue_data_get()
+        data = self.modbus_connection.queue_data_get()
+        if data is not None:
+            self.app_data.modbus_data = data
 
     def _modbus_data_put(self):
         if self.modbus_connection.is_connected:
             if self.app_data.modbus_send_data:
-                print(self.app_data.modbus_send_data)
                 self.modbus_connection.queue_data_set(self.app_data.modbus_send_data)
 
     # Thread handler list
     def _app_settings_poll(self):
         while True:
+            if self.gui.is_closing:
+                print('poll thread closing')
+                break
             self.app_settings.settings_save()
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     def _layout_thread_handler(self):
         while True:
+            if self.gui.is_closing:
+                print('layout thread closing')
+                break
             self.app_data.layout_update()
-            time.sleep(0.1)
+            time.sleep(0.05)
 
     def _main_logic_handler(self):
         while True:
-            self._poll_close_event()
-            time.sleep(.05)
+            if self._poll_close_event():
+                break
+            time.sleep(.2)
+
+        try:
+            self.gui.main_frame.Destroy()
+        except Exception as e:
+            print(e)
 
     def _modbus_data_handler(self):
         action = 0
         while True:
+            if self.gui.is_closing:
+                print('data handler closing')
+                break
             if action:
-                self._modbus_data_get()
+                try:
+                    self._modbus_data_get()
+                except Exception as e:
+                    print(e)
             else:
-                self._modbus_data_put()
+                try:
+                    self._modbus_data_put()
+                except Exception as e:
+                    print(e)
             action ^= 1
             time.sleep(.05)
 

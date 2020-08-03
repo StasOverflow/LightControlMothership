@@ -3,9 +3,9 @@ from gui.main_frame.main_frame_content import MainFrame
 
 
 class GuiApp:
-    def __init__(self, size=None, title=""):
-        self.application = wx.App()
-        self.main_frame = MainFrame(size=size, title=title)
+    def __init__(self, size=None, title="", *args, **kwargs):
+        self.application = wx.App(False)
+        self.main_frame = MainFrame(*args, size=size, title=title, **kwargs)
         self.is_closing = False
 
     @property
@@ -34,8 +34,10 @@ class GuiApp:
                     app.start()
         """
         self.main_frame.render()
+        self.main_frame.Bind(wx.EVT_CLOSE, self.close)
         self.application.MainLoop()
-        self.close()
 
-    def close(self):
+    def close(self, event):
+        self.main_frame.Show(False)
         self.is_closing = True
+        # self.main_frame.Close()
