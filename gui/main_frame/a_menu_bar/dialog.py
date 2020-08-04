@@ -94,7 +94,7 @@ class SettingsDialog(wx.Dialog):
             if self.settings.device_port is not None and self.settings.slave_id is not None:
                 self.modbus.com_port_update(self.settings.device_port)
                 self.modbus.slave_id_update(self.settings.slave_id)
-                self.modbus.is_connected_state_set(True)
+                self.modbus.queue_cmd.put(self.modbus.Cmd.CONNECT)
 
         self.Close()
 

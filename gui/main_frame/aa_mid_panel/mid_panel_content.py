@@ -60,7 +60,7 @@ class _MidPanelContent(wx.Panel):
 
         # Bind events
         self.Bind(wx.EVT_SPINCTRL, self.slave_id_update, self.slave_id_control)
-        self.app_data.iface_handler_register(self._slave_id_update)
+        self.app_data.iface_output_handler_register(self._slave_id_update)
 
         # Assemble panel sizer
         self.sizer.Add(self.act_indicator_wrapper, 1, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
@@ -71,7 +71,7 @@ class _MidPanelContent(wx.Panel):
         self.SetSizer(self.sizer)
 
         # Register handler to update output state
-        self.app_data.iface_handler_register(self._output_indication_update)
+        self.app_data.iface_output_handler_register(self._output_indication_update)
 
         # Insert a certain delay for refresh button
         self.timer = wx.Timer()
@@ -101,14 +101,13 @@ class _MidPanelContent(wx.Panel):
         self._conn_indication()
 
     def _conn_indication(self):
-        modbus_conn_state = 1 if self.modbus.is_connected else 0
+        modbus_conn_state = self.modbus.is_connected
         self.activity_led.visible_instances = (modbus_conn_state,)
         if modbus_conn_state:
-            if not self.modbus.exception_state:
-                if self._can_be_refreshed == 1:
-                    self._can_be_refreshed = 0
-                    self.conn_blink_state = not self.conn_blink_state
-                    self.activity_led.values = (self.conn_blink_state,)
+            if self._can_be_refreshed == 1:
+                self._can_be_refreshed = 0
+                self.conn_blink_state = not self.conn_blink_state
+                self.activity_led.values = (self.conn_blink_state,)
             else:
                 self.activity_led.values = (0,)
                 self.conn_blink_state = 0

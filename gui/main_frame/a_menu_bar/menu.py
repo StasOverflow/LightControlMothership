@@ -71,7 +71,7 @@ class MenuBarSequence(wx.MenuBar):
 
     def on_clock_dc(self, event):
         self._garbage_event_collector = event
-        self.modbus.is_connected_state_set(False)
+        self.modbus.queue_cmd.put(self.modbus.Cmd.DISCONNECT)
 
     def on_click_quick_conn(self, event):
         self._garbage_event_collector = event
@@ -80,7 +80,7 @@ class MenuBarSequence(wx.MenuBar):
             if self.settings.device_port is not None and self.settings.slave_id is not None:
                 self.modbus.com_port_update(self.settings.device_port)
                 self.modbus.slave_id_update(self.settings.slave_id)
-                self.modbus.is_connected_state_set(True)
+                self.modbus.queue_cmd.put(self.modbus.Cmd.CONNECT)
 
 
 # In case we need to debug menu separately

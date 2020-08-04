@@ -31,8 +31,8 @@ class StatusPanel(wx.Panel):
         self.modbus = ModbusConnectionThreadSingleton().modbus_comm_instance
         self.SetSizer(self.main_sizer)
 
-        self.appdata.iface_handler_register(self._conn_status_update)
-        self.appdata.iface_handler_register(self._modbus_data_update)
+        self.appdata.iface_output_handler_register(self._conn_status_update)
+        self.appdata.iface_output_handler_register(self._modbus_data_update)
 
         self.status = 1
         self.conn_static_text.SetLabel(self.STATUSES[self.status])
@@ -52,13 +52,12 @@ class StatusPanel(wx.Panel):
                 pass
 
     def _modbus_data_update(self):
-        if self.modbus.is_connected:
-            label = 'Port: ' + str(self.modbus.port) + '; ' + str(self.modbus.baudrate) + '-' + \
-                    str(self.modbus.bytesize) + '-' + str(self.modbus.parity) + '-' + \
-                    str(self.modbus.stopbits)
-            if label != self.modbus_label:
-                self.modbus_label = label
-                try:
-                    self.modbus_status_text.SetLabel(self.modbus_label)
-                except RuntimeError:
-                    pass
+        label = 'Port: ' + str(self.modbus.port) + '; ' + str(self.modbus.baudrate) + '-' + \
+                str(self.modbus.bytesize) + '-' + str(self.modbus.parity) + '-' + \
+                str(self.modbus.stopbits)
+        if label != self.modbus_label:
+            self.modbus_label = label
+            try:
+                self.modbus_status_text.SetLabel(self.modbus_label)
+            except RuntimeError:
+                pass

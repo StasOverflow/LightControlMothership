@@ -37,8 +37,8 @@ class WxWidgetCustomApp:
         self.data_thread = threading.Thread(target=self._modbus_data_handler)
         self.data_thread.daemon = True
 
-        self.layout_thread = threading.Thread(target=self._layout_thread_handler)
-        self.layout_thread.daemon = True
+        self.conn_state_prev = None
+        self.app_stage = 0
 
     def _poll_close_event(self):
         # TODO: Resolve access violation
@@ -47,7 +47,6 @@ class WxWidgetCustomApp:
             self.modbus_connection.disconnect()
             self.modbus_connection.stop()
             self.modbus_connection.join()
-            self.layout_thread.join()
             self.poll_thread.join()
             self.data_thread.join(0.5)
             closed = True
@@ -75,14 +74,6 @@ class WxWidgetCustomApp:
             self.app_settings.settings_save()
             time.sleep(0.1)
 
-    def _layout_thread_handler(self):
-        while True:
-            if self.gui.is_closing:
-                print('layout thread closing')
-                break
-            self.app_data.layout_update()
-            time.sleep(0.05)
-
     def _main_logic_handler(self):
         while True:
             if self._poll_close_event():
@@ -95,23 +86,39 @@ class WxWidgetCustomApp:
             print(e)
 
     def _modbus_data_handler(self):
-        action = 0
         while True:
             if self.gui.is_closing:
                 print('data handler closing')
                 break
-            if action:
-                try:
-                    self._modbus_data_get()
-                except Exception as e:
-                    print(e)
-            else:
-                try:
-                    self._modbus_data_put()
-                except Exception as e:
-                    print(e)
-            action ^= 1
-            time.sleep(.05)
+
+            with self.modbus_connection.reconnect_lock:
+                if self.modbus_connection.reconnect_requested:
+                    self.modbus_connection.reconnect_requested = False
+                    self.app_stage = 0
+
+                if self.app_stage == 0:
+                    if self.modbus_connection.is_connected and self.modbus_connection.data_renewed:
+                        self.app_data.conn_data_apply()
+                        self.app_stage = 1
+                    else:
+                        self.app_data.output_data_update()
+
+                elif self.app_stage == 1:
+                    if self.modbus_connection.is_connected:
+                        self._modbus_data_get()
+                        self.app_data.output_data_update()
+
+                        self.app_data.input_data_gather()
+                        if self.app_data.user_interaction:
+                            self.app_data.user_interaction = False
+                            self._modbus_data_put()
+                    else:
+                        self.app_stage = 0
+
+                elif self.app_stage == 3:
+                    pass
+
+            time.sleep(.1)
 
     def run(self):
         """
@@ -124,7 +131,6 @@ class WxWidgetCustomApp:
         self.main_logic_thread.start()
         self.modbus_connection.start()
         self.data_thread.start()
-        self.layout_thread.start()
 
         # GUI.start() Called at the end, as mentioned everywhere
         self.gui.start()

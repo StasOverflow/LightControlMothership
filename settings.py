@@ -1,4 +1,5 @@
 import configparser
+import threading
 
 
 class _Singleton(type):
@@ -65,7 +66,6 @@ class Settings(metaclass=_Singleton):
 
     def settings_save(self):
         if self.settings_changed:
-            print('Settings changed')
             self.settings_changed = False
             config = configparser.ConfigParser()
             config['PORT SETTINGS'] = {}
@@ -144,18 +144,48 @@ class AppData(metaclass=_Singleton):
         self.modbus_online = False
         self.modbus_send_data = None
 
-        self.handler_list = list()
+        self.output_handler_list = list()
+        self.input_handler_list = list()
+        self.conn_handler_list = list()
 
-        self.incr = 0
+        self._user_interaction = False
+        self.interaction_lock = threading.Lock()
 
-    def layout_update(self):
+    @property
+    def user_interaction(self):
+        with self.interaction_lock:
+            interaction = self._user_interaction
+        return interaction
+
+    @user_interaction.setter
+    def user_interaction(self, value):
+        with self.interaction_lock:
+            self._user_interaction = value
+
+    def output_data_update(self):
         # Consists of handlers, added in separate layout parts
-        if len(self.handler_list):
-            for handler in self.handler_list:
+        if len(self.output_handler_list):
+            for handler in self.output_handler_list:
                 handler()
 
-    def iface_handler_register(self, handler):
-        self.handler_list.append(handler)
+    def input_data_gather(self):
+        if len(self.input_handler_list):
+            for handler in self.input_handler_list:
+                handler()
+
+    def conn_data_apply(self):
+        if len(self.conn_handler_list):
+            for handler in self.conn_handler_list:
+                handler()
+
+    def iface_conn_handler_register(self, handler):
+        self.conn_handler_list.append(handler)
+
+    def iface_output_handler_register(self, handler):
+        self.output_handler_list.append(handler)
+
+    def iface_input_handler_register(self, handler):
+        self.input_handler_list.append(handler)
 
     @property
     def modbus_data(self):
@@ -170,8 +200,11 @@ class AppData(metaclass=_Singleton):
         # Get output state by id
         if 0 <= value <= 3 and 0 <= out_id < 8:
             if self.modbus_data:
-                self.modbus_send_data[8] &= ~(3 << out_id*2)
-                self.modbus_send_data[8] |= (value << out_id*2)
+                try:
+                    self.modbus_send_data[8] &= ~(3 << out_id*2)
+                    self.modbus_send_data[8] |= (value << out_id*2)
+                except TypeError:
+                    pass
 
     def output_mode_get(self, out_id):
         # Get output state by id
@@ -189,13 +222,15 @@ class AppData(metaclass=_Singleton):
         return True if ret else False
 
     def output_associated_input_set_mask(self, out_id, array):
-        if self.modbus_data is not None and array:
-            if 0 <= out_id < 8:
-                mask = 0
-                for element_id, item in enumerate(array):
-                    if item:
-                        mask |= (1 << element_id)
+        if 0 <= out_id < 8:
+            mask = 0
+            for element_id, item in enumerate(array):
+                if item:
+                    mask |= (1 << element_id)
+            try:
                 self.modbus_send_data[out_id] = mask
+            except TypeError:
+                pass
 
     def output_state_get(self, out_id):
         ret = 0
@@ -220,12 +255,14 @@ class AppData(metaclass=_Singleton):
         return True if ret else False
 
     def input_trigger_type_is_toggle_set_mask(self, array):
-        if self.modbus_data is not None and array:
-            mask = 0
-            for element_id, item in enumerate(array):
-                if item:
-                    mask |= (1 << element_id)
+        mask = 0
+        for element_id, item in enumerate(array):
+            if item:
+                mask |= (1 << element_id)
+        try:
             self.modbus_send_data[9] = mask
+        except TypeError:
+            pass
 
     def __str__(self):
         pretty = self.input_config

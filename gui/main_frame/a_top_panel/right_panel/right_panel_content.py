@@ -22,7 +22,7 @@ class TopRightPanel(wx.Panel):
         inner_panel_sizer = wx.BoxSizer(wx.VERTICAL)
         inner_panel_sizer.Add(self.input_matrix, 0, wx.ALL | wx.CENTER, 15)
 
-        self.app_data.iface_handler_register(self._inputs_state_update)
+        self.app_data.iface_output_handler_register(self._inputs_state_update)
 
         self.SetSizer(inner_panel_sizer)
 

@@ -86,7 +86,7 @@ class _BtmSubPanel(wx.Panel):
         self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_on)
         # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_change)
 
-        self.app_data.iface_handler_register(self.radio_buttons_visibility_handler)
+        self.app_data.iface_output_handler_register(self.radio_buttons_visibility_handler)
 
     def radio_buttons_visibility_handler(self):
         if self.modbus.is_connected:
@@ -113,7 +113,9 @@ class _BtmSubPanel(wx.Panel):
                 #     self.output_mode_rb_change.Disable()
             except Exception as e:
                 print(e)
+            self.rb_value = -1
 
+    def rb_layout(self):
         if self.rb_value == 0:
             if self.output_mode_rb_auto:
                 self.output_mode_rb_auto.SetValue(True)
@@ -126,10 +128,6 @@ class _BtmSubPanel(wx.Panel):
             if self.output_mode_rb_on:
                 self.output_mode_rb_on.SetValue(True)
                 self.output_mode_rb_on.Layout()
-        # elif self.rb_value == 3:
-        #     if self.output_mode_rb_change:
-        #         self.output_mode_rb_change.SetValue(True)
-        #         self.output_mode_rb_change.Layout()
 
     def _left_panel_create(self, parent):
         self.left_panel = BtmLeftPanel(parent)
@@ -138,15 +136,9 @@ class _BtmSubPanel(wx.Panel):
         self.right_panel = BtmRightPanel(parent)
 
     def _radio_button_callback(self, event):
+        self.app_data.user_interaction = True
         if self.modbus.is_connected and self.app_data.modbus_data is not None:
             self.rb_value = event.GetId()
-            print('handled', event.GetId())
-        #     data_byte = self.app_data.modbus_data[6]
-        #     data_bits = event.GetId()
-        #     shifting_val = 0    # self.id * 2
-        #     data_byte &= ~(3 << shifting_val)
-        #     data_byte |= (data_bits << shifting_val)
-        #     self.modbus.queue_insert(data_byte, 4)
 
 
 class _BtmPanel(wx.Panel):
@@ -163,100 +155,103 @@ class _BtmPanel(wx.Panel):
         self.btm_page_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.notebook_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        notebook = wx.Notebook(self)
+        self.notebook = wx.Notebook(self)
         self.sub_canvases = list()
         for i in range(8):
-            self.sub_canvases.append(_BtmSubPanel(parent=notebook))
-            notebook.AddPage(self.sub_canvases[i], "Relay " + str(1 + i))
+            self.sub_canvases.append(_BtmSubPanel(parent=self.notebook))
+            self.notebook.AddPage(self.sub_canvases[i], "Relay " + str(1 + i))
 
         '''
             Here goes a very important line of a code, setting notebook
             item's color to default window color instead of white color,
             chosen by default, when creating widget
         '''
-        notebook.SetOwnBackgroundColour(self.GetBackgroundColour())
-        self.notebook_sizer.Add(notebook, 0, wx.EXPAND)
+        self.notebook.SetOwnBackgroundColour(self.GetBackgroundColour())
+        self.notebook_sizer.Add(self.notebook, 0, wx.EXPAND)
 
         self.btm_page_sizer.Add(self.notebook_sizer, 0, wx.EXPAND)
         self.SetSizer(self.btm_page_sizer)
 
-        self.app_data.iface_handler_register(self._out_led_update)
-        self.app_data.iface_handler_register(self._in_panels_update)
-        self.app_data.iface_handler_register(self._radio_btns_handle)
+        # Apply data on connection
+        self.app_data.iface_conn_handler_register(self._input_left_matrix_update_on_conn)
+        self.app_data.iface_conn_handler_register(self._input_radio_data_set_on_conn)
 
-        self._in_panels_update_stage = 0
-        self._rb_update_stage = 0
+        # Interface handlers, always called to update data on screen
+        self.app_data.iface_output_handler_register(self._out_led_update)
+        self.app_data.iface_output_handler_register(self._matrix_visibility_update)
+        self.app_data.iface_output_handler_register(self._input_right_matrix_update)
 
-    def _radio_btns_handle(self):
-        connection_established = self.modbus.is_connected
+        # Gather input data handlers
+        self.app_data.iface_input_handler_register(self._input_left_matrix_data_gather)
+        self.app_data.iface_input_handler_register(self._input_radio_data_gather)
 
-        if self._rb_update_stage == 0:
-            if connection_established:
-                self._rb_update_stage = 1
+        self._input_matrix_enabled = 0
 
-        elif self._rb_update_stage == 1:
+        self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_page_change)
+
+    def on_page_change(self, event):
+        page = event.GetSelection()
+        if self.modbus.is_connected:
+            self.sub_canvases[page].rb_value = self.app_data.output_mode_get(page)
+            self.sub_canvases[page].rb_layout()
+
+    def _input_left_matrix_data_gather(self):
+        for out_id in range(8):
             val_list = []
-            for out_id in range(8):
-                self.sub_canvases[out_id].rb_value = self.app_data.output_mode_get(out_id)
-                val_list.append(self.app_data.output_mode_get(out_id))
+            left_panel = self.sub_canvases[out_id].left_panel
+            for in_id in range(15):
+                value = left_panel.input_matrix.value_get_by_index(in_id)
+                val_list.append(value)
 
-            if connection_established:
-                self._rb_update_stage = 2
-            else:
-                self._rb_update_stage = 0
+            self.app_data.output_associated_input_set_mask(out_id, val_list)
 
-        elif self._rb_update_stage == 2:
-            for out_id in range(8):
-                self.app_data.output_mode_set(out_id, self.sub_canvases[out_id].rb_value)
+    def _input_left_matrix_update_on_conn(self):
+        # Update left matrix when we acquire connection
+        for out_id in range(8):
+            left_panel = self.sub_canvases[out_id].left_panel
 
-            if connection_established:
-                pass
-            else:
-                self._rb_update_stage = 0
+            for in_id in range(15):
+                value = self.app_data.output_associated_input_get(out_id, in_id)
+                left_panel.input_matrix.value_set_by_index(in_id, value)
 
-    def _in_panels_update(self):
-        connection_established = self.modbus.is_connected
-
-        if self._in_panels_update_stage == 0:
-            if connection_established:
-                self._in_panels_update_stage = 1
-
-        elif self._in_panels_update_stage == 1:
-            for out_id in range(8):
-                left_panel = self.sub_canvases[out_id].left_panel
-
-                for in_id in range(15):
-                    value = self.app_data.output_associated_input_get(out_id, in_id)
-                    left_panel.input_matrix.value_set_by_index(in_id, value)
-
-            if connection_established:
-                self._in_panels_update_stage = 2
-            else:
-                self._in_panels_update_stage = 0
-
-        elif self._in_panels_update_stage == 2:
-            for out_id in range(8):
-                val_list = []
-                left_panel = self.sub_canvases[out_id].left_panel
-                right_panel = self.sub_canvases[out_id].right_panel
-                for in_id in range(15):
-                    value = left_panel.input_matrix.value_get_by_index(in_id)
-                    right_panel.input_matrix.visibility_set_by_index(in_id, value)
-                    val_list.append(value)
-
-                self.app_data.output_associated_input_set_mask(out_id, val_list)
-
-            if not connection_established:
-                self._in_panels_update_stage = 0
-
+    def _input_right_matrix_update(self):
+        # Update right matrix when we acquire connection
         for out_id in range(8):
             right_panel = self.sub_canvases[out_id].right_panel
+
             for in_id in range(15):
-                # Update right panel visibility and value
                 is_visible = self.app_data.output_associated_input_get(out_id, in_id)
-                value = self.app_data.input_state_get(in_id)
                 right_panel.input_matrix.visibility_set_by_index(in_id, is_visible)
+
+                value = self.app_data.input_state_get(in_id)
                 right_panel.input_matrix.value_set_by_index(in_id, value)
+
+    def _input_radio_data_set_on_conn(self):
+        val_list = list()
+        for out_id, sub_cvs in enumerate(self.sub_canvases):
+            sub_cvs.rb_value = self.app_data.output_mode_get(out_id)
+            val_list.append(sub_cvs.rb_value)
+            sub_cvs.rb_layout()
+
+    def _input_radio_data_gather(self):
+        val_list = list()
+        for out_id, sub_cvs in enumerate(self.sub_canvases):
+            val_list.append(sub_cvs.rb_value)
+            self.app_data.output_mode_set(out_id, sub_cvs.rb_value)
+
+    def _matrix_visibility_update(self):
+        if self.modbus.is_connected:
+            for out_id in range(8):
+                left_panel = self.sub_canvases[out_id].left_panel
+                if self._input_matrix_enabled is False:
+                    left_panel.input_matrix.enable()
+                    self._input_matrix_enabled = True
+        else:
+            for out_id in range(8):
+                left_panel = self.sub_canvases[out_id].left_panel
+                if self._input_matrix_enabled is True:
+                    left_panel.input_matrix.disable()
+                    self._input_matrix_enabled = False
 
     def _out_led_update(self):
         for i in range(8):
