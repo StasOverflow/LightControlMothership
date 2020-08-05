@@ -1,5 +1,12 @@
+altgraph==0.16.1
+future==0.17.1
+light-controller==1.0.0
+macholib==1.11
+pefile==2018.8.8
 Pillow==5.4.1
+PyInstaller==3.4
 pymodbus==2.1.0
 pyserial==3.4
+pywin32-ctypes==0.2.0
 six==1.11.0
 wxPython==4.0.4

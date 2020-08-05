@@ -31,7 +31,7 @@ class _BtmSubPanel(wx.Panel):
         self.output_mode_rb_auto = wx.RadioButton(parent=self, id=0, label='Auto', style=wx.RB_GROUP)
         self.output_mode_rb_off = wx.RadioButton(parent=self, id=1, label='Off')
         self.output_mode_rb_on = wx.RadioButton(parent=self, id=2, label='On')
-        self.output_mode_rb_change = wx.RadioButton(parent=self, id=3, label='Change')
+        # self.output_mode_rb_change = wx.RadioButton(parent=self, id=3, label='Change')
 
         self.output_state_label = wx.StaticText(parent=self, label='State:')
         self.output_led = InputArray(parent=self, dimension=(1, 1),
@@ -58,7 +58,7 @@ class _BtmSubPanel(wx.Panel):
         self.upper_radio_sizer.Add(self.output_mode_rb_auto, 0, wx.LEFT, 5)
         self.upper_radio_sizer.Add(self.output_mode_rb_off, 0, wx.LEFT, 5)
         self.upper_radio_sizer.Add(self.output_mode_rb_on, 0, wx.LEFT, 5)
-        self.upper_radio_sizer.Add(self.output_mode_rb_change, 0, wx.LEFT, 5)
+        # self.upper_radio_sizer.Add(self.output_mode_rb_change, 0, wx.LEFT, 5)
 
         self.upper_sizer.Add(self.upper_radio_sizer, 1, wx.TOP | wx.BOTTOM, 15)
         self.upper_sizer.Add(self.led_state_sizer, 5, wx.ALL, 15)
@@ -78,13 +78,13 @@ class _BtmSubPanel(wx.Panel):
         self.output_mode_rb_auto.Disable()
         self.output_mode_rb_off.Disable()
         self.output_mode_rb_on.Disable()
-        self.output_mode_rb_change.Disable()
+        # self.output_mode_rb_change.Disable()
 
         # Bind Callbacks
         self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_auto)
         self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_off)
         self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_on)
-        self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_change)
+        # self.Bind(wx.EVT_RADIOBUTTON, self._radio_button_callback, self.output_mode_rb_change)
 
         self.app_data.iface_output_handler_register(self.radio_buttons_visibility_handler)
 
@@ -97,8 +97,8 @@ class _BtmSubPanel(wx.Panel):
                     self.output_mode_rb_off.Enable()
                 if self.output_mode_rb_on:
                     self.output_mode_rb_on.Enable()
-                if self.output_mode_rb_change:
-                    self.output_mode_rb_change.Enable()
+                # if self.output_mode_rb_change:
+                #     self.output_mode_rb_change.Enable()
             except Exception as e:
                 print(e)
         else:
@@ -109,8 +109,8 @@ class _BtmSubPanel(wx.Panel):
                     self.output_mode_rb_off.Disable()
                 if self.output_mode_rb_on:
                     self.output_mode_rb_on.Disable()
-                if self.output_mode_rb_change:
-                    self.output_mode_rb_change.Disable()
+                # if self.output_mode_rb_change:
+                #     self.output_mode_rb_change.Disable()
             except Exception as e:
                 print(e)
             self.rb_value = -1
@@ -128,10 +128,10 @@ class _BtmSubPanel(wx.Panel):
             if self.output_mode_rb_on:
                 self.output_mode_rb_on.SetValue(True)
                 self.output_mode_rb_on.Layout()
-        elif self.rb_value == 3:
-            if self.output_mode_rb_change:
-                self.output_mode_rb_change.SetValue(True)
-                self.output_mode_rb_change.Layout()
+        # elif self.rb_value == 3:
+        #     if self.output_mode_rb_change:
+        #         self.output_mode_rb_change.SetValue(True)
+        #         self.output_mode_rb_change.Layout()
 
     def _left_panel_create(self, parent):
         self.left_panel = BtmLeftPanel(parent)
