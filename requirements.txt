@@ -3,7 +3,7 @@ future==0.17.1
 light-controller==1.0.0
 macholib==1.11
 pefile==2018.8.8
-Pillow==5.4.1
+Pillow==9.3.0
 PyInstaller==3.4
 pymodbus==2.1.0
 pyserial==3.4
